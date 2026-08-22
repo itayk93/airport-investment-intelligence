@@ -17,6 +17,35 @@ a:hover { color: #8A3F07; }
 
 input, button, textarea { font: inherit; color: inherit; }
 
+.panel-resizer {
+  position: relative;
+  z-index: 3;
+  width: 1px;
+  background: rgba(22, 32, 43, .16);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.panel-resizer::after {
+  content: '';
+  position: absolute;
+  inset: 0 -7px;
+}
+
+.panel-resizer:hover,
+.panel-resizer:focus-visible,
+.panel-resizer:active {
+  background: #B45309;
+  box-shadow: 0 0 0 1px #B45309;
+  outline: none;
+}
+
+.panel-resizing,
+.panel-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
 .sb::-webkit-scrollbar { width: 9px; }
 .sb::-webkit-scrollbar-thumb { background: rgba(22,32,43,.18); border-radius: 9px; }
 .sb::-webkit-scrollbar-track { background: transparent; }

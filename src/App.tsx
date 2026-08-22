@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Header } from './components/Header';
 import { HomeScreen } from './components/HomeScreen';
 import { ChatPane } from './components/chat/ChatPane';
@@ -9,6 +9,17 @@ import { useAirportData } from './hooks/useAirportData';
 import { useChat } from './hooks/useChat';
 import { useIsMobile } from './hooks/useMediaQuery';
 import { t } from './lib/theme';
+
+const DEFAULT_PANEL_WIDTH = 496;
+const MIN_PANEL_WIDTH = 340;
+const MIN_CHAT_WIDTH = 420;
+const PANEL_WIDTH_KEY = 'airport-investment-panel-width';
+
+function savedPanelWidth(): number {
+  if (typeof window === 'undefined') return DEFAULT_PANEL_WIDTH;
+  const value = Number(window.localStorage.getItem(PANEL_WIDTH_KEY));
+  return Number.isFinite(value) ? value : DEFAULT_PANEL_WIDTH;
+}
 
 /** "202605" → "May 2026". The coverage query returns year*100+month as one integer. */
 function formatPeriod(period: number): string {
@@ -26,6 +37,34 @@ export function App() {
   const { messages, pending, ask, reset } = useChat();
   const isMobile = useIsMobile();
   const [showHome, setShowHome] = useState(true);
+  const [panelWidth, setPanelWidth] = useState(savedPanelWidth);
+  const desktopLayout = useRef<HTMLDivElement>(null);
+
+  const resizePanel = (requestedWidth: number) => {
+    const layoutWidth = desktopLayout.current?.getBoundingClientRect().width ?? window.innerWidth;
+    const maxWidth = Math.max(MIN_PANEL_WIDTH, layoutWidth - MIN_CHAT_WIDTH);
+    const nextWidth = Math.round(Math.min(Math.max(requestedWidth, MIN_PANEL_WIDTH), maxWidth));
+    setPanelWidth(nextWidth);
+    window.localStorage.setItem(PANEL_WIDTH_KEY, String(nextWidth));
+  };
+
+  const startResize = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    document.body.classList.add('panel-resizing');
+  };
+
+  const moveResize = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    const right = desktopLayout.current?.getBoundingClientRect().right ?? window.innerWidth;
+    resizePanel(right - event.clientX);
+  };
+
+  const stopResize = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    document.body.classList.remove('panel-resizing');
+  };
 
   // Coverage is stated up front rather than discovered mid-conversation — the assignment
   // asks for scoping to be communicated clearly, and only one month of congestion data has
@@ -110,10 +149,11 @@ export function App() {
         onHome={goHome}
       />
       <div
+        ref={desktopLayout}
         style={{
           flex: 1,
           display: 'grid',
-          gridTemplateColumns: 'minmax(0,1fr) 496px',
+          gridTemplateColumns: `minmax(0,1fr) 0 min(${panelWidth}px, calc(100% - ${MIN_CHAT_WIDTH}px))`,
           minHeight: 0,
           overflow: 'hidden',
         }}
@@ -129,6 +169,33 @@ export function App() {
               hasConversation={messages.length > 0}
             />
           }
+        />
+        <div
+          className="panel-resizer"
+          role="separator"
+          aria-label="Resize investment ranking panel"
+          aria-orientation="vertical"
+          aria-valuemin={MIN_PANEL_WIDTH}
+          aria-valuenow={panelWidth}
+          tabIndex={0}
+          onPointerDown={startResize}
+          onPointerMove={moveResize}
+          onPointerUp={stopResize}
+          onPointerCancel={stopResize}
+          onDoubleClick={() => resizePanel(DEFAULT_PANEL_WIDTH)}
+          onKeyDown={(event) => {
+            const step = event.shiftKey ? 50 : 10;
+            if (event.key === 'ArrowLeft') {
+              event.preventDefault();
+              resizePanel(panelWidth + step);
+            } else if (event.key === 'ArrowRight') {
+              event.preventDefault();
+              resizePanel(panelWidth - step);
+            } else if (event.key === 'Home') {
+              event.preventDefault();
+              resizePanel(MIN_PANEL_WIDTH);
+            }
+          }}
         />
         <AnalysisPanel data={data} loading={loading} error={error} />
       </div>
