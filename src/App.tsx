@@ -17,8 +17,11 @@ const PANEL_WIDTH_KEY = 'airport-investment-panel-width';
 
 function savedPanelWidth(): number {
   if (typeof window === 'undefined') return DEFAULT_PANEL_WIDTH;
-  const value = Number(window.localStorage.getItem(PANEL_WIDTH_KEY));
-  return Number.isFinite(value) ? value : DEFAULT_PANEL_WIDTH;
+  const stored = window.localStorage.getItem(PANEL_WIDTH_KEY);
+  if (stored === null) return DEFAULT_PANEL_WIDTH;
+
+  const value = Number(stored);
+  return Number.isFinite(value) && value >= MIN_PANEL_WIDTH ? value : DEFAULT_PANEL_WIDTH;
 }
 
 /** "202605" → "May 2026". The coverage query returns year*100+month as one integer. */
