@@ -7,8 +7,15 @@ import { Readable } from 'node:stream';
 import { createInterface } from 'node:readline';
 import { execFileSync } from 'node:child_process';
 
-const AIRPORTS = new Set(['SFO', 'LAX', 'SNA', 'ANC', 'BOS']);
+// Coverage: every origin airport in the file, not a hand-picked list. A hand-picked list
+// makes any "which airport in region X" answer a function of the list rather than of the
+// data. Small origins are still aggregated here and filtered at output by MIN_DEPARTURES.
 const LONG_HAUL_MILES = 2000; // assumption; BTS publishes no long-haul flag
+// Sample-size floor. Below this, a single bad day moves avg_taxi_out_minutes and
+// nas_delay_min_per_dep enough to outrank a genuinely congested hub. Airports under the
+// floor are written out with `sufficientSample: false` so downstream code can report
+// "not enough data" instead of ranking noise.
+const MIN_DEPARTURES = 100;
 const [year = '2026', month = '5'] = process.argv.slice(2);
 
 const name = `On_Time_Reporting_Carrier_On_Time_Performance_1987_present_${year}_${month}`;
@@ -56,6 +63,7 @@ const rl = createInterface({ input: createReadStream(csv), crlfDelay: Infinity }
 let col = null;
 const agg = new Map();
 const blank = () => ({
+  city: null, state: null,
   flights: 0, cancelled: 0, diverted: 0, del15: 0,
   depDelaySum: 0, depDelayN: 0, taxiOutSum: 0, taxiOutN: 0,
   nasDelaySum: 0, weatherDelaySum: 0, carrierDelaySum: 0, lateAircraftDelaySum: 0,
@@ -69,17 +77,21 @@ for await (const line of rl) {
     continue;
   }
   if (!line) continue;
-  // cheap prefilter before the expensive split (Origin/Dest are quoted in this CSV)
-  let hit = false;
-  for (const a of AIRPORTS) if (line.includes(`"${a}"`)) { hit = true; break; }
-  if (!hit) continue;
 
   const f = splitCsv(line);
   const origin = f[col.Origin];
-  if (!AIRPORTS.has(origin)) continue;
+  if (!origin) continue;
 
   let s = agg.get(origin);
   if (!s) agg.set(origin, (s = blank()));
+  // Dimension attributes ride along with the fact rows — BTS publishes them per flight,
+  // so the airports table needs no separate hand-maintained source.
+  if (s.city === null) {
+    // OriginCityName is "Boston, MA" — the state is already its own column, so keep the
+    // city half only and avoid storing the state twice in different formats.
+    s.city = (f[col.OriginCityName] ?? '').split(',')[0].trim() || null;
+    s.state = f[col.OriginState] || null;
+  }
 
   s.flights++;
   const cancelled = +f[col.Cancelled] === 1;
@@ -110,6 +122,10 @@ const out = [...agg.entries()]
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([airport, s]) => ({
     airport,
+    city: s.city,
+    state: s.state,
+    sufficientSample: s.flights >= MIN_DEPARTURES,
+    minDeparturesThreshold: MIN_DEPARTURES,
     period: `${year}-${String(month).padStart(2, '0')}`,
     scope: 'US domestic, BTS reporting carriers only',
     departures: s.flights,

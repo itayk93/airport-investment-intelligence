@@ -4,9 +4,14 @@
 // cannot satisfy that grain. Same verified source/endpoint as stage 1, just grouped by
 // month instead of by year.
 const BASE = 'https://data.bts.gov/resource/r495-tyji.json';
-const AIRPORTS = ['SFO', 'LAX', 'SNA', 'ANC', 'BOS'];
+// No airport filter: Socrata aggregates server-side, so pulling every US origin for a year
+// is one request (~1.2 MB, ~10 s) rather than one request per airport. The caller decides
+// which airports to keep — coverage is a property of the ingest set, not of this fetch.
+const PAGE_LIMIT = 50000;
 
-export async function fetchT100Monthly(year) {
+export async function fetchT100Monthly(year, { airports = null } = {}) {
+  const where = [`year='${year}'`];
+  if (airports?.length) where.push(`origin_airport_code in('${airports.join("','")}')`);
   const url =
     `${BASE}?` +
     new URLSearchParams({
@@ -19,14 +24,18 @@ export async function fetchT100Monthly(year) {
         'sum(total_seats) as seats',
         'sum(domestic_departures) as domestic_departures',
       ].join(','),
-      $where: `origin_airport_code in('${AIRPORTS.join("','")}') and year='${year}'`,
+      $where: where.join(' and '),
       $group: 'origin_airport_code,year,month',
       $order: 'origin_airport_code,month',
+      $limit: String(PAGE_LIMIT),
     });
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(`BTS T-100 monthly fetch failed: ${res.status}`);
   const rows = await res.json();
+  if (rows.length === PAGE_LIMIT) {
+    throw new Error(`BTS T-100 monthly: hit the ${PAGE_LIMIT}-row page limit — add paging`);
+  }
 
   return rows.map((r) => {
     const passengers = +r.passengers, seats = +r.seats;
