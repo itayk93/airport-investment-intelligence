@@ -40,7 +40,7 @@ what actually bounds spend; the per-IP cap only stops one caller consuming it al
 
 `RATE_LIMIT_EXEMPT_IP_HASHES` (optional, comma-separated salted hashes) skips the per-IP
 cap for listed callers — the development machine, so building and testing does not spend
-the reviewer's budget. Exempt callers are still subject to the global daily cap, so the
+the budget real visitors need. Exempt callers are still subject to the global daily cap, so the
 exemption cannot produce unbounded spend. Only hashes are configured, never addresses, and
 the value is a server-side secret that never reaches the browser.
 
@@ -202,6 +202,6 @@ Do not store the API key, salt, database password, or account billing values in 
 ## Deliberate exclusions
 
 Sign-in, CAPTCHA, a WAF, endpoint obfuscation, and removal of the public link remain out of
-scope. They add reviewer friction or do not address direct requests. Persistent rate
+scope. They add visitor friction or do not address direct requests. Persistent rate
 limits, bounded per-request cost, and an account-level cutoff are the proportional controls
 for this public demo.

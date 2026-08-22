@@ -24,8 +24,8 @@ provider credential, not project infrastructure, and:
    scoped to that project, rotatable from one place (the dashboard or CLI), and never
    touches a developer's disk as plaintext beyond the one time it's typed in. A `.env`
    file, by contrast, tends to get copied around, backed up, or accidentally included in
-   a `zip` of the repo for submission — exactly the kind of leak surface this assignment
-   involves, since deliverables get uploaded as a file.
+   a `zip` of the repo when it is shared — exactly the kind of leak surface that matters
+   once a copy of the folder leaves this machine.
 3. **Consistency with how the Supabase secret key is already treated.** `SUPABASE_SECRET_KEY`
    bypasses RLS — it's already the most sensitive value in this project. Splitting "own
    infrastructure" credentials (kept local, since they're meaningless without this exact
@@ -57,7 +57,7 @@ Configured server secrets used by the runtime:
 - The local dev machine never needs the OpenAI key on disk in plaintext for longer than
   the one CLI command that sets it.
 - Nothing in this repo's git history, `.gitignore`'d or not, can ever contain it.
-- If the submission is a zipped copy of this folder, the OpenAI key cannot be in it —
+- If a zipped copy of this folder is shared, the OpenAI key cannot be in it —
   by construction, not by remembering to scrub it before zipping.
 - Voice media is fetched directly from Twilio inside the Edge Function, transcribed, and
   discarded. Neither the audio nor the sender's raw phone number is stored by this app.

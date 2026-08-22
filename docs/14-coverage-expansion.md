@@ -11,16 +11,16 @@ what?
 
 ## Position 1 — expand modestly, to roughly 30 large airports
 
-The argument for expanding at all: one of the brief's four example questions — *"Which
+The argument for expanding at all: one of the four example questions — *"Which
 airports in New England are strong candidates for terminal expansion?"* — had only one
 covered airport in New England. Answering honestly that coverage was limited satisfies the
-brief's *communicate scoping* requirement but doesn't answer the question; a ranking over
+*communicate scoping* requirement but doesn't answer the question; a ranking over
 one candidate isn't a ranking. The argument for keeping it small was `ARCHITECTURE.md`'s
 stated tradeoff: five airports deeply over fifty shallowly.
 
 ## Position 2 — that misreads the question
 
-Objection raised in review: the brief asks about a *region*, not about big airports.
+Objection raised in review: the question asks about a *region*, not about big airports.
 Covering Boston and Hartford but not Providence and Manchester doesn't produce a partial
 answer for New England — it produces a wrong one, invisibly, because the ranking looks
 complete either way. The conclusion is determined by who was let into the list.

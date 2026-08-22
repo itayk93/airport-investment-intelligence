@@ -69,9 +69,9 @@ export function App() {
     document.body.classList.remove('panel-resizing');
   };
 
-  // Coverage is stated up front rather than discovered mid-conversation — the assignment
-  // asks for scoping to be communicated clearly, and only one month of congestion data has
-  // been ingested. Both strings are derived from the database, never hardcoded.
+  // Coverage is stated up front rather than discovered mid-conversation, so the limits of
+  // the ingested data are visible before a question is asked rather than after. Both
+  // strings are derived from the database, never hardcoded.
   const headerNote = useMemo(() => {
     const congestion = data?.coverage.find((c) => c.data_scope === 'domestic_ontime');
     const volume = data?.coverage.find((c) => c.data_scope === 't100_all');

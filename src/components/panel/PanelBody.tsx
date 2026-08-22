@@ -338,7 +338,7 @@ export function PanelBody({
   const [showCaveats, setShowCaveats] = useState(!compact);
   // Scoring is regional, so the ranking list must be too — a single national list would
   // invite exactly the cross-region comparison the model does not support. New England is
-  // the default because it is the region the brief's own first question asks about.
+  // the default because it is the region the first example question asks about.
   const [region, setRegion] = useState('New England');
 
   const allScores = data?.scores ?? [];

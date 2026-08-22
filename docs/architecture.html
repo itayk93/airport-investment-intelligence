@@ -279,7 +279,7 @@ UnmetDemand    = norm(UnmetDemandRaw)</pre>
 
   <h3>Answers explain, they do not list</h3>
   <p>A ranking of bare scores is not an answer: a reader cannot act on "0.72" without knowing what the scale means. The agent must anchor a score the first time it uses one, explain why an airport landed where it did rather than reciting what the metric contains, and name the counterintuitive result out loud when a small airport outranks a major hub. <strong>Scores are rounded to two decimals in the tool layer</strong>, so the false precision of a modeled proxy is never available to quote.</p>
-  <p class="note"><strong>Bounded loop, not ReAct.</strong> The question space is narrow — rank, compare and explain over four small tables — so a planner or reflection loop would add latency and cost without changing answers. The loop caps at four tool rounds in code and says so honestly on exhaustion. Every assignment question resolved in one to two rounds.</p>
+  <p class="note"><strong>Bounded loop, not ReAct.</strong> The question space is narrow — rank, compare and explain over four small tables — so a planner or reflection loop would add latency and cost without changing answers. The loop caps at four tool rounds in code and says so honestly on exhaustion. Every example question resolved in one to two rounds.</p>
 </section>
 
 <section id="tradeoffs">
@@ -319,7 +319,7 @@ UnmetDemand    = norm(UnmetDemandRaw)</pre>
 </section>
 
 <section id="requirements">
-  <h2><span class="n">07</span>Against the brief</h2>
+  <h2><span class="n">07</span>Against the requirements</h2>
   <ul class="checks">
     <li><span class="ok">✓</span><span><b>Use public APIs</b> — BTS T-100, BTS On-Time Performance, FAA Terminal Area Forecast. No keys, no paid sources, nothing synthetic.</span></li>
     <li><span class="ok">✓</span><span><b>Rank or compare on a defined KPI</b> — two structurally distinct KPIs, one gating the other.</span></li>

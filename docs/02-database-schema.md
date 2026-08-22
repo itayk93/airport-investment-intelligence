@@ -123,6 +123,6 @@ not the developer's location.
   question. Revisit if the two sources' column sets diverge further.
 - **Scores are materialized, not computed on read** — keeps the agent's tool-call layer
   simple (`SELECT` only) and keeps scoring fully deterministic/auditable outside the LLM
-  loop, per the assignment's explicit requirement.
+  loop, which is an explicit requirement of the design.
 - **No capacity/runway/gate table** — deliberately absent. Confirmed in stage 1 that no
   such public dataset exists; adding an empty/speculative table would misrepresent that.

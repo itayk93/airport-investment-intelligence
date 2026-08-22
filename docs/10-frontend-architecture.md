@@ -13,7 +13,7 @@ src/
   hooks/
     useChat.ts           chat state machine, abort-on-resend
     useAirportData.ts    panel data fetch
-    useVoiceInput.ts     Web Speech API (assignment bonus)
+    useVoiceInput.ts     Web Speech API (voice input)
     useMediaQuery.ts     breakpoint, shared by the JS and CSS layers
   lib/
     theme.ts             design tokens from the Claude Design source
@@ -29,7 +29,7 @@ raw database value. Each of those happens in exactly one place.
 
 `WhatsAppLauncher` is intentionally frontend-only onboarding. It renders a Twilio Sandbox
 QR code locally with `qrcode.react` and a `wa.me` deep link containing the join phrase.
-No Twilio SDK or credential reaches the browser. Desktop reviewers can scan; mobile users
+No Twilio SDK or credential reaches the browser. Desktop users can scan; mobile users
 open WhatsApp directly. The dialog labels Sandbox as a demo and keeps web chat available
 when international Sandbox delivery is unreliable.
 

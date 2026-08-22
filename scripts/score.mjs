@@ -1,6 +1,6 @@
 // Deterministic scoring — implements docs/03-scoring-methodology.md exactly. Reads
 // ingested data from Supabase, writes one row per scored airport to airport_scores. This
-// is the non-LLM ranking/comparison logic the assignment requires; the agent explains
+// is the non-LLM ranking/comparison logic the product is built on; the agent explains
 // these numbers, it never computes or invents them at chat time.
 //
 // Two things differ from the original 5-airport version, both forced by coverage growing

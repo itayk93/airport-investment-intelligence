@@ -7,9 +7,9 @@ so the process can be explained afterward — not just the final code.
 methodology, key tradeoffs, and where AI is used, in one self-contained read. This folder
 is the supporting detail behind it.
 
-## Assignment recap
+## What this builds
 
-Build an AI agent for an airport-modernization investment firm that answers questions like:
+An AI agent for an airport-modernization investment firm that answers questions like:
 
 - Which airports in New England are strong candidates for terminal expansion?
 - Compare LA and Santa Ana airport congestion levels.

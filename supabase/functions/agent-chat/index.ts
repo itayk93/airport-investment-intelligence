@@ -14,7 +14,7 @@ import { parseChatInput } from './chatInput.ts';
 const RATE_LIMIT_PER_IP_PER_HOUR = 60;
 
 // Hashed addresses exempt from the per-IP cap — the development machine, so building and
-// testing the agent does not consume the same budget a reviewer needs. Stored as a Supabase
+// testing the agent does not consume the budget real visitors need. Stored as a Supabase
 // secret rather than in code: it is the salted hash, not the address, and it never reaches
 // the browser. The global daily cap still applies to exempt callers, so this cannot run up
 // unbounded spend. Set with:
@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     const ipHash = await sha256(`${clientIp(req)}:${RATE_LIMIT_SALT}`);
     // 15/hour turned out to be below what one real session uses: the welcome screen offers
     // nine prepared questions, and follow-ups are the feature being demonstrated, so a
-    // reviewer working through the app hit the wall mid-evaluation and saw a broken agent
+    // visitor working through the app hit the wall mid-session and saw a broken agent
     // rather than a cost guard. The daily global cap below is the actual spend ceiling;
     // this one only stops a single caller from consuming it alone.
     const exempt = EXEMPT_IP_HASHES.has(ipHash);

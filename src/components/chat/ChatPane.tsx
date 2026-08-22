@@ -3,8 +3,8 @@ import { t } from '../../lib/theme';
 import type { ChatMessage } from '../../hooks/useChat';
 import { AgentMessage } from './AgentMessage';
 
-// Two groups. The first is the assignment's four example questions, verbatim rather than
-// abbreviated, so a reviewer can exercise exactly what the brief asks for without typing.
+// Two groups. The first is the four canonical example questions, verbatim rather than
+// abbreviated, so they can be exercised exactly as written without typing.
 // The second is five questions the expanded coverage makes answerable — each one was
 // checked against real ingested data before being listed here, so a quick question can
 // never lead to "I don't have that".
@@ -110,7 +110,7 @@ function Welcome({
         }}
       >
         <QuestionGroup
-          label="THE ASSIGNMENT'S QUESTIONS"
+          label="START HERE"
           questions={BRIEF_QUESTIONS}
           onPick={onPick}
           compact={compact}

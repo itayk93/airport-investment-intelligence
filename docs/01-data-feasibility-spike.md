@@ -47,7 +47,7 @@ On-time performance, 2026-05, domestic reporting carriers:
 FAA TAF forecast enplanement growth, FY2024 → FY2035:
 SFO **+39.6%** · BOS +28.5% · LAX +25.0% · ANC +22.8% · SNA +20.0%.
 
-This single pass already answers all four assignment questions with real numbers:
+This single pass already answers all four example questions with real numbers:
 SFO shows the highest forecast growth **and** the worst current congestion (the "unmet
 demand" story); LAX vs SNA shows LAX has 4.3x SNA's volume but comparable delay, so SNA's
 congestion isn't volume-driven; ANC's long-haul share is directly computable from flight

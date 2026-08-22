@@ -13,7 +13,7 @@ rate limiting, input normalization, and response formatting.
 
 | Layer | Who does it | Why |
 |---|---|---|
-| Scoring / ranking | **Deterministic code** (`scripts/score.mjs`), pre-computed into `airport_scores` | The assignment requires ranking logic that isn't just LLM output. The numbers are auditable and identical on every run. |
+| Scoring / ranking | **Deterministic code** (`scripts/score.mjs`), pre-computed into `airport_scores` | Ranking logic must not be just LLM output. The numbers are auditable and identical on every run. |
 | Data retrieval | **Typed tools** over a read-only Postgres role | No free-form SQL for the model to write. |
 | Interpretation, comparison, explanation, follow-up | **LLM** (OpenAI `gpt-5-mini`, low reasoning effort) | This is genuinely language work — explaining *why* SFO ranks above LAX, handling "why is it ahead of the second one?" |
 
@@ -30,7 +30,7 @@ and token cost without changing any answer. The loop is capped at `MAX_TOOL_ROUN
 **in code, not in the prompt** — and when the budget is exhausted the endpoint says so
 honestly rather than silently truncating.
 
-Observed in testing: every one of the four assignment questions resolved in 1–2 tool
+Observed in testing: every one of the four example questions resolved in 1–2 tool
 rounds.
 
 ## Answer contract
@@ -98,7 +98,7 @@ Full contract, discovery behavior, catalog, examples, and test evidence:
 
 ## Verified behaviour (2026-08-22)
 
-All four assignment questions answered end-to-end against live data:
+All four example questions answered end-to-end against live data:
 
 - **ANC long-haul** → 28.77%, one tool call.
 - **LAX vs SNA congestion** → correctly surfaced the non-obvious read: SNA has *higher*

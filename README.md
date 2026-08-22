@@ -44,7 +44,7 @@ secrets and are readable only server-side inside the edge functions. See
 
 ## What it answers
 
-The four questions from the brief, all verified end to end:
+The four canonical example questions, all verified end to end:
 
 - Which airports in New England are strong candidates for terminal expansion?
 - Compare LA and Santa Ana airport congestion levels.
@@ -61,7 +61,7 @@ voice note in WhatsApp. Voice audio is downloaded server-side from Twilio, cappe
 transcribed without being stored, and passed to the same agent as ordinary text.
 Both channels use the same agent engine, prompt, deterministic tools, limits, and caveats.
 
-The Sandbox is a reviewer demo, not a production WhatsApp sender. Twilio may expire the
+The Sandbox is a demo, not a production WhatsApp sender. Twilio may expire the
 session and does not guarantee international delivery. The webhook verifies
 `X-Twilio-Signature`, rate-limits a one-way hash of the sender, and keeps the Auth Token in
 Supabase secrets. WhatsApp turns are stateless in this one-day prototype; conversational

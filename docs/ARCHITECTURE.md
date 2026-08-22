@@ -177,7 +177,7 @@ never available to quote.
 **Bounded loop, not ReAct.** The question space is narrow — rank, compare and explain over
 four small tables — so a planner or reflection loop would add latency and cost without
 changing answers. The loop caps at four tool rounds in code and says so honestly on
-exhaustion. Every assignment question resolved in one to two rounds.
+exhaustion. Every example question resolved in one to two rounds.
 
 ---
 
@@ -251,7 +251,7 @@ BTS data and re-scores when it arrives.
 
 ---
 
-## 07. Against the brief
+## 07. Against the requirements
 
 - ✓ **Use public APIs** — BTS T-100, BTS On-Time Performance, FAA Terminal Area Forecast. No
   keys, no paid sources, nothing synthetic.

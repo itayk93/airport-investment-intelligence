@@ -1,5 +1,5 @@
 // State -> region, using the US Census Bureau's nine divisions rather than an ad-hoc
-// grouping. Two reasons: "New England" in the brief's first question is a Census division
+// grouping. Two reasons: "New England" as users ask about it is a Census division
 // with a fixed, checkable membership (CT, ME, MA, NH, RI, VT), and a published standard
 // keeps region boundaries out of the author's judgement.
 //

@@ -39,7 +39,7 @@ test('groupBy indexes rows without losing order or missing-key groups', () => {
 test('New England maps to exactly the six Census-division states', () => {
   const inNewEngland = ['CT', 'ME', 'MA', 'NH', 'RI', 'VT'];
   for (const s of inNewEngland) assert.equal(regionForState(s), 'New England');
-  // NY is Middle Atlantic, not New England — the brief's first question depends on this
+  // NY is Middle Atlantic, not New England — regional questions depend on this
   // boundary being the published one rather than a colloquial guess.
   assert.equal(regionForState('NY'), 'Middle Atlantic');
 });

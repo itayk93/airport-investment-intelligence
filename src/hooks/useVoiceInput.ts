@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// Voice input via the browser's built-in SpeechRecognition (the assignment's bonus).
+// Voice input via the browser's built-in SpeechRecognition.
 // Chosen over a server-side speech API deliberately: it needs no extra key, no audio
 // upload, and no per-minute cost — the trade-off is that support is browser-dependent
 // (Chrome/Edge/Safari yes, Firefox no), which the UI reports rather than hides.

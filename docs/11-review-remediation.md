@@ -1,7 +1,7 @@
 # Review Remediation — 2026-08-22
 
 This document records changes made after an end-to-end review of the live application,
-source code, scoring methodology, agent behavior, and assignment requirements.
+source code, scoring methodology, agent behavior, and stated requirements.
 
 ## 1. Unmet-demand scoring invariant
 
