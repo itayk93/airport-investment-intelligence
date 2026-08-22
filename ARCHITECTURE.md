@@ -21,7 +21,7 @@ LLM explains and compares, it never computes.
                           Supabase Postgres  ──────▶┤                    │
                           4 tables                  │                    │
                                   ▲                 └── shared agent ────┬─▶ Web chat
-                          scripts/score.mjs             (OpenAI + 4 tools)└─▶ WhatsApp
+                          scripts/score.mjs             (OpenAI + 2 tools)└─▶ WhatsApp
                           deterministic KPIs
 ```
 
@@ -133,14 +133,21 @@ compliance alone.
 | Interpretation, comparison, explanation, follow-up | **LLM** (`gpt-4o-mini`, temp 0.2) | Genuinely language work |
 
 The LLM is an **explainer over fixed numbers**. Its system prompt states: *"You do NOT
-calculate scores yourself… Never invent a figure you did not retrieve from a tool."* Every
-answer is preceded by a tool call, and the UI displays which tools ran beneath each reply,
-so answers are auditable rather than trusted.
+calculate scores yourself… Never invent a figure you did not retrieve from a tool."* The
+first model round is forced to call a tool, so prompt compliance is backed by a runtime
+control. Tool traces remain available in the API for operations but are intentionally not
+shown in the end-user chat.
 
-**Four tools:** `list_airports`, `get_airport_scores`, `get_airport_metrics`,
-`get_airport_forecast`. Each returns a `note` field restating that data's scope caveat, so
-the caveat travels *with the data* into the model's context instead of depending on the
-system prompt alone.
+**Two tools:** `list_airports` resolves coverage; `get_airport_data` retrieves any
+allowlisted score, monthly BTS metric, traffic-volume metric, or FAA forecast. It accepts
+airports, canonical metrics, an optional period, and an optional scope. One data dictionary
+maps every canonical metric to a fixed field, source, unit, and valid scope. Unknown or
+incompatible requests return `available_metrics` for discovery before the model may claim
+that evidence is unavailable. This supports new questions without adding a function or a
+prompt exception per question.
+
+The model chooses semantic fields, never SQL. Results carry the period plus source, scope,
+and unit metadata, so caveats travel *with the facts* into the model context.
 
 **Bounded loop, not ReAct.** The question space is narrow — rank, compare, explain over
 four small tables. A planner/executor or reflection loop would add latency and cost without
@@ -187,6 +194,8 @@ tool calls trivial. Cost: scores go stale until re-run.
 
 **Typed tools over a general SQL tool.** A general query tool would answer more questions.
 It would also hand a language model arbitrary SQL. Chose the smaller, safer surface.
+`get_airport_data` generalizes the semantic contract, not the database permissions: metric
+names are allowlisted and still map to fixed parameterized queries.
 
 **WhatsApp as an adapter, not a second agent.** The web endpoint and Twilio webhook call
 one shared agent engine, so prompt, tools, limits, and caveats cannot drift. The Sandbox is
@@ -274,5 +283,6 @@ node scripts/score.mjs
 | `03-scoring-methodology.md` | Full formulas and derivation |
 | `07-scoring-results-explained.md` | The results in plain language |
 | `09-agent-architecture.md` | Tools, prompt, security, verified behaviour |
+| `13-generic-airport-data-tool.md` | Generic retrieval contract, discovery, safety, and live verification |
 | `10-frontend-architecture.md` | UI structure and design decisions |
 | `DATA_PLAN.md` | Endpoint-level data map |

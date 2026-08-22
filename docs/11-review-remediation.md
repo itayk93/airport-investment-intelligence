@@ -51,7 +51,8 @@ first answer. Prompt-only compliance was not deterministic.
 
 ### Change
 
-The chat endpoint now appends a fixed disclosure whenever `get_airport_scores` was used.
+The shared agent now appends a fixed disclosure whenever `get_airport_data` requests one
+or more deterministic score metrics.
 It states that scores are modeled proxies, relative to the five-airport pilot, based on
 heuristic weights and one month of congestion evidence, and are not ROI estimates. The
 disclosure no longer depends on model behavior.

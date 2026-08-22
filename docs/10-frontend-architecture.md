@@ -100,9 +100,9 @@ not a preference.
   line types and renders `**bold**` via segments — no `dangerouslySetInnerHTML`.
 - **Caveat sentences get the accent-bordered note treatment**, so scope limits are visually
   distinct from findings instead of buried in a paragraph.
-- **Tool trace shown under each answer** (`queried get_airport_scores …`). The assignment
-  asks the agent to explain its reasoning; showing which data it actually read makes the
-  answer auditable rather than asking the reader to trust it.
+- **Tool trace omitted from the user-facing answer.** The API retains it for diagnostics,
+  preserving operational auditability without exposing internal function names in the
+  chat UI.
 - **Coverage stated in the header and welcome copy**, computed from the database, not
   hardcoded — the app says "congestion May 2026" because that is genuinely the only month
   ingested.

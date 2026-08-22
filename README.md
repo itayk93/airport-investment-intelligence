@@ -74,7 +74,7 @@ supabase/
   schema.sql             4-table schema
   functions/
     _shared/db.ts        every database read, one definition
-    agent-chat/          LLM + 4 typed tools
+    agent-chat/          LLM + 2 typed tools and metric catalog
     airport-data/        deterministic scores for the UI panel (no LLM)
 scripts/
   test-*                 stage-1 source verification probes

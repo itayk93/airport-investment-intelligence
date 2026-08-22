@@ -15,7 +15,8 @@ Files: `supabase/functions/agent-chat/{index.ts,tools.ts,prompt.ts}`
 
 The system prompt states explicitly: *"You do NOT calculate scores yourself... Never invent
 a figure you did not retrieve from a tool."* The model is an explainer over fixed numbers,
-not a calculator.
+not a calculator. The first model round also sets `tool_choice: required`; retrieval is a
+runtime invariant, not only a prompt instruction.
 
 ## Why a bounded function-calling loop, not ReAct / planner-executor
 
@@ -67,6 +68,9 @@ Every result carries metric metadata and scope notes (for example, "US domestic 
 BTS reporting carriers only") so caveats travel with the data instead of depending on the
 system prompt alone.
 
+Full contract, discovery behavior, catalog, examples, and test evidence:
+[`13-generic-airport-data-tool.md`](13-generic-airport-data-tool.md).
+
 ## Verified behaviour (2026-08-22)
 
 All four assignment questions answered end-to-end against live data:
@@ -83,6 +87,14 @@ All four assignment questions answered end-to-end against live data:
 - **Follow-up** ("why is it ahead of the second one, and how confident should I be?") →
   resolved the pronoun from history and volunteered the "weights are heuristic, not an
   industry standard" caveat without being asked.
+
+Unseen-question checks after the generic-tool refactor:
+
+- **SFO cancellation rate, May 2026** → 0.79%, correct BTS On-Time scope.
+- **BOS passengers, Q1 2025** → 4,434,833, correct T-100 range and aggregation.
+- **LAX forecast enplanements, 2032** → 44,031,499, correct FAA forecast scenario.
+- **ANC terminal gates** → tool-based discovery followed by an honest refusal; no value
+  invented.
 
 ## Known limitations
 
