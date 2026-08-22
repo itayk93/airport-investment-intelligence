@@ -25,16 +25,59 @@ export function Header({
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: compact ? 10 : 14, minWidth: 0 }}>
-        <img
-          src="/favicon.svg"
-          alt=""
-          aria-hidden="true"
+        {onHome && (
+          <button
+            type="button"
+            onClick={onHome}
+            aria-label="Back to home"
+            title="Back to home"
+            className="press"
+            style={{
+              display: 'grid',
+              placeItems: 'center',
+              flex: 'none',
+              width: 44,
+              height: 44,
+              padding: 0,
+              border: '1px solid rgba(246,244,239,.24)',
+              borderRadius: 9,
+              background: 'rgba(246,244,239,.08)',
+              color: t.inkOn,
+              cursor: 'pointer',
+            }}
+          >
+            <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1 }}>←</span>
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onHome}
+          disabled={!onHome}
+          aria-label={onHome ? 'Go to home page' : undefined}
+          title={onHome ? 'Home' : undefined}
+          className={onHome ? 'header-logo press' : undefined}
           style={{
+            display: 'grid',
+            placeItems: 'center',
             flex: 'none',
-            width: compact ? 30 : 34,
-            height: compact ? 30 : 34,
+            width: 44,
+            height: 44,
+            padding: 0,
+            border: 0,
+            background: 'transparent',
+            cursor: onHome ? 'pointer' : 'default',
           }}
-        />
+        >
+          <img
+            src="/favicon.svg"
+            alt=""
+            aria-hidden="true"
+            style={{
+              width: compact ? 30 : 34,
+              height: compact ? 30 : 34,
+            }}
+          />
+        </button>
         <div style={{ minWidth: 0 }}>
           <div
             style={{
@@ -50,35 +93,6 @@ export function Header({
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: compact ? 6 : 12, minWidth: 0 }}>
-        {onHome && (
-          <button
-            type="button"
-            onClick={onHome}
-            aria-label="Back to home"
-            title="Back to home"
-            className={compact ? 'press' : undefined}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 7,
-              minWidth: compact ? 44 : undefined,
-              minHeight: 44,
-              padding: compact ? '0 10px' : '0 13px',
-              border: '1px solid rgba(246,244,239,.24)',
-              borderRadius: 9,
-              background: 'rgba(246,244,239,.08)',
-              color: t.inkOn,
-              font: `500 12px/1 ${t.sans}`,
-              cursor: 'pointer',
-            }}
-          >
-            <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>
-              ←
-            </span>
-            {!compact && <span>Back to home</span>}
-          </button>
-        )}
         <WhatsAppLauncher compact={compact} />
       </div>
     </header>
