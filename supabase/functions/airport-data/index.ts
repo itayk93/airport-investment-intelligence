@@ -4,11 +4,12 @@
 // exactly as computed, with no LLM in the path. Sharing _shared/db.ts means the panel and
 // the agent can never disagree about a number — same query, one definition.
 import { getCoverage, getScores, listAirports } from '../_shared/db.ts';
-import { json, preflight } from '../_shared/http.ts';
+import { isAllowedOrigin, json, preflight } from '../_shared/http.ts';
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return preflight();
-  if (req.method !== 'GET') return json({ error: 'GET only' }, 405);
+  if (req.method === 'OPTIONS') return preflight(req);
+  if (!isAllowedOrigin(req)) return json({ error: 'Origin not allowed' }, 403, req);
+  if (req.method !== 'GET') return json({ error: 'GET only' }, 405, req);
 
   try {
     const [scores, airports, coverage] = await Promise.all([
@@ -43,9 +44,9 @@ Deno.serve(async (req) => {
           { tag: '05', text: 'The 2,000-mile long-haul threshold is our own definition, not a BTS or FAA standard.' },
         ],
       },
-    });
+    }, 200, req);
   } catch (err) {
     console.error('airport-data error:', err);
-    return json({ error: err instanceof Error ? err.message : 'Unknown error' }, 500);
+    return json({ error: 'Unable to load airport data.' }, 500, req);
   }
 });

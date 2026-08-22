@@ -15,6 +15,13 @@ const sql = postgres(DSN, { max: 2, idle_timeout: 20, prepare: false });
 
 export const COMPARISON_SET = 'pilot-5';
 
+export async function checkRateLimit(bucket: string, limit: number, window: string) {
+  const rows = await sql<{ allowed: boolean }[]>`
+    select check_rate_limit(${bucket}, ${limit}, ${window}::interval) as allowed
+  `;
+  return rows[0]?.allowed === true;
+}
+
 /** Uppercase, validate as 3-letter IATA, cap the list. Bounds every airport-scoped query. */
 export function asIataCodes(value: unknown, limit = 20): string[] {
   if (!Array.isArray(value)) return [];
