@@ -5,9 +5,11 @@ import { useVoiceInput } from '../../hooks/useVoiceInput';
 export function Composer({
   onSend,
   disabled,
+  compact = false,
 }: {
   onSend: (text: string) => void;
   disabled: boolean;
+  compact?: boolean;
 }) {
   const [value, setValue] = useState('');
   const [hovered, setHovered] = useState<'mic' | 'ask' | null>(null);
@@ -18,13 +20,14 @@ export function Composer({
     textarea.current?.focus();
   });
 
-  // Grow with content up to the design's 96px cap, then scroll.
+  const maxHeight = compact ? 84 : 96;
+
   useEffect(() => {
     const el = textarea.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
-  }, [value]);
+    el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
+  }, [value, maxHeight]);
 
   const submit = () => {
     const text = value.trim();
@@ -39,20 +42,36 @@ export function Composer({
       ? voice.error.toLowerCase()
       : voice.listening
         ? 'listening — speak now'
-        : 'enter to send · shift+enter for newline';
+        : compact
+          ? 'tap the mic to speak'
+          : 'enter to send · shift+enter for newline';
+
+  const canSend = !disabled && value.trim().length > 0;
+  const btn = compact ? 44 : 36;
 
   return (
-    <div style={{ flex: 'none', padding: '14px 34px 22px' }}>
+    <div
+      style={
+        compact
+          ? {
+              flex: 'none',
+              padding: '10px 14px calc(14px + env(safe-area-inset-bottom))',
+              background: t.bg,
+              borderTop: `1px solid rgba(22,32,43,.1)`,
+            }
+          : { flex: 'none', padding: '14px 34px 22px' }
+      }
+    >
       <div
         style={{
           background: t.surface,
           border: `1px solid ${t.ink16}`,
-          borderRadius: 13,
-          padding: '10px 10px 10px 16px',
+          borderRadius: compact ? 14 : 13,
+          padding: compact ? '8px 8px 8px 14px' : '10px 10px 10px 16px',
           display: 'flex',
           alignItems: 'flex-end',
-          gap: 10,
-          boxShadow: '0 2px 10px rgba(22,32,43,.05)',
+          gap: compact ? 8 : 10,
+          boxShadow: compact ? 'none' : '0 2px 10px rgba(22,32,43,.05)',
         }}
       >
         <textarea
@@ -61,12 +80,14 @@ export function Composer({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            // On mobile Enter inserts a newline — the on-screen keyboard has no shift and
+            // the send button is right there.
+            if (e.key === 'Enter' && !e.shiftKey && !compact) {
               e.preventDefault();
               submit();
             }
           }}
-          placeholder="Ask about capacity, congestion, unmet demand…"
+          placeholder={compact ? 'Ask about capacity or demand…' : 'Ask about capacity, congestion, unmet demand…'}
           aria-label="Ask the airport investment agent a question"
           style={{
             flex: 1,
@@ -74,9 +95,11 @@ export function Composer({
             outline: 0,
             resize: 'none',
             background: 'transparent',
-            font: `400 14px/1.5 ${t.sans}`,
-            padding: '6px 0',
-            maxHeight: 96,
+            // 16px on mobile, not the mock's 15px: iOS Safari auto-zooms any focused input
+            // below 16px, which shifts the whole layout on first tap.
+            font: `400 ${compact ? 16 : 14}px/${compact ? 1.45 : 1.5} ${t.sans}`,
+            padding: compact ? '8px 0' : '6px 0',
+            maxHeight,
             color: t.ink,
           }}
         />
@@ -88,13 +111,14 @@ export function Composer({
           title={voice.supported ? 'Voice input' : 'Voice input not supported in this browser'}
           aria-label="Toggle voice input"
           aria-pressed={voice.listening}
-          onMouseEnter={() => setHovered('mic')}
-          onMouseLeave={() => setHovered(null)}
+          onMouseEnter={() => !compact && setHovered('mic')}
+          onMouseLeave={() => !compact && setHovered(null)}
+          className={compact ? 'press' : undefined}
           style={{
             flex: 'none',
-            width: 36,
-            height: 36,
-            borderRadius: 9,
+            width: btn,
+            height: btn,
+            borderRadius: compact ? 11 : 9,
             border: `1px solid ${hovered === 'mic' && voice.supported ? t.accent : t.ink16}`,
             background: voice.listening ? t.accent : 'transparent',
             cursor: voice.supported ? 'pointer' : 'not-allowed',
@@ -105,8 +129,8 @@ export function Composer({
           }}
         >
           <svg
-            width="15"
-            height="15"
+            width={compact ? 16 : 15}
+            height={compact ? 16 : 15}
             viewBox="0 0 24 24"
             fill="none"
             stroke={voice.listening ? t.inkOn : t.ink}
@@ -121,39 +145,59 @@ export function Composer({
         <button
           type="button"
           onClick={submit}
-          disabled={disabled || !value.trim()}
-          onMouseEnter={() => setHovered('ask')}
-          onMouseLeave={() => setHovered(null)}
+          disabled={!canSend}
+          aria-label="Send question"
+          onMouseEnter={() => !compact && setHovered('ask')}
+          onMouseLeave={() => !compact && setHovered(null)}
+          className={compact ? 'press' : undefined}
           style={{
             flex: 'none',
-            height: 36,
-            padding: '0 16px',
-            borderRadius: 9,
+            width: compact ? btn : undefined,
+            height: btn,
+            padding: compact ? 0 : '0 16px',
+            borderRadius: compact ? 11 : 9,
             border: 0,
-            background: hovered === 'ask' && !disabled && value.trim() ? t.accent : t.ink,
+            background: hovered === 'ask' && canSend ? t.accent : t.ink,
             color: t.inkOn,
             font: `500 13px/1 ${t.sans}`,
-            cursor: disabled || !value.trim() ? 'not-allowed' : 'pointer',
-            opacity: disabled || !value.trim() ? 0.5 : 1,
+            cursor: canSend ? 'pointer' : 'not-allowed',
+            opacity: canSend ? 1 : 0.5,
+            display: 'grid',
+            placeItems: 'center',
             transition: '.15s',
           }}
         >
-          Ask
+          {compact ? (
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={t.inkOn}
+              strokeWidth="1.9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          ) : (
+            'Ask'
+          )}
         </button>
       </div>
 
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: compact ? 'center' : 'space-between',
           gap: 16,
-          marginTop: 8,
-          font: `400 10.5px/1.4 ${t.mono}`,
+          marginTop: compact ? 7 : 8,
+          font: `400 ${compact ? 10 : 10.5}px/1.3 ${t.mono}`,
           color: voice.error ? t.accent : t.ink42,
         }}
       >
         <span>{micHint}</span>
-        <span style={{ color: t.ink42 }}>scores from code · prose from model</span>
+        {!compact && <span style={{ color: t.ink42 }}>scores from code · prose from model</span>}
       </div>
     </div>
   );

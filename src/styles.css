@@ -6,6 +6,8 @@ body {
   font-family: 'Instrument Sans', system-ui, sans-serif;
   color: #16202B;
   -webkit-font-smoothing: antialiased;
+  /* Stops the whole page rubber-banding behind the fixed chat shell on iOS. */
+  overscroll-behavior: none;
 }
 
 a { color: #B45309; text-decoration: none; }
@@ -19,14 +21,36 @@ input, button, textarea { font: inherit; color: inherit; }
 .sb::-webkit-scrollbar-thumb { background: rgba(22,32,43,.18); border-radius: 9px; }
 .sb::-webkit-scrollbar-track { background: transparent; }
 
-@keyframes bl { 0%, 100% { opacity: .25 } 50% { opacity: 1 } }
+@keyframes bl  { 0%, 100% { opacity: .25 } 50% { opacity: 1 } }
+@keyframes ri  { from { opacity: 0; transform: translateY(9px) } to { opacity: 1; transform: none } }
+@keyframes gw  { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+@keyframes pop { from { opacity: 0; transform: scale(.97) translateY(6px) } to { opacity: 1; transform: none } }
+@keyframes fi  { from { opacity: 0 } to { opacity: 1 } }
 
-/* The design is a fixed two-pane desktop layout; below 900px the analysis panel stacks
-   under the chat instead of squeezing both into an unusable width. */
-@media (max-width: 900px) {
-  .app-grid {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: 1fr auto !important;
-    overflow-y: auto !important;
+.rise { animation: ri .38s cubic-bezier(.22,.85,.3,1) both; }
+.pop  { animation: pop .4s cubic-bezier(.22,.85,.3,1) both; }
+.fade { animation: fi .3s both; }
+
+/* Score bars grow from the left rather than appearing at full width — the motion reads as
+   a value being measured. Desktop opts out (see the media query below). */
+.grow-bar { transform-origin: left; }
+
+/* Touch feedback, since :hover is meaningless on a touchscreen. */
+.press { transition: transform .16s, border-color .16s; }
+.press:active { transform: scale(.985); border-color: #B45309; }
+
+@media (max-width: 720px) {
+  /* Native-feeling scroll: no visible scrollbar track on a phone. */
+  .sb::-webkit-scrollbar { width: 0; height: 0; }
+  .grow-bar { animation: gw .6s cubic-bezier(.2,.85,.25,1) both; }
+}
+
+/* Honour the OS setting — the entrance animations are decorative, and vestibular
+   sensitivity is a real accessibility concern, not a preference. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001s !important;
   }
 }

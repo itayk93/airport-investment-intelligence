@@ -14,13 +14,14 @@ src/
     useChat.ts           chat state machine, abort-on-resend
     useAirportData.ts    panel data fetch
     useVoiceInput.ts     Web Speech API (assignment bonus)
+    useMediaQuery.ts     breakpoint, shared by the JS and CSS layers
   lib/
     theme.ts             design tokens from the Claude Design source
     parseReply.ts        markdown-ish → the design's three line types
   components/
     Header.tsx
     chat/  ChatPane · AgentMessage · Composer
-    panel/ AnalysisPanel
+    panel/ PanelBody (shared) · AnalysisPanel (desktop) · AnalysisSheet (mobile)
 ```
 
 Layering is deliberate: components never call `fetch`, never parse env, and never coerce a
@@ -47,6 +48,43 @@ path: those numbers are rendered exactly as computed.
 
 The scoring weights are served **from the backend**, not hardcoded in the UI, so changing
 a weight in one place can't leave the panel displaying a stale figure.
+
+## Mobile
+
+A separate mobile design was supplied (`Airport Investment Agent - Mobile.dc.html`) and is
+implemented as its own layout, not a squeezed desktop. The differences are structural, so
+the breakpoint is read in JS (`useIsMobile`, `max-width: 720px`) and the two layouts render
+different trees:
+
+| | Desktop | Mobile |
+|---|---|---|
+| Analysis | fixed 496px right column | collapsible bottom sheet, closed by default, capped at 52dvh |
+| Agent avatar | inline, left of the text | stacked above the text |
+| Composer buttons | 36px, "Ask" text button | 44px icon-only (mic + arrow) |
+| Header | title left, coverage right | coverage moves under the title |
+| Order | chat ∥ panel | chat → sheet → composer |
+| Motion | none | entrance rise, bar grow, press feedback |
+
+**The panel is written once.** `PanelBody.tsx` holds the ranked list, detail card, weights,
+and caveats; `AnalysisPanel` (desktop aside) and `AnalysisSheet` (mobile sheet) supply only
+chrome and pass `compact`. A change to how a score is presented cannot land on one layout
+and miss the other.
+
+`ChatPane` deliberately does **not** render the composer — on mobile the analysis sheet
+sits between the messages and the composer, so composition belongs to `App`, which passes
+a `footer`.
+
+Two deviations from the mock, both deliberate:
+
+- **Composer font is 16px on mobile, not the mock's 15px.** iOS Safari auto-zooms any
+  focused input below 16px, which shifts the entire layout on first tap. The 1px is
+  imperceptible; the zoom is not.
+- **Weight source lines are hidden on mobile.** At 390px they wrap to three lines and bury
+  the weight they annotate.
+
+Also added beyond the mock: `prefers-reduced-motion` collapses every animation to ~0s.
+The entrance motion is decorative and vestibular sensitivity is an accessibility concern,
+not a preference.
 
 ## Decisions worth explaining
 
@@ -75,14 +113,12 @@ a weight in one place can't leave the panel displaying a stale figure.
 ## Verified
 
 `npm run build` passes with `tsc` strict, `noUnusedLocals`, and `noUncheckedIndexedAccess`.
-Bundle 166 kB (53 kB gzipped), zero runtime dependencies beyond React. No console errors.
+Bundle 171 kB (55 kB gzipped), zero runtime dependencies beyond React. No console errors.
 Chat, panel ranking, drill-down, and coverage reporting all exercised live against the
 deployed edge functions.
 
 ## Known gaps
 
 - No streaming — answers appear all at once after the round-trip.
-- Below 900px the panel stacks under the chat; the design is desktop-first and was not
-  specified for mobile.
-- Rank rows are click-to-drill only; the mock's compare view (two airports side by side in
-  the panel) is not built — the agent handles comparison in prose instead.
+- Rank rows are click-to-drill only; the mock's side-by-side compare view is not built —
+  the agent handles comparison in prose instead.
