@@ -37,10 +37,9 @@ therefore guaranteed to produce zero unmet demand. Pure scoring helpers live in
 
 The corrected scores were written to the live Supabase database.
 
-The score table intentionally retains run history through its `computed_at` primary key.
-The shared read query now selects only the newest row per airport before ranking. This
-makes repeated scoring runs idempotent from the API consumer's perspective and prevents
-old and current score versions from appearing together.
+Each successful scoring run replaces the prior materialized score set. New rows are fully
+inserted before older rows are removed, so a failed insert leaves the last complete set
+available. The shared read query still selects the newest row per airport defensively.
 
 ## 2. Guaranteed score disclosure
 
@@ -53,8 +52,8 @@ first answer. Prompt-only compliance was not deterministic.
 
 The shared agent now appends a fixed disclosure whenever `get_airport_data` requests one
 or more deterministic score metrics.
-It states that scores are modeled proxies, relative to the five-airport pilot, based on
-heuristic weights and one month of congestion evidence, and are not ROI estimates. The
+It states that scores are modeled proxies, ranked inside each airport's US Census region,
+based on heuristic weights and one month of congestion evidence, and are not ROI estimates. The
 disclosure no longer depends on model behavior.
 
 ## 3. Confidence language

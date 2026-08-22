@@ -4,8 +4,8 @@ Designed only after stage 1 proved which fields actually exist in the real sourc
 No column here is speculative — every field maps to something verified in
 `DATA_PLAN.md` / `data/out/*.json`.
 
-DDL: `supabase/schema.sql`. Not yet applied to a live Supabase project — this is the
-design to review before linking one.
+DDL: `supabase/schema.sql`. The schema is applied to the linked Supabase project; later
+production changes live in `supabase/migrations/`.
 
 ## Tables
 
@@ -15,12 +15,12 @@ One row per airport. IATA code is the natural key used everywhere else.
 
 | column | type | source |
 |---|---|---|
-| `iata_code` | text, PK | user-defined pilot list |
+| `iata_code` | text, PK | airports reported by the ingested BTS On-Time source |
 | `icao_code` | text, nullable | FAA TAF `Airports.xlsx` (not yet ingested, placeholder) |
 | `name` | text | FAA TAF / BTS |
 | `city` | text | BTS `origin_city_name` |
 | `state` | text | BTS `origin_state` |
-| `region` | text, nullable | manual tag, e.g. `'New England'` — needed for the New England question, not published by any source |
+| `region` | text, nullable | derived from state using US Census divisions |
 | `faa_locid` | text | FAA TAF `locid` (space-stripped) |
 
 ### `airport_metrics_monthly` (fact — congestion + volume, from On-Time + T-100)
@@ -70,9 +70,10 @@ Primary key: `(iata_code, year, scenario)`.
 
 ### `airport_scores` (derived — output of stage 3 scoring, not raw ingestion)
 
-One row per `(airport, computed_at, comparison_set_id)` — scores are only meaningful
-relative to the set of airports they were computed against, so the comparison set is
-part of the identity, not an afterthought.
+One current row per scored airport after a successful scoring run. The primary key includes
+`computed_at` and `comparison_set_id`, but `scripts/score.mjs` removes older runs only after
+all new score rows are inserted successfully. Scores remain meaningful only inside their
+regional comparison set.
 
 | column | type |
 |---|---|

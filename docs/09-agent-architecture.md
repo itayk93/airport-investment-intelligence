@@ -105,9 +105,8 @@ All four assignment questions answered end-to-end against live data:
   higher unmet-demand case.
 - **SFO unmet demand** → 1.00, explained via both drivers (capacity pressure 1.00 +
   forecast gap +2.07pp), with the underlying CAGRs quoted.
-- **New England** → called `list_airports` first, found only BOS in coverage, said so
-  explicitly instead of implying a full regional survey, and correctly explained that
-  BOS's *negative* growth gap drives its unmet demand to zero.
+- **New England** → called `list_airports` first, retrieved the covered regional peers,
+  then ranked only scoreable airports and quoted exclusion reasons for unscored airports.
 - **Follow-up** ("why is it ahead of the second one, and how confident should I be?") →
   resolved the pronoun from history and volunteered the "weights are heuristic, not an
   industry standard" caveat without being asked.

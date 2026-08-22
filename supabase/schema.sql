@@ -1,6 +1,6 @@
 -- Airport Investment Intelligence Agent — schema
 -- Design rationale: docs/02-database-schema.md
--- Not yet applied to a live project. Review before running against Supabase.
+-- Baseline schema applied to the linked Supabase project. Later changes belong in migrations.
 
 create table if not exists airports (
   iata_code   text primary key,

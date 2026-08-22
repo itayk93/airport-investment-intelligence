@@ -96,6 +96,14 @@ Both Edge Functions now use the shared origin policy. Unexpected `agent-chat` fa
 logged with a correlation ID. Clients receive a generic error and that ID, not upstream
 error text. `airport-data` also returns a generic error on unexpected failures.
 
+The web deployment defines browser security headers in `vercel.json`: CSP with a narrow
+Supabase `connect-src`, HSTS, `frame-ancestors 'none'`, `nosniff`, a strict referrer policy,
+and a permissions policy that disables camera, geolocation, payment, and USB access.
+
+The chat boundary validates the complete JSON shape before consuming a rate-limit slot.
+Malformed top-level bodies, null message entries, non-string content, and histories without
+a real user turn receive `400`; client-supplied system and tool roles remain excluded.
+
 ### WhatsApp webhook and media controls
 
 - `X-Twilio-Signature` is verified with HMAC-SHA1 against the exact canonical public
@@ -165,7 +173,8 @@ Deployed functions:
 
 Live verification completed after deployment:
 
-- Allowed-origin airport data request: `200`, five airports and five scores.
+- Allowed-origin airport data request: `200`, with the current national airport directory
+  and regional score set.
 - Allowed-origin chat request: `200`, one real tool call and a valid answer.
 - Disallowed browser origin: `403` with `Origin not allowed`.
 - Request body over 32 KiB: `413` with `Request body exceeds 32 KB.`
@@ -174,6 +183,12 @@ Live verification completed after deployment:
   OpenAI transcription completed, agent answer produced, and split TwiML reply delivered.
 - Deno checks for all three Edge Functions: passed.
 - Production TypeScript/Vite build: passed.
+- Node regression suite: 7 passed.
+- Deno Edge Function suite: 12 passed, including malformed chat-body cases.
+- Live malformed `null` chat body: `400` with a stable JSON error.
+- Live airport data: `200`, 347 covered airports, 163 current scores, and the correct
+  300-departure sample-floor disclosure.
+- Production dependency audit: zero known vulnerabilities.
 
 ## Layer 0 owner checklist
 

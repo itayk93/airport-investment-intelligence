@@ -235,7 +235,7 @@ line rather than failing silently.
 
 **The supplied design mock was not copied literally.** It shipped 44 airports of fabricated
 demo data and a different 5-factor weight model. The visual system was adopted in full; the
-fake data and mock weights were dropped for the real five airports and the real weights.
+fake data and mock weights were dropped for source-derived national coverage and the real weights.
 Plausible-looking invented numbers in an investment tool is the one error that would matter
 most here.
 
