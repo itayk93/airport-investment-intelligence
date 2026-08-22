@@ -1,6 +1,7 @@
-import { SYSTEM_PROMPT } from '../agent-chat/prompt.ts';
+import { buildSystemPrompt } from '../agent-chat/prompt.ts';
 import { classifyScope, OFF_TOPIC_REPLY, SOCIAL_REPLY } from '../agent-chat/scopeGuard.ts';
 import { toolDefinitions, runTool } from '../agent-chat/tools.ts';
+import { describeCongestionCoverage, getCoverage, type CoverageRow } from './db.ts';
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 const MODEL = 'gpt-4o-mini';
@@ -10,6 +11,22 @@ const MAX_MESSAGE_CHARS = 2_000;
 const MAX_TOOL_RESULT_BYTES = 12 * 1024;
 const MAX_OUTPUT_TOKENS = 320;
 const encoder = new TextEncoder();
+
+// Memoized for the isolate's lifetime: the underlying data changes at most monthly (the
+// refresh cron), so re-querying it on every chat turn would add a round trip to the hot
+// path for a value that is effectively static. A cold start picks up the new period.
+let coverageMemo: Promise<string> | null = null;
+function congestionCoverage(): Promise<string> {
+  // Bound to a local so the type stays Promise<string>: the catch below clears the memo
+  // from inside a closure, which defeats narrowing on the module-level binding.
+  const pending = coverageMemo ?? (coverageMemo = getCoverage()
+    .then((rows: unknown) => describeCongestionCoverage(rows as CoverageRow[]))
+    .catch(() => {
+      coverageMemo = null; // a failed lookup must not be cached for the isolate's life
+      return 'about a year of congestion data';
+    }));
+  return pending;
+}
 const SCORE_DISCLOSURE =
   'Caveat: modeled proxy, ranked within the airport\'s own region, over one year of congestion data that still mixes weather with structural congestion. Not an ROI estimate.';
 
@@ -114,7 +131,10 @@ export async function runAgent(input: AgentInputMessage[]): Promise<AgentResult>
     };
   }
 
-  const messages: ModelMessage[] = [{ role: 'system', content: SYSTEM_PROMPT }, ...history];
+  const messages: ModelMessage[] = [
+    { role: 'system', content: buildSystemPrompt(await congestionCoverage()) },
+    ...history,
+  ];
   const toolTrace: AgentResult['tool_trace'] = [];
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {

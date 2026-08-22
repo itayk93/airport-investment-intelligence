@@ -126,8 +126,13 @@ export function getForecast(codes: string[], fromYear: number, toYear: number) {
 export function getCoverage() {
   return sql`
     select data_scope, min(year * 100 + month) as first_period,
-           max(year * 100 + month) as last_period, count(*) as rows
+           max(year * 100 + month) as last_period, count(*) as rows,
+           count(distinct year * 100 + month) as months
     from airport_metrics_monthly
     group by data_scope
   `;
 }
+
+// The congestion-coverage sentence both the panel and the prompt use lives in
+// coverage.ts — pure formatting, no connection, so it can be tested without a database.
+export { type CoverageRow, describeCongestionCoverage } from './coverage.ts';

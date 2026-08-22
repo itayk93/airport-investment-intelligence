@@ -4,8 +4,10 @@ An AI agent that helps analysts identify US airports where modernization investm
 likely to pay back, using only public BTS and FAA data. Scoring is deterministic code; the
 LLM explains and compares, it never computes.
 
-**Coverage:** every US airport BTS reports departures from — 356 covered, 163 scored across
-9 regional comparison sets, over twelve months of congestion data (June 2025 – May 2026). Airports below the sample floor are covered but deliberately
+**Coverage:** every US airport BTS reports departures from — 358 covered, 163 scored across
+9 regional comparison sets, over thirteen months of congestion data (June 2025 – June 2026).
+Counts move as the monthly refresh cron ingests new BTS months; the app derives them live
+from the database, and the figures quoted in these docs are as of 2026-08-22. Airports below the sample floor are covered but deliberately
 unscored. Coverage grew from a 5-airport pilot in stage 14; the reasoning, measurements, and
 the tradeoffs it forced are in [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
 See also [Scope & honesty](#scope-uncertainty-and-what-this-does-not-do).
@@ -94,21 +96,39 @@ of each other.
 ExpansionScore = 0.50·UnmetDemand + 0.30·norm(TAF CAGR) + 0.20·CapacityPressure
 ```
 
-### Results (run 2026-08-22)
+### Results
 
-| Airport | Capacity pressure | Growth gap (pp) | Unmet demand | **Expansion score** |
-|---|---|---|---|---|
-| SFO | 1.00 | +2.07 | 1.00 | **1.00** |
-| LAX | 0.46 | +1.15 | 0.26 | **0.30** |
-| BOS | 0.63 | −0.91 | 0.00 | **0.26** |
-| SNA | 0.52 | +0.12 | 0.03 | **0.12** |
-| ANC | 0.00 | +0.52 | 0.00 | **0.05** |
+Snapshot of the airports named in the brief, read from the deployed API on 2026-08-22
+(13 months of congestion data). **Scores are normalised within each region, so the
+`Expansion score` column is only comparable down a region, never across one** — SFO and
+BTV each top their own scale. The live figures are always in the app's analysis panel;
+this table is a point-in-time illustration, not the source of truth, because the refresh
+cron re-scores monthly.
 
-SFO leads on every axis — the only airport where current strain and forecast growth point
-the same way at once. BOS is the clearest demonstration that the gating works: the FAA
-forecasts it growing *slower* than its own measured trend, so despite mid-range congestion
-its unmet demand floors at zero. ANC also floors at zero because its capacity pressure is
-zero; healthy forecast growth with current headroom is not labeled unmet demand.
+| Airport | Region | Capacity pressure | Growth gap (pp) | Unmet demand | **Expansion score** |
+|---|---|---|---|---|---|
+| SFO | Pacific | 0.85 | +2.07 | 1.00 | **0.89** |
+| BTV | New England | 0.86 | +1.71 | 1.00 | **0.84** |
+| LAX | Pacific | 0.62 | +1.15 | 0.41 | **0.46** |
+| ANC | Pacific | 0.36 | +0.52 | 0.11 | **0.24** |
+| SNA | Pacific | 0.60 | +0.12 | 0.04 | **0.24** |
+| BOS | New England | 0.66 | −0.91 | 0.00 | **0.23** |
+| MHT | New England | 0.01 | +6.80 | 0.03 | **0.07** |
+
+SFO tops the Pacific set because current strain and forecast growth point the same way at
+once — the only airport in its region where both are high.
+
+**The two rows that show the gating is doing real work** are the ones at the bottom:
+
+- **BOS — congestion without growth.** Mid-range capacity pressure (0.66), yet unmet demand
+  is *exactly* zero: the FAA forecasts it growing more slowly than its own measured trend,
+  so `max(0, GrowthGap)` clamps. Crowded, but not growing.
+- **MHT — growth without congestion.** By far the largest growth gap anywhere in New
+  England (+6.80 pp), and still last of seven. Its capacity pressure is 0.01, the emptiest
+  airport in the region. Fast growth into an empty airport is headroom, not unmet demand.
+
+Neither would fall out of a model that simply averaged congestion and growth together.
+That is the entire argument for multiplying rather than adding.
 
 ### The weights have no empirical basis, and that is stated
 
@@ -259,19 +279,22 @@ reviewer should ask:
   forecast data — never presented as published capacity figures.
 - **Scores are relative to an airport's own US Census region**, never national and never
   absolute. 1.00 means "most pressured in that region". **Scores from different regions are
-  not comparable** — BOS at 0.9962 in New England and SFO at 0.8457 in the Pacific sit near
-  the top of two different scales. Cross-region comparison must use the underlying metrics.
-- **163 of 356 covered airports are scored.** 189 fall below the 300 departures/month sample
-  floor (~10 departures/day, averaged over the year), 2 have no FAA TAF forecast, and 2 sit
+  not comparable** — BTV at 0.86 capacity pressure in New England and SFO at 0.85 in the
+  Pacific sit near the top of two different scales, and they are not tied. Cross-region
+  comparison must use the underlying metrics.
+- **163 of 358 covered airports are scored.** 191 fall below the 300 departures/month sample
+  floor (~10 departures/day, averaged over the period), 2 have no FAA TAF forecast, and 2 sit
   in a region with too few scoreable peers to rank. Each is reported as covered but unranked with its reason, rather
   than being scored from a sample too small to mean anything.
 - **Congestion data is US-domestic only** (BTS reporting carriers). International
   departures at SFO/LAX are absent from delay figures; T-100 covers volume including
   international.
-- **Twelve months of congestion data (June 2025 – May 2026).** A full annual cycle, so no
-  season is double-counted and Capacity Pressure is a yearly average rather than one month's
-  weather. One year is still not a trend: it establishes a level, not a direction. The app
-  computes and displays the actual coverage from the database rather than claiming more.
+- **Thirteen months of congestion data (June 2025 – June 2026), as of 2026-08-22.** More
+  than a full annual cycle, so no season is missing and Capacity Pressure is a multi-month
+  average rather than one month's weather. It is still not a trend: it establishes a level,
+  not a direction. The app and the agent both derive this period from the database rather
+  than asserting a fixed one — the refresh cron adds months, and a hardcoded period would
+  become a confident false claim on its first run.
 - **Winter taxi-out includes de-icing, and the model cannot separate it.** BTV averages over
   30 minutes of taxi-out in December and under 18 in summer, which lifts northern airports
   in the congestion ranking for a reason that is weather rather than runway or gate
