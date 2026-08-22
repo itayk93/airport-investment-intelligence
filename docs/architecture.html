@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Airport Investment Intelligence — Design &amp; Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* Palette and type are the product's own design tokens (src/lib/theme.ts), so this
+     document reads as part of the app rather than as an appendix to it. */
+  :root {
+    --paper:#efece4; --surface:#f7f5f0; --card:#ffffff; --ink:#16202b;
+    --muted:rgba(22,32,43,.68); --faint:rgba(22,32,43,.50);
+    --rule:rgba(22,32,43,.14); --soft:rgba(22,32,43,.07);
+    --accent:#b45309; --accent-soft:rgba(180,83,9,.10);
+    --good:#2f6b4f;
+    --sans:'Instrument Sans',system-ui,-apple-system,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme:dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#12181f; --surface:#19212b; --card:#1e2732; --ink:#ece7de;
+      --muted:rgba(236,231,222,.72); --faint:rgba(236,231,222,.52);
+      --rule:rgba(236,231,222,.16); --soft:rgba(236,231,222,.08);
+      --accent:#e8a33d; --accent-soft:rgba(232,163,61,.13);
+      --good:#6fbf95;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#12181f; --surface:#19212b; --card:#1e2732; --ink:#ece7de;
+    --muted:rgba(236,231,222,.72); --faint:rgba(236,231,222,.52);
+    --rule:rgba(236,231,222,.16); --soft:rgba(236,231,222,.08);
+    --accent:#e8a33d; --accent-soft:rgba(232,163,61,.13);
+    --good:#6fbf95;
+  }
+
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:400 17px/1.65 var(--sans); -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,p,ul,ol,figure { margin:0; }
+  a { color:var(--accent); text-underline-offset:.18em; }
+  code { font:500 .87em var(--mono); background:var(--soft); padding:.1em .36em; border-radius:4px; }
+
+  .page { width:min(60rem,100%); margin:auto; padding:clamp(2rem,5vw,4rem) clamp(1.1rem,4vw,2.5rem) 4rem; }
+
+  header { display:grid; gap:1rem; margin-bottom:2.25rem; }
+  .eyebrow { font:500 .71rem/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--faint); display:flex; align-items:center; gap:.7rem; }
+  .eyebrow::after { content:""; height:1px; flex:1; background:var(--rule); }
+  h1 { font:700 clamp(2rem,5vw,3rem)/1.08 var(--sans); letter-spacing:-.02em; text-wrap:balance; max-width:22ch; }
+  .lede { color:var(--muted); font-size:clamp(1.03rem,2vw,1.2rem); max-width:52ch; }
+  .stats { display:flex; flex-wrap:wrap; gap:.45rem 1.5rem; padding-top:1rem; border-top:1px solid var(--rule);
+           color:var(--faint); font:500 .74rem/1.5 var(--mono); font-variant-numeric:tabular-nums; }
+
+  nav { position:sticky; top:0; z-index:5; margin:0 calc(clamp(1.1rem,4vw,2.5rem) * -1) 2.5rem;
+        padding:.7rem clamp(1.1rem,4vw,2.5rem); display:flex; gap:1.1rem; overflow-x:auto;
+        background:color-mix(in srgb,var(--paper) 92%,transparent); backdrop-filter:blur(12px);
+        border-block:1px solid var(--soft); }
+  nav a { color:var(--muted); text-decoration:none; white-space:nowrap; font-size:.84rem; }
+  nav a:hover, nav a:focus-visible { color:var(--accent); }
+
+  main { display:grid; gap:3rem; }
+  section { display:grid; gap:1rem; scroll-margin-top:4.5rem; }
+  h2 { font:700 clamp(1.4rem,2.6vw,1.8rem)/1.25 var(--sans); letter-spacing:-.01em; }
+  h2 .n { font:600 .74rem var(--mono); color:var(--accent); vertical-align:.6em; margin-right:.5rem; }
+  h3 { font:600 1.02rem/1.4 var(--sans); margin-top:.4rem; }
+  p, li { max-width:66ch; }
+  ul,ol { padding-left:1.25rem; display:grid; gap:.55rem; }
+  li::marker { color:var(--accent); }
+
+  pre { margin:0; overflow-x:auto; background:var(--surface); border:1px solid var(--soft);
+        border-radius:10px; padding:.9rem 1.05rem; font:500 .82rem/1.75 var(--mono); color:var(--ink); }
+  .formula { border-left:3px solid var(--accent); }
+
+  .scroll { overflow-x:auto; border:1px solid var(--soft); border-radius:12px; background:var(--card); }
+  table { width:100%; min-width:32rem; border-collapse:collapse; font-size:.9rem; }
+  th,td { padding:.62rem .8rem; text-align:left; border-bottom:1px solid var(--soft); vertical-align:top; }
+  th { color:var(--faint); font:500 .68rem/1.4 var(--mono); letter-spacing:.05em; text-transform:uppercase; white-space:nowrap; }
+  td.num { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tbody tr:last-child td { border-bottom:0; }
+  tr.hi td { background:var(--accent-soft); }
+
+  .callout { background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:0 10px 10px 0;
+             padding:.95rem 1.15rem; display:grid; gap:.4rem; max-width:70ch; }
+  .callout .tag { font:600 .65rem/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--accent); }
+  .note { border-left:2px solid var(--rule); padding-left:.95rem; color:var(--muted); font-size:.94rem; }
+
+  .checks { display:grid; gap:.5rem; padding:0; list-style:none; }
+  .checks li { display:grid; grid-template-columns:auto 1fr; gap:.6rem; align-items:baseline; max-width:70ch; }
+  .checks .ok { color:var(--good); font-weight:700; }
+  .checks b { font-weight:600; }
+  .checks span { color:var(--muted); }
+
+  footer { margin-top:3.25rem; border-top:1px solid var(--rule); padding-top:1.05rem; color:var(--faint); font-size:.84rem; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:3px; }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  @media print {
+    nav { display:none; } body { background:#fff; color:#111; font-size:10.5pt; }
+    .page { width:auto; padding:0; } section { break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="eyebrow">Design &amp; architecture · August 2026</div>
+  <h1>Airport Investment Intelligence Agent</h1>
+  <p class="lede">Screens US airports for modernization opportunity using only public BTS and FAA data. <strong>Ranking is deterministic code; the language model explains and compares, it never computes.</strong></p>
+  <div class="stats">
+    <span>358 airports covered</span>
+    <span>163 scored</span>
+    <span>9 regional sets</span>
+    <span>13 months of congestion data</span>
+  </div>
+</header>
+
+<nav aria-label="Contents">
+  <a href="#questions">The four questions</a>
+  <a href="#scoring">Scoring methodology</a>
+  <a href="#ai">Where AI is used</a>
+  <a href="#tradeoffs">Key tradeoffs</a>
+  <a href="#limits">Assumptions &amp; limits</a>
+  <a href="#requirements">Requirements</a>
+</nav>
+
+<main>
+
+<section id="questions">
+  <h2><span class="n">01</span>The four questions, answered</h2>
+  <p>All four run end to end in the live app, with conversational follow-up. Figures below were read from the deployed API on 2026-08-22.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Question</th><th>How the system answers it</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Strong candidates in New England</td>
+          <td>Ranks all 7 scored New England airports in one call. <strong>BTV (Burlington) leads at 0.84</strong>, then BGR and BOS.</td>
+        </tr>
+        <tr>
+          <td>LA vs. Santa Ana congestion</td>
+          <td>Compares <strong>raw metrics</strong>, not scores — LAX capacity pressure 0.62 vs. SNA 0.60, decided on taxi-out and NAS delay minutes.</td>
+        </tr>
+        <tr>
+          <td>Long-haul share out of Anchorage</td>
+          <td><strong>28.77%</strong> of departures fly 2,000+ miles — with the caveat that the 2,000-mile threshold is our definition, not a BTS standard.</td>
+        </tr>
+        <tr>
+          <td>Unmet demand at SFO, and why</td>
+          <td><strong>1.00</strong> — capacity pressure 0.85 combined with a forecast growth gap of +2.07pp. The explanation is the product: growth arriving at an already-strained airport.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="scoring">
+  <h2><span class="n">02</span>Scoring methodology</h2>
+  <p>Every metric traces to a real, keyless public source. Nothing is synthetic.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Source</th><th>Provides</th><th>Grain</th></tr></thead>
+      <tbody>
+        <tr><td>BTS T-100 (Socrata API)</td><td>passengers, departures, seats, domestic/intl split</td><td>monthly per airport</td></tr>
+        <tr><td>BTS On-Time (TranStats ZIP)</td><td>delay, taxi-out, cancellations, NAS delay, distance</td><td>per flight → monthly</td></tr>
+        <tr><td>FAA Terminal Area Forecast</td><td>enplanement and operations forecasts to FY2055</td><td>annual per airport</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Two KPIs, kept structurally separate</h3>
+  <p>The central design risk was that "capacity pressure" and "unmet demand" collapse into the same number wearing two names. One measures <em>current state</em>; the other measures a <em>forecast-vs-reality gap</em> <strong>gated by</strong> the first.</p>
+
+  <p><strong>Capacity Pressure</strong> — how strained an airport is now, relative to its region. Min-max normalised within the comparison set:</p>
+<pre class="formula">CapacityPressure = 0.40 · norm(avg taxi-out minutes)
+                 + 0.35 · norm(NAS delay minutes per departure)
+                 + 0.25 · norm(% flights delayed &gt; 15 min)</pre>
+  <p class="note">Taxi-out is weighted highest as the most direct physical congestion signal. NAS delay is second because it is delay attributable to the <em>air-traffic system</em> — the component tied to infrastructure rather than to one airline's operations. Weather delay and carrier delay are deliberately excluded: they do not describe the airport.</p>
+
+  <p><strong>Forecast Growth Gap</strong> — does demand outrun what the airport has historically delivered?</p>
+<pre class="formula">GrowthGap (pp) = FAA TAF enplanement CAGR (FY2024→FY2035)
+               − BTS T-100 measured CAGR   (2014→2024)</pre>
+  <p class="note">Historical growth is measured from <strong>BTS</strong>, not from the FAA's own historical estimate, so this compares a forecast against an independent source's actuals rather than the FAA against itself.</p>
+
+  <p><strong>Unmet Demand</strong> — the two multiplied, then normalised:</p>
+<pre class="formula">UnmetDemandRaw = max(0, GrowthGap) × CapacityPressure
+UnmetDemand    = norm(UnmetDemandRaw)</pre>
+
+  <div class="callout">
+    <div class="tag">Why multiply rather than add</div>
+    <p>High forecast growth at an <em>uncongested</em> airport is healthy growth with headroom, not unmet demand. Only growth arriving at an already-strained airport counts. Computed independently and averaged, the two KPIs would be correlated restatements of each other.</p>
+  </div>
+
+  <p><strong>Expansion Score</strong> — the ranking KPI:</p>
+<pre class="formula">ExpansionScore = 0.50 · UnmetDemand
+               + 0.30 · norm(TAF CAGR)
+               + 0.20 · CapacityPressure</pre>
+
+  <h3>Results, and the two rows that prove the gating works</h3>
+  <p><strong>Scores are normalised within each region, so the expansion score is comparable down a region and never across one</strong> — SFO and BTV each top their own scale.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Airport</th><th>Region</th><th>Capacity pressure</th><th>Growth gap</th><th>Unmet demand</th><th>Expansion score</th></tr></thead>
+      <tbody>
+        <tr><td>SFO</td><td>Pacific</td><td class="num">0.85</td><td class="num">+2.07</td><td class="num">1.00</td><td class="num"><strong>0.89</strong></td></tr>
+        <tr><td>BTV</td><td>New England</td><td class="num">0.86</td><td class="num">+1.71</td><td class="num">1.00</td><td class="num"><strong>0.84</strong></td></tr>
+        <tr><td>LAX</td><td>Pacific</td><td class="num">0.62</td><td class="num">+1.15</td><td class="num">0.41</td><td class="num"><strong>0.46</strong></td></tr>
+        <tr><td>SNA</td><td>Pacific</td><td class="num">0.60</td><td class="num">+0.12</td><td class="num">0.04</td><td class="num"><strong>0.24</strong></td></tr>
+        <tr class="hi"><td>BOS</td><td>New England</td><td class="num">0.66</td><td class="num">−0.91</td><td class="num">0.00</td><td class="num"><strong>0.23</strong></td></tr>
+        <tr class="hi"><td>MHT</td><td>New England</td><td class="num">0.01</td><td class="num">+6.80</td><td class="num">0.03</td><td class="num"><strong>0.07</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul>
+    <li><strong>BOS — congestion without growth.</strong> Mid-range pressure (0.66), yet unmet demand is exactly zero: the FAA forecasts it growing more slowly than its own measured trend, so the <code>max(0, …)</code> clamps. Crowded, but not growing.</li>
+    <li><strong>MHT — growth without congestion.</strong> By far the largest growth gap in New England (+6.80pp) and still second-to-last of seven, because its capacity pressure is 0.01. Fast growth into an empty airport is headroom, not unmet demand.</li>
+  </ul>
+  <p class="note">Neither result would fall out of a model that simply averaged congestion and growth. That is the entire argument for the gating.</p>
+
+  <div class="callout">
+    <div class="tag">The weights have no empirical basis, and that is stated</div>
+    <p>They are a reasoned heuristic, not fitted to data. There is no ground truth to calibrate against — no public dataset labels expansion projects as successful or failed — and no standard composite to borrow: FAA Advisory Circular 150/5060-5 uses separate throughput, demand and delay criteria rather than one weighted score. The response was not to hide this behind one opaque number: the component breakdown is always shown beside the score, and the UI carries the standing caveats.</p>
+  </div>
+</section>
+
+<section id="ai">
+  <h2><span class="n">03</span>Where and how AI is used</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Layer</th><th>Who does it</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Scoring, ranking, normalisation</td><td><strong>Deterministic code</strong> (<code>scripts/score.mjs</code>)</td><td>Auditable, identical every run, no model variance</td></tr>
+        <tr><td>Data retrieval</td><td><strong>Typed tools</strong> over a read-only role</td><td>No free-form SQL for the model to write</td></tr>
+        <tr><td>Interpretation, comparison, follow-up</td><td><strong>LLM</strong> (<code>gpt-5-mini</code>)</td><td>Genuinely language work</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The model is an <strong>explainer over fixed numbers</strong>. Its instructions state that it does not calculate scores and must never present a figure it did not retrieve from a tool.</p>
+
+  <h3>Three layers that enforce it, rather than trusting the prompt</h3>
+  <ol>
+    <li><strong>The first model round is forced to call a tool</strong> — in code, not by instruction. Prompt compliance is backed by a runtime control.</li>
+    <li><strong>Typed, allowlisted tools over a SELECT-only role.</strong> <code>list_airports</code> resolves coverage and ranks a region — each row carries that airport's scores, so a regional ranking is one call over the complete set rather than a fan-out the model assembles itself. <code>get_airport_data</code> retrieves any allowlisted metric through fixed parameterised queries. There is no SQL string for an injection payload to reach.</li>
+    <li><strong>The screening disclosure is appended in code</strong> whenever the tool trace shows score data was used — once per conversation, and a model-written restatement of it is stripped in code. A disclosure that depends on the model remembering disappears the moment it summarises; one repeated under every message becomes wallpaper.</li>
+  </ol>
+
+  <h3>Answers explain, they do not list</h3>
+  <p>A ranking of bare scores is not an answer: a reader cannot act on "0.72" without knowing what the scale means. The agent must anchor a score the first time it uses one, explain why an airport landed where it did rather than reciting what the metric contains, and name the counterintuitive result out loud when a small airport outranks a major hub. <strong>Scores are rounded to two decimals in the tool layer</strong>, so the false precision of a modeled proxy is never available to quote.</p>
+  <p class="note"><strong>Bounded loop, not ReAct.</strong> The question space is narrow — rank, compare and explain over four small tables — so a planner or reflection loop would add latency and cost without changing answers. The loop caps at four tool rounds in code and says so honestly on exhaustion. Every assignment question resolved in one to two rounds.</p>
+</section>
+
+<section id="tradeoffs">
+  <h2><span class="n">04</span>Key tradeoffs</h2>
+
+  <h3>Coverage from the source, not from a list</h3>
+  <p>The build started with five hand-picked airports. That was wrong in a way worth naming: asked "which airport in New England is the strongest candidate", a one-airport region always returns that airport. <strong>The ranking looks complete and the conclusion was decided the moment someone chose the list.</strong> Coverage is now every airport BTS reports departures from. The real leader, Burlington, was invisible to the earlier version; Boston, the only airport it did see, places third.</p>
+
+  <h3>A full annual cycle, not a representative month</h3>
+  <p>The first version scored one month and documented that as a limitation. Backfilling reversed the headline result — New England's top candidate changed from MHT to BTV, and MHT fell to the bottom. One month cannot separate a congested airport from an airport having a bad month. It also exposed a weakness the single month had hidden, now the model's most important caveat: <strong>winter taxi-out includes de-icing</strong>.</p>
+
+  <h3>Regional comparison sets, not one national ranking</h3>
+  <p>Min-max normalisation is relative by construction, so a national set would let the busiest and quietest US airports define the endpoints and compress every regional difference toward zero. Ranking within a US Census division also matches the question being asked. <strong>Cost: scores are not comparable across regions</strong> — stated in the prompt, the panel, and the caveats.</p>
+
+  <h3>A sample floor that costs coverage</h3>
+  <p>An earlier floor of 100 departures/month let an airport with 134 departures rank fourth in a 37-airport region on a single bad month. At 300/month (~10 per day) one disrupted day is at most ~3% of the sample. Scored coverage dropped from 221 to 163: <strong>fewer airports, better ranking</strong>.</p>
+
+  <h3>Typed tools over a general SQL tool</h3>
+  <p>A general query tool would answer more questions. It would also hand a language model arbitrary SQL. The smaller, safer surface was chosen; the retrieval contract is generalised through a metric dictionary instead, so new questions do not need a new function.</p>
+
+  <h3>Scores materialised, not computed on read</h3>
+  <p>Scoring runs as a batch step and writes to a table; the agent only ever reads. This keeps determinism outside the LLM loop. Cost: scores go stale until re-run — which is why a scheduled job now checks daily for newly published BTS data and re-scores when it arrives.</p>
+</section>
+
+<section id="limits">
+  <h2><span class="n">05</span>Assumptions, uncertainty and scoping</h2>
+  <ul>
+    <li><strong>This is not a profitability, ROI or payback model.</strong> Project cost, incremental revenue, financing, land constraints and terminal capacity are not inputs. It ranks where demand pressure is highest. Confidence is <strong>low-to-moderate for screening and insufficient for an investment decision</strong>.</li>
+    <li><strong>No public dataset publishes runway, gate or terminal capacity.</strong> Capacity Pressure and Unmet Demand are modeled proxies from delay and forecast data — never presented as published capacity figures.</li>
+    <li><strong>Scores are relative to an airport's own region</strong>, never national and never absolute. 1.00 means "most pressured in that region". Cross-region comparison must use the underlying metrics.</li>
+    <li><strong>163 of 358 covered airports are scored.</strong> 191 fall below the sample floor, 2 have no FAA forecast, and 2 sit in a region with too few scoreable peers. Each is reported as covered but unranked <em>with its reason</em>, rather than scored from a sample too small to mean anything.</li>
+    <li><strong>Winter taxi-out includes de-icing, and the model cannot separate it.</strong> BTV averages over 30 minutes of taxi-out in December and under 18 in summer, which lifts northern airports for a reason that is weather rather than saturation — and a terminal does not fix weather. This is the most important caveat on the current numbers, and the agent raises it whenever a northern airport ranks high.</li>
+    <li><strong>Congestion data is US-domestic only</strong> (BTS reporting carriers). International departures at SFO and LAX are absent from the delay figures.</li>
+    <li><strong>13 months of congestion data</strong> (June 2025 – June 2026). More than a full annual cycle, so no season is missing — but it establishes a level, not a trend.</li>
+    <li><strong>The 2,000-mile long-haul threshold is our definition</strong>, not a BTS or FAA standard. Growth-gap spans differ in length (10y actual vs 11y forecast) because T-100 only reaches back to 2014.</li>
+  </ul>
+</section>
+
+<section id="requirements">
+  <h2><span class="n">06</span>Against the brief</h2>
+  <ul class="checks">
+    <li><span class="ok">✓</span><span><b>Use public APIs</b> — BTS T-100, BTS On-Time Performance, FAA Terminal Area Forecast. No keys, no paid sources, nothing synthetic.</span></li>
+    <li><span class="ok">✓</span><span><b>Rank or compare on a defined KPI</b> — two structurally distinct KPIs, one gating the other.</span></li>
+    <li><span class="ok">✓</span><span><b>Deterministic scoring, not only LLM output</b> — <code>scripts/score.mjs</code> computes; the agent only reads. This is the central requirement and the central design decision.</span></li>
+    <li><span class="ok">✓</span><span><b>Explain its reasoning</b> — the analysis panel shows every score's components, the model weights and the standing assumptions, from the same query the agent uses.</span></li>
+    <li><span class="ok">✓</span><span><b>Conversational follow-up</b> — the agent receives full history and resolves references to earlier turns.</span></li>
+    <li><span class="ok">✓</span><span><b>Chat interface</b> — two-pane web app: conversation on one side, deterministic analysis on the other.</span></li>
+    <li><span class="ok">✓</span><span><b>Voice (bonus)</b> — browser speech recognition in the web app, and voice notes over a WhatsApp channel that shares one agent engine, so prompt, tools and caveats cannot drift between channels.</span></li>
+    <li><span class="ok">✓</span><span><b>Communicate assumption, uncertainty and scoping</b> — a code-appended disclosure, standing caveats in the panel, and an explicit reason attached to every covered-but-unranked airport.</span></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  Figures read from the deployed API on 2026-08-22. Coverage moves as the scheduled refresh ingests new BTS months; the app derives the current numbers from the database rather than quoting a constant. Full detail in <code>ARCHITECTURE.md</code> and the stage-by-stage build log in <code>docs/</code>.
+</footer>
+
+</div>
+</body>
+</html>

@@ -8,7 +8,8 @@ revenue inputs are outside the dataset.
 **[Open the live app](https://airport-investment-intelligence.vercel.app)**
 
 **→ [ARCHITECTURE.md](ARCHITECTURE.md)** — scoring methodology, key tradeoffs, and where AI
-is used. Start there.
+is used. Start there. The same document as a formatted page:
+**[docs/architecture.html](docs/architecture.html)**.
 
 **→ [docs/SUBMISSION.md](docs/SUBMISSION.md)** — one-page submission summary: deliverable map,
 KPIs, interfaces, and stated limits.
