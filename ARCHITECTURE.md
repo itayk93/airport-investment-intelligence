@@ -155,6 +155,11 @@ changing answers. The loop caps at 4 tool rounds **in code, not in the prompt**,
 exhaustion says so honestly rather than truncating silently. In testing every assignment
 question resolved in 1–2 rounds.
 
+**Concise by contract.** Answers default to 120 words (150 for comparisons, 80 for
+follow-ups) and a 320-token generation ceiling. The response leads with the decision,
+uses only two to four decisive numbers, gives one explanation, and keeps one relevant
+caveat. Methodology is not repeated unless it changes the conclusion or is requested.
+
 ### Security
 
 1. **Separate read-only role.** The agent connects as `agent_reader` — `SELECT` grants on
@@ -204,8 +209,9 @@ stateless WhatsApp turns. Cross-channel identity or stored phone-number history 
 privacy and retention obligations that are not justified in a one-day prototype.
 
 **No markdown library in the UI.** ~40 kB to render four constructs the design styles very
-specifically. A ~90-line parser maps replies onto the design's text/bullet/note line types.
-Zero runtime dependencies beyond React; 53 kB gzipped total.
+specifically. A small parser maps replies onto the design's text/bullet/note line types.
+The only non-React UI dependency is `qrcode.react`, used to generate the Sandbox QR locally
+instead of leaking the join URL to an external QR service.
 
 **Composite score, but never shown alone.** Discussed in §2 — ranking requires one number;
 honesty requires the parts.

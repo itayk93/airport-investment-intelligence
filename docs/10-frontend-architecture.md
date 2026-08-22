@@ -122,7 +122,9 @@ not a preference.
 ## Verified
 
 `npm run build` passes with `tsc` strict, `noUnusedLocals`, and `noUncheckedIndexedAccess`.
-Bundle 171 kB (55 kB gzipped), zero runtime dependencies beyond React. No console errors.
+Current bundle is ~197 kB (~64 kB gzipped). The only non-React UI dependency is
+`qrcode.react`; the QR is generated locally rather than through a third-party image API.
+No console errors.
 Chat, panel ranking, drill-down, and coverage reporting all exercised live against the
 deployed edge functions.
 
