@@ -31,12 +31,12 @@ a chat interface, clear reasoning, and explicit assumptions/uncertainty/scoping.
 4. **Ingestion pipeline** — loads stage-1 sources into the stage-2 schema on Supabase.
    → [`05-ingestion-pipeline.md`](05-ingestion-pipeline.md)
 5. Agent (LLM + tool calls over the deterministic scores)
-6. Chat UI (Vite + React + Node — see `04-decisions-and-talking-points.md`, section 8)
+6. Chat UI (Vite + React — see [`10-frontend-architecture.md`](10-frontend-architecture.md))
 7. WhatsApp channel (Twilio Sandbox QR/deep link, signed webhook, text + voice notes)
 
-Cutting across all of these: [`04-decisions-and-talking-points.md`](04-decisions-and-talking-points.md)
-is a running list of choices worth being able to explain out loud (Supabase region, stack,
-scoring weights, scope gaps), and [`06-refresh-cadence-and-automation.md`](06-refresh-cadence-and-automation.md)
+Cutting across all of these: [`../ARCHITECTURE.md`](../ARCHITECTURE.md) §4 records the key
+tradeoffs and why each was chosen (regional comparison sets, the sample floor, typed tools
+over a general SQL tool), and [`06-refresh-cadence-and-automation.md`](06-refresh-cadence-and-automation.md)
 covers how often each source actually publishes new data and how ingestion would be
 scheduled to stay current (proposed, not yet automated).
 

@@ -161,7 +161,13 @@ first model round is forced to call a tool, so prompt compliance is backed by a 
 control. Tool traces remain available in the API for operations but are intentionally not
 shown in the end-user chat.
 
-**Two tools:** `list_airports` resolves coverage; `get_airport_data` retrieves any
+**Two tools:** `list_airports` resolves coverage **and ranks a region** — each row carries
+that airport's scores, so a regional ranking is one call over the complete set. This is
+deliberate: when the tool returned names only, the model had to choose airport codes itself
+and fan them out, which silently produced a ranking of the airports it happened to think of
+rather than of the region. That is the hand-picked-list failure §4 describes at the data
+layer, reappearing at the agent layer. Requests that exceed the per-call airport cap now
+report what was dropped instead of dropping it quietly. `get_airport_data` retrieves any
 allowlisted score, monthly BTS metric, traffic-volume metric, or FAA forecast. It accepts
 airports, canonical metrics, an optional period, and an optional scope. One data dictionary
 maps every canonical metric to a fixed field, source, unit, and valid scope. Unknown or
@@ -179,9 +185,23 @@ exhaustion says so honestly rather than truncating silently. In testing every as
 question resolved in 1–2 rounds.
 
 **Concise by contract.** Answers default to 120 words (150 for comparisons, 80 for
-follow-ups) and a 320-token generation ceiling. The response leads with the decision,
+follow-ups). The response leads with the decision,
 uses only two to four decisive numbers, gives one explanation, and keeps one relevant
 caveat. Methodology is not repeated unless it changes the conclusion or is requested.
+
+**Numbers are explained, not listed.** A ranking of bare scores is not an answer: the reader
+cannot act on "0.72" without knowing what the scale means. The prompt requires the model to
+anchor a score the first time it uses it (1.00 is the most pressured airport *in that
+region*), to explain why an airport landed where it did rather than reciting what the metric
+is made of, and to name the counterintuitive result out loud when a small airport outranks a
+major hub. Scores are rounded to two decimals **in the tool layer**, so the false precision
+of a modeled proxy is never available to quote in the first place, and airports within about
+0.03 are reported as comparable rather than ranked against each other.
+
+**The screening disclosure is appended in code**, once per conversation, whenever the tool
+trace shows score data was used — and a trailing model-written restatement of it is stripped
+in code too. Both directions matter: a disclosure that depends on the model remembering
+disappears the moment it summarises, and one repeated under every message becomes wallpaper.
 
 ### Security
 
