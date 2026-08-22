@@ -16,20 +16,16 @@ export function Header({ subtitle }: { subtitle: string }) {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div
+        <img
+          src="/favicon.svg"
+          alt=""
+          aria-hidden="true"
           style={{
-            width: 30,
-            height: 30,
-            border: `1.5px solid ${t.accent}`,
-            borderRadius: '50%',
-            display: 'grid',
-            placeItems: 'center',
-            font: `600 11px/1 ${t.mono}`,
-            color: t.accentHi,
+            width: 34,
+            height: 34,
+            flex: 'none',
           }}
-        >
-          AI
-        </div>
+        />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <div style={{ font: `600 14.5px/1.15 ${t.sans}`, letterSpacing: '-.01em' }}>
             Airport Investment Intelligence
