@@ -13,3 +13,4 @@ supabase/.temp/
 
 # Large source downloads are reproducible through the scripts in scripts/.
 data/raw/
+.vercel
