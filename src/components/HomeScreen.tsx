@@ -37,7 +37,8 @@ export function HomeScreen({
 }) {
   // Scored, not merely covered — the headline number should be the one the ranking can
   // actually stand behind. The covered-but-unscored airports are reported in the panel.
-  const airportCount = data?.scores.length ?? 0;
+  const scoredCount = data?.scores.length ?? 0;
+  const coveredCount = data?.airports.length ?? 0;
   const regionCount = data?.model.comparison_sets.length ?? 0;
 
   return (
@@ -154,9 +155,13 @@ export function HomeScreen({
               }}
             >
               {[
-                [`${airportCount}`, 'airports'],
+                // Both numbers, not just the scored one: the gap is the point. A single
+                // figure reads as the coverage limit, when it is really the ranking limit —
+                // the agent answers on all covered airports and declines to rank the rest
+                // for a stated reason.
+                [`${coveredCount}`, 'airports covered'],
+                [`${scoredCount}`, 'scored & ranked'],
                 ['3', 'public sources'],
-                ['100%', 'traceable math'],
               ].map(([value, label]) => (
                 <div
                   key={label}
@@ -224,7 +229,10 @@ export function HomeScreen({
                   font: `400 ${compact ? 11 : 11.5}px/1.55 ${t.mono}`,
                 }}
               >
-                Scope: {airportCount} scored airports across {regionCount} regional comparison sets · ranked within a region, never across · screening model, not ROI
+                Scope: {coveredCount} airports covered, {scoredCount} scored across{' '}
+                {regionCount} regional comparison sets · the rest are covered but not ranked,
+                each with a stated reason · ranked within a region, never across · screening
+                model, not ROI
               </div>
             </div>
           </section>
