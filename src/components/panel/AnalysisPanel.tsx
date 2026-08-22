@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { t } from '../../lib/theme';
 import type { AirportDataResponse } from '../../api/types';
 import { PanelBody } from './PanelBody';
@@ -14,10 +14,25 @@ export function AnalysisPanel({
   error: string | null;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
+  const scroller = useRef<HTMLElement>(null);
   const detail = selected ? data?.scores.find((s) => s.iata_code === selected) : undefined;
+
+  const selectAirport = (code: string | null) => {
+    setSelected(code);
+    if (!code) return;
+
+    // Wait until the detail card is mounted above the ranking, then reveal it.
+    requestAnimationFrame(() => {
+      scroller.current?.scrollTo({
+        top: 0,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      });
+    });
+  };
 
   return (
     <aside
+      ref={scroller}
       className="sb"
       style={{
         overflowY: 'auto',
@@ -49,7 +64,7 @@ export function AnalysisPanel({
           error={error}
           compact={false}
           selected={selected}
-          onSelect={setSelected}
+          onSelect={selectAirport}
         />
       </div>
     </aside>

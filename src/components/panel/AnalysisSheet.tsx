@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { t } from '../../lib/theme';
 import type { AirportDataResponse } from '../../api/types';
 import { PanelBody } from './PanelBody';
@@ -21,7 +21,20 @@ export function AnalysisSheet({
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
+  const scroller = useRef<HTMLDivElement>(null);
   const detail = selected ? data?.scores.find((s) => s.iata_code === selected) : undefined;
+
+  const selectAirport = (code: string | null) => {
+    setSelected(code);
+    if (!code) return;
+
+    requestAnimationFrame(() => {
+      scroller.current?.scrollTo({
+        top: 0,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      });
+    });
+  };
 
   const title = detail
     ? `${detail.iata_code} · ${detail.city ?? detail.name}`
@@ -93,6 +106,7 @@ export function AnalysisSheet({
 
       {open && (
         <div
+          ref={scroller}
           className="sb rise"
           style={{
             maxHeight: '52dvh',
@@ -111,7 +125,7 @@ export function AnalysisSheet({
             error={error}
             compact
             selected={selected}
-            onSelect={setSelected}
+            onSelect={selectAirport}
           />
         </div>
       )}
