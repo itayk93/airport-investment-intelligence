@@ -11,7 +11,7 @@ const MAX_TOOL_RESULT_BYTES = 12 * 1024;
 const MAX_OUTPUT_TOKENS = 320;
 const encoder = new TextEncoder();
 const SCORE_DISCLOSURE =
-  'Caveat: modeled proxy, ranked within the airport\'s own region, with one month of congestion data. Not an ROI estimate.';
+  'Caveat: modeled proxy, ranked within the airport\'s own region, over one year of congestion data that still mixes weather with structural congestion. Not an ROI estimate.';
 
 export interface AgentInputMessage {
   role: 'user' | 'assistant';
