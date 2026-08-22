@@ -28,8 +28,8 @@ npm install
 npm run dev
 ```
 
-Opens at http://localhost:5173. The database is populated and both Supabase Edge Functions
-are deployed, so the app works immediately.
+Opens at http://localhost:5173. The database is populated and all three Supabase Edge
+Functions are deployed, so the app works immediately.
 
 Requires a `.env` at the project root:
 
@@ -71,8 +71,9 @@ follow-ups remain fully supported in the web chat.
 
 ```
 .github/workflows/       scheduled daily + annual data refresh
-docs/                    stage-by-stage build log, 00–10
+docs/                    stage-by-stage build log, 00–15
   ARCHITECTURE.md        the design document (read this first)
+  SUBMISSION.md          one-page submission summary
   DATA_PLAN.md           endpoint-level map of the three data sources
 src/                     Vite + React + TypeScript UI
 supabase/

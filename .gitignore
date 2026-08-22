@@ -21,8 +21,12 @@ data/out/faa-taf-annual.json
 # Interview preparation and internal talking points. This repository is public and these
 # read as a rehearsal script rather than as project documentation, so they stay local.
 # Removed from history on 2026-08-22 with git-filter-repo.
-docs/interview-prep-he.md
 docs/04-decisions-and-talking-points.md
 # Prompt text copied verbatim from a third-party site; not part of this project's work.
 docs/promptforge-selected-prompts.md
-docs/interview-prep-he.html
+
+# Hebrew-language versions of the docs (including the interview prep). Written for my own
+# reading rather than for the reviewer, and they duplicate content the English documents
+# already carry, so the public repository keeps one language.
+docs/*-he.html
+docs/*-he.md

@@ -276,5 +276,4 @@ BTS data and re-scores when it arrives.
 
 Figures read from the deployed API on 2026-08-22. Coverage moves as the scheduled refresh
 ingests new BTS months; the app derives the current numbers from the database rather than
-quoting a constant. Formatted page: [docs/architecture.html](architecture.html) ·
-[docs/architecture-he.html](architecture-he.html) (Hebrew).
+quoting a constant. Formatted page: [docs/architecture.html](architecture.html).

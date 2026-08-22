@@ -14,7 +14,7 @@
 | Deterministic scoring | [`scripts/score.mjs`](../scripts/score.mjs), [`scripts/lib/scoring.mjs`](../scripts/lib/scoring.mjs), tests in [`tests/scoring.test.mjs`](../tests/scoring.test.mjs) |
 | Agent (LLM + typed tools) | [`supabase/functions/_shared/agent.ts`](../supabase/functions/_shared/agent.ts), [`supabase/functions/agent-chat/`](../supabase/functions/agent-chat) |
 | Data source map | [`DATA_PLAN.md`](DATA_PLAN.md) |
-| Build log, stage by stage | [`docs/00-overview.md`](00-overview.md) → `docs/13-*` |
+| Build log, stage by stage | [`docs/00-overview.md`](00-overview.md) → `docs/15-*` |
 
 ## What it is
 
