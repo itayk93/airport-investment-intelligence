@@ -1,7 +1,6 @@
 // Generic, allowlisted data access for the agent. The model selects fields, never SQL.
 import {
   asIataCodes,
-  COMPARISON_SET,
   getForecast,
   getMetrics,
   getScores,
@@ -17,14 +16,29 @@ import {
   unknownMetricNames,
 } from './dataCatalog.ts';
 
+// Above this, an unfiltered list_airports result no longer fits the agent's tool-result
+// budget; see the note branch in runTool.
+const MAX_AIRPORT_ROWS = 60;
+
 export const toolDefinitions = [
   {
     type: 'function' as const,
     function: {
       name: 'list_airports',
       description:
-        'Discover which airports are covered and resolve city, state, or region names to IATA codes. Use before claiming that a place is not covered.',
-      parameters: { type: 'object', properties: {}, required: [], additionalProperties: false },
+        'Discover which airports are covered and resolve city, state, or region names to IATA codes. Each row reports whether the airport is scored and which regional comparison set it belongs to; a covered airport can be unscored because its traffic is below the sample floor. Pass region to narrow the list — coverage is a few hundred airports, so an unfiltered call returns all of them. Use before claiming that a place is not covered.',
+      parameters: {
+        type: 'object',
+        properties: {
+          region: {
+            type: 'string',
+            description:
+              'Optional case-insensitive region or state filter, for example "New England" or "MA".',
+          },
+        },
+        required: [],
+        additionalProperties: false,
+      },
     },
   },
   {
@@ -125,8 +139,9 @@ async function getAirportData(args: Record<string, unknown>): Promise<unknown> {
   const rows: DataRow[] = [];
   const unavailable = new Set<string>(unknown);
   const scoreMetrics = metrics.filter((name) => METRIC_CATALOG[name].source === 'scores');
+  let scoreRows: DataRow[] = [];
   if (scoreMetrics.length) {
-    const scoreRows = await getScores(airports) as unknown as DataRow[];
+    scoreRows = await getScores(airports) as unknown as DataRow[];
     rows.push(...scoreRows.map((row) => ({
       source: 'computed_scores',
       ...pick(row, scoreMetrics, ['iata_code', 'name', 'computed_at']),
@@ -159,7 +174,11 @@ async function getAirportData(args: Record<string, unknown>): Promise<unknown> {
   }
 
   return {
-    comparison_set: scoreMetrics.length ? COMPARISON_SET : undefined,
+    // One set name no longer covers the answer: each score row carries the regional set it
+    // was ranked in, and a multi-airport request can legitimately span several.
+    comparison_sets: scoreMetrics.length
+      ? [...new Set(scoreRows.map((r) => r.comparison_set_id).filter(Boolean))]
+      : undefined,
     metric_metadata: catalog(metrics),
     rows,
     unavailable_metrics: [...unavailable],
@@ -175,8 +194,36 @@ async function getAirportData(args: Record<string, unknown>): Promise<unknown> {
 
 export async function runTool(name: string, args: Record<string, unknown>): Promise<unknown> {
   switch (name) {
-    case 'list_airports':
-      return { rows: await listAirports(), available_metrics: catalog() };
+    case 'list_airports': {
+      const all = await listAirports() as unknown as DataRow[];
+      const filter = typeof args.region === 'string' ? args.region.trim().toLowerCase() : '';
+      const rows = filter
+        ? all.filter((r) =>
+          String(r.region ?? '').toLowerCase() === filter ||
+          String(r.state ?? '').toLowerCase() === filter
+        )
+        : all;
+      const summary = {
+        // Reported explicitly so an empty filtered result reads as "no match in a known
+        // region list" rather than as "coverage is empty".
+        total_airports_covered: all.length,
+        scored_airports: all.filter((r) => r.scored).length,
+        regions: [...new Set(all.map((r) => r.region).filter(Boolean))].sort(),
+        available_metrics: catalog(),
+      };
+      // An unfiltered dump of every covered airport exceeds the tool-result byte budget and
+      // comes back to the model as a truncated JSON fragment — worse than no rows at all.
+      // Return the directory instead and make the model narrow the request.
+      if (!filter && all.length > MAX_AIRPORT_ROWS) {
+        return {
+          ...summary,
+          rows: [],
+          note:
+            `Coverage is ${all.length} airports, too many to list at once. Call list_airports again with a region from the regions field, or with a two-letter state code.`,
+        };
+      }
+      return { rows, ...summary };
+    }
     case 'get_airport_data':
       return getAirportData(args);
     default:

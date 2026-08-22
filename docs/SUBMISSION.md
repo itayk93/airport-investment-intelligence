@@ -46,8 +46,10 @@ references to earlier turns).
 
 ## Stated limits
 
-- **Five airports** (SFO, LAX, SNA, ANC, BOS) and one month of on-time data. Scores are
-  *relative to this set*, not absolute national rankings.
+- **347 covered airports, 163 scored**, and one month of on-time data. Scores are *relative
+  to the airport's own US Census region*, not absolute and not comparable across regions.
+  Airports under 300 departures/month are covered but not ranked — see
+  [`docs/14-coverage-expansion.md`](14-coverage-expansion.md).
 - **The weights are a reasoned heuristic**, not fitted to data. No public ground-truth
   dataset of successful vs. failed expansions exists to calibrate against, and no industry
   standard composite exists to borrow — see `ARCHITECTURE.md §2`.

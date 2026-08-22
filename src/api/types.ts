@@ -12,6 +12,10 @@ export interface Airport {
   city: Nullable<string>;
   state: Nullable<string>;
   region: Nullable<string>;
+  /** Covered airports are not all scored — see the sample floor in scripts/score.mjs. */
+  scored: boolean;
+  score_exclusion_reason: Nullable<string>;
+  comparison_set_id: Nullable<string>;
 }
 
 export interface ScoreRow {
@@ -20,6 +24,8 @@ export interface ScoreRow {
   city: Nullable<string>;
   state: Nullable<string>;
   region: Nullable<string>;
+  /** The regional peer group this row was ranked within. Scores only compare inside it. */
+  comparison_set_id: Nullable<string>;
   capacity_pressure: Nullable<string | number>;
   forecast_growth_gap_pct: Nullable<string | number>;
   unmet_demand_score: Nullable<string | number>;
@@ -48,7 +54,7 @@ export interface CoverageRow {
 }
 
 export interface ScoringModel {
-  comparison_set: string;
+  comparison_sets: string[];
   capacity_pressure_weights: WeightRow[];
   expansion_weights: WeightRow[];
   caveats: Caveat[];

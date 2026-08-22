@@ -3,14 +3,76 @@ import { t } from '../../lib/theme';
 import type { ChatMessage } from '../../hooks/useChat';
 import { AgentMessage } from './AgentMessage';
 
-// The four questions the assignment names, so a reviewer can exercise the system without
-// typing — and so the agent's scope is legible before the first question.
-const SUGGESTIONS = [
-  'Best airport in New England?',
-  'Compare LAX and SNA',
-  'ANC long-haul share?',
-  'Why does SFO rank first?',
+// Two groups. The first is the assignment's four example questions, verbatim rather than
+// abbreviated, so a reviewer can exercise exactly what the brief asks for without typing.
+// The second is five questions the expanded coverage makes answerable — each one was
+// checked against real ingested data before being listed here, so a quick question can
+// never lead to "I don't have that".
+const BRIEF_QUESTIONS = [
+  'Which airports in New England are strong candidates for terminal expansion?',
+  'Compare LA and Santa Ana airport congestion levels.',
+  'What is the percentage of long haul flights out of Anchorage airport?',
+  'What is the unmet flight demand in SFO airport and why?',
 ];
+
+const DEEPER_QUESTIONS = [
+  // Two mid-sized New England airports the earlier 5-airport build could not see at all.
+  'Compare Providence and Manchester as terminal expansion candidates.',
+  // BOS has the region's highest capacity pressure but an unmet demand score of exactly 0.
+  'Why is Boston not the top expansion candidate in New England?',
+  // Raw congestion metrics across a 31-airport regional set.
+  'Which Pacific airports have the highest capacity pressure?',
+  // long_haul_share_pct is an absolute metric, so this comparison is valid across regions.
+  'Compare the long-haul share at JFK, Seattle and Boston.',
+  // Answered from score_exclusion_reason on the airports table, not inferred by the model.
+  'Which airports are covered but not scored, and why?',
+];
+
+function QuestionGroup({
+  label,
+  questions,
+  onPick,
+  compact,
+}: {
+  label: string;
+  questions: string[];
+  onPick: (q: string) => void;
+  compact: boolean;
+}) {
+  const [hover, setHover] = useState<number | null>(null);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+      <div style={{ font: `500 10px/1 ${t.mono}`, letterSpacing: '.09em', color: t.ink42 }}>
+        {label}
+      </div>
+      {questions.map((q, i) => (
+        <button
+          key={q}
+          type="button"
+          onClick={() => onPick(q)}
+          onMouseEnter={() => !compact && setHover(i)}
+          onMouseLeave={() => !compact && setHover(null)}
+          className={compact ? 'press' : undefined}
+          style={{
+            textAlign: 'left',
+            background: hover === i ? t.surface : 'rgba(255,255,255,.72)',
+            border: `1px solid ${hover === i ? t.accent : 'rgba(22,32,43,.13)'}`,
+            borderRadius: compact ? 11 : 9,
+            padding: compact ? '13px 14px' : '11px 14px',
+            font: `400 13.5px/${compact ? 1.42 : 1.4} ${t.sans}`,
+            color: t.ink,
+            cursor: 'pointer',
+            minHeight: compact ? 48 : undefined,
+            transition: '.14s',
+            transform: hover === i ? 'translateX(3px)' : 'none',
+          }}
+        >
+          {q}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 function Welcome({
   onPick,
@@ -19,7 +81,6 @@ function Welcome({
   onPick: (q: string) => void;
   compact: boolean;
 }) {
-  const [hover, setHover] = useState<number | null>(null);
   return (
     <div
       style={{
@@ -44,38 +105,22 @@ function Welcome({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 7,
+          gap: compact ? 16 : 15,
           marginTop: compact ? 2 : 4,
         }}
       >
-        <div style={{ font: `500 10px/1 ${t.mono}`, letterSpacing: '.09em', color: t.ink42 }}>
-          QUICK QUESTIONS
-        </div>
-        {SUGGESTIONS.map((q, i) => (
-          <button
-            key={q}
-            type="button"
-            onClick={() => onPick(q)}
-            onMouseEnter={() => !compact && setHover(i)}
-            onMouseLeave={() => !compact && setHover(null)}
-            className={compact ? 'press' : undefined}
-            style={{
-              textAlign: 'left',
-              background: hover === i ? t.surface : 'rgba(255,255,255,.72)',
-              border: `1px solid ${hover === i ? t.accent : 'rgba(22,32,43,.13)'}`,
-              borderRadius: compact ? 11 : 9,
-              padding: compact ? '13px 14px' : '11px 14px',
-              font: `400 13.5px/${compact ? 1.42 : 1.4} ${t.sans}`,
-              color: t.ink,
-              cursor: 'pointer',
-              minHeight: compact ? 48 : undefined,
-              transition: '.14s',
-              transform: hover === i ? 'translateX(3px)' : 'none',
-            }}
-          >
-            {q}
-          </button>
-        ))}
+        <QuestionGroup
+          label="THE ASSIGNMENT'S QUESTIONS"
+          questions={BRIEF_QUESTIONS}
+          onPick={onPick}
+          compact={compact}
+        />
+        <QuestionGroup
+          label="GO DEEPER"
+          questions={DEEPER_QUESTIONS}
+          onPick={onPick}
+          compact={compact}
+        />
       </div>
     </div>
   );
@@ -114,7 +159,6 @@ export function ChatPane({
         minWidth: 0,
         minHeight: 0,
         overflow: 'hidden',
-        borderRight: compact ? undefined : `1px solid ${t.ink14}`,
       }}
     >
       <div

@@ -77,7 +77,7 @@ part of the identity, not an afterthought.
 | column | type |
 |---|---|
 | `iata_code` | text, FK → airports |
-| `comparison_set_id` | text — e.g. `'pilot-5'`, `'new-england'` |
+| `comparison_set_id` | text — the airport's US Census region, e.g. `'New England'`, `'Pacific'` (stage 14; was `'pilot-5'`) |
 | `computed_at` | timestamptz |
 | `capacity_pressure` | numeric [0,1] |
 | `forecast_growth_gap_pct` | numeric |

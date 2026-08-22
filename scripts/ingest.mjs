@@ -1,9 +1,13 @@
 // Ingestion: loads stage-1 verified data into Supabase (schema: docs/02-database-schema.md).
 //
 // Sources, per row:
-//   - airports              — hardcoded dimension for the 5 pilot airports (no public API
-//                              publishes "airport region tags" like New England; this is
-//                              the one deliberately manual table).
+//   - airports              — built from public data, not hand-maintained: BTS On-Time
+//                              supplies the origin set plus city/state, the FAA TAF
+//                              Airports.xlsx supplies the official facility name and hub
+//                              size, and region comes from the US Census division of the
+//                              state (scripts/lib/regions.mjs). Coverage is therefore a
+//                              consequence of what the sources report, not of a list
+//                              someone picked.
 //   - airport_metrics_monthly (domestic_ontime) — read straight from
 //                              data/out/ontime-*.json, already at the right (airport,
 //                              year, month) grain.
@@ -22,6 +26,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { loadEnv } from './lib/env.mjs';
 import { fetchT100Monthly } from './fetch-t100-monthly.mjs';
+import { regionForState } from './lib/regions.mjs';
 
 loadEnv('.env');
 
@@ -31,16 +36,47 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
   throw new Error('Missing VITE_SUPABASE_URL or SUPABASE_SECRET_KEY — check .env');
 }
 
-const AIRPORTS = [
-  { iata_code: 'SFO', name: 'San Francisco International Airport', city: 'San Francisco', state: 'CA', region: null, faa_locid: 'SFO' },
-  { iata_code: 'LAX', name: 'Los Angeles International Airport', city: 'Los Angeles', state: 'CA', region: null, faa_locid: 'LAX' },
-  { iata_code: 'SNA', name: 'John Wayne Airport (Santa Ana)', city: 'Santa Ana', state: 'CA', region: null, faa_locid: 'SNA' },
-  { iata_code: 'ANC', name: 'Ted Stevens Anchorage International Airport', city: 'Anchorage', state: 'AK', region: null, faa_locid: 'ANC' },
-  { iata_code: 'BOS', name: 'Boston Logan International Airport', city: 'Boston', state: 'MA', region: 'New England', faa_locid: 'BOS' },
-];
+// Airports below the On-Time sample floor are still loaded — the agent should be able to
+// say "PVD is covered but too small to score" instead of "PVD does not exist". They are
+// excluded from scoring, not from the dimension. See scripts/score.mjs.
+const CHUNK = 1000; // PostgREST payload chunk; a single 20k-row body times out.
+
+function buildAirports(ontimeRows) {
+  const faa = new Map(
+    (readJsonIfExists('data/out/faa-airports.json') ?? []).map((a) => [a.locid, a]),
+  );
+  const byCode = new Map();
+  for (const r of ontimeRows) {
+    if (byCode.has(r.airport)) continue;
+    const f = faa.get(r.airport);
+    byCode.set(r.airport, {
+      iata_code: r.airport,
+      // FAA's official facility name when the IATA code matches an FAA LOCID (it does for
+      // the large majority); otherwise fall back to the BTS city so the row is never
+      // nameless.
+      name: f?.name || `${r.city ?? r.airport} Airport`,
+      city: r.city ?? f?.city ?? null,
+      state: r.state ?? f?.state ?? null,
+      region: regionForState(r.state ?? f?.state),
+      faa_locid: f ? f.locid : null,
+    });
+  }
+  return [...byCode.values()].sort((a, b) => a.iata_code.localeCompare(b.iata_code));
+}
+
 
 async function upsert(table, rows, { onConflict } = {}) {
   if (!rows.length) return { table, count: 0 };
+  // Chunked: coverage went from 5 airports to a few hundred, which turns single-request
+  // bodies into tens of thousands of rows. Chunks keep each request small enough to
+  // succeed and make a partial failure report which chunk died.
+  for (let i = 0; i < rows.length; i += CHUNK) {
+    await upsertChunk(table, rows.slice(i, i + CHUNK), onConflict);
+  }
+  return { table, count: rows.length };
+}
+
+async function upsertChunk(table, rows, onConflict) {
   const url = `${SUPABASE_URL}/rest/v1/${table}${onConflict ? `?on_conflict=${onConflict}` : ''}`;
   const res = await fetch(url, {
     method: 'POST',
@@ -56,7 +92,6 @@ async function upsert(table, rows, { onConflict } = {}) {
     const body = await res.text();
     throw new Error(`upsert ${table} failed: ${res.status} ${body}`);
   }
-  return { table, count: rows.length };
 }
 
 function readJsonIfExists(path) {
@@ -94,11 +129,18 @@ function ontimeRowToMetric(r) {
 async function main() {
   const results = [];
 
-  results.push(await upsert('airports', AIRPORTS, { onConflict: 'iata_code' }));
+  // The On-Time files define coverage: an airport exists here if BTS reported departures
+  // from it. Every other table is filtered to this set, because a T-100 or TAF row for an
+  // airport with no congestion data cannot be scored and would only inflate the count.
+  const ontimeFiles = readdirSync('data/out').filter((f) => /^ontime-\d{4}-\d{1,2}\.json$/.test(f));
+  const ontimeRaw = ontimeFiles.flatMap((f) => readJsonIfExists(`data/out/${f}`) ?? []);
+  const airportRows = buildAirports(ontimeRaw);
+  const covered = new Set(airportRows.map((a) => a.iata_code));
+
+  results.push(await upsert('airports', airportRows, { onConflict: 'iata_code' }));
 
   // 1. On-Time monthly metrics — every data/out/ontime-*.json produced so far.
-  const ontimeFiles = readdirSync('data/out').filter((f) => /^ontime-\d{4}-\d{1,2}\.json$/.test(f));
-  const ontimeRows = ontimeFiles.flatMap((f) => readJsonIfExists(`data/out/${f}`).map(ontimeRowToMetric));
+  const ontimeRows = ontimeRaw.map(ontimeRowToMetric);
   results.push(
     await upsert('airport_metrics_monthly', ontimeRows, {
       onConflict: 'iata_code,year,month,data_scope',
@@ -107,21 +149,25 @@ async function main() {
 
   // 2. T-100 monthly metrics — fetched fresh at the correct grain (see header comment).
   const t100Year = process.argv[2] ? Number(process.argv[2]) : 2025;
-  const t100Rows = await fetchT100Monthly(t100Year);
+  const t100Rows = (await fetchT100Monthly(t100Year)).filter((r) => covered.has(r.iata_code));
   results.push(
     await upsert('airport_metrics_monthly', t100Rows, {
       onConflict: 'iata_code,year,month,data_scope',
     }),
   );
 
-  // 3. FAA TAF annual forecast series.
-  const tafRows = (readJsonIfExists('data/out/faa-taf-annual.json') ?? []).map((r) => ({
-    iata_code: r.airport,
-    year: r.year,
-    scenario: r.scenario,
-    enplanements: r.enplanements,
-    operations: r.operations,
-  }));
+  // 3. FAA TAF annual forecast series. TAF keys on FAA LOCID; for these airports it equals
+  //    the IATA code, and any facility where it does not simply has no forecast row and is
+  //    reported as such rather than being silently matched to the wrong airport.
+  const tafRows = (readJsonIfExists('data/out/faa-taf-annual.json') ?? [])
+    .filter((r) => covered.has(r.airport))
+    .map((r) => ({
+      iata_code: r.airport,
+      year: r.year,
+      scenario: r.scenario,
+      enplanements: r.enplanements,
+      operations: r.operations,
+    }));
   results.push(
     await upsert('airport_forecast_annual', tafRows, {
       onConflict: 'iata_code,year,scenario',

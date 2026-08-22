@@ -40,10 +40,14 @@ which makes it an upsert against the table's primary key — safe to re-run.
 
 | Table | Source | Rows (as run) |
 |---|---|---|
-| `airports` | hardcoded dimension (5 pilot airports; region tag is manual — no API publishes it) | 5 |
-| `airport_metrics_monthly`, `data_scope='domestic_ontime'` | every `data/out/ontime-*.json` present | 5 (one month run so far) |
-| `airport_metrics_monthly`, `data_scope='t100_all'` | fresh monthly Socrata query | 60 (5 airports × 12 months of 2025) |
-| `airport_forecast_annual` | `data/out/faa-taf-annual.json` | 400 (5 airports × ~80 years × 2 scenarios) |
+| `airports` | derived, not hardcoded: origin set + city/state from `data/out/ontime-*.json`, official facility name from `data/out/faa-airports.json` (FAA TAF `Airports.xlsx`), region from the state's US Census division (`scripts/lib/regions.mjs`) | 347 |
+| `airport_metrics_monthly`, `data_scope='domestic_ontime'` | every `data/out/ontime-*.json` present | 347 (one month run so far) |
+| `airport_metrics_monthly`, `data_scope='t100_all'` | fresh monthly Socrata query, filtered to covered airports | 4,154 |
+| `airport_forecast_annual` | `data/out/faa-taf-annual.json`, filtered to covered airports | 14,154 |
+
+Total run time end to end: **8.6 s**. Writes are chunked at 1,000 rows — a single body of
+14k rows times out. Coverage grew from 5 airports in stage 14; see
+[`docs/14-coverage-expansion.md`](14-coverage-expansion.md).
 
 ## Known limitation to state out loud
 

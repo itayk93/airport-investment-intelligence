@@ -29,7 +29,7 @@ export function AnalysisSheet({
 
   const subtitle = detail
     ? 'tap the row again to return to the full ranking'
-    : `deterministic · ${data?.scores.length ?? 0} airports · set ${data?.model.comparison_set ?? '—'}`;
+    : `deterministic · ${data?.scores.length ?? 0} airports · ${data?.model.comparison_sets.length ?? 0} regional sets`;
 
   return (
     <div

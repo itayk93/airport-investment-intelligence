@@ -13,4 +13,7 @@ supabase/.temp/
 
 # Large source downloads are reproducible through the scripts in scripts/.
 data/raw/
+# Derived, 15 MB: the full FAA TAF annual series for all 3,319 facilities. Regenerate with
+# `python3 scripts/parse-faa-taf-full.py` (reads the cached zip in data/raw/).
+data/out/faa-taf-annual.json
 .vercel

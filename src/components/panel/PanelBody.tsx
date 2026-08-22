@@ -336,9 +336,19 @@ export function PanelBody({
   onSelect: (code: string | null) => void;
 }) {
   const [showCaveats, setShowCaveats] = useState(!compact);
+  // Scoring is regional, so the ranking list must be too — a single national list would
+  // invite exactly the cross-region comparison the model does not support. New England is
+  // the default because it is the region the brief's own first question asks about.
+  const [region, setRegion] = useState('New England');
 
-  const scores = data?.scores ?? [];
-  const detail = selected ? scores.find((s) => s.iata_code === selected) : undefined;
+  const allScores = data?.scores ?? [];
+  const regions = [...new Set(allScores.map((s) => s.comparison_set_id).filter(Boolean))].sort() as string[];
+  // Fall back to the first available region if the default produced no scores.
+  const activeRegion = regions.includes(region) ? region : (regions[0] ?? '');
+  const scores = allScores
+    .filter((s) => s.comparison_set_id === activeRegion)
+    .sort((a, b) => (num(b.expansion_score) ?? -1) - (num(a.expansion_score) ?? -1));
+  const detail = selected ? allScores.find((s) => s.iata_code === selected) : undefined;
 
   return (
     <div
@@ -369,7 +379,37 @@ export function PanelBody({
 
       {!loading && !error && scores.length > 0 && (
         <div className="fade" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <SectionLabel compact={compact}>TOP AIRPORTS</SectionLabel>
+          <SectionLabel
+            compact={compact}
+            right={`${scores.length} ranked`}
+          >
+            TOP AIRPORTS — {activeRegion.toUpperCase()}
+          </SectionLabel>
+          <select
+            aria-label="Comparison region"
+            value={activeRegion}
+            onChange={(e) => {
+              setRegion(e.target.value);
+              // The open detail card belongs to the previous region; clear it so the panel
+              // never shows a score next to a ranking it is not part of.
+              onSelect(null);
+            }}
+            style={{
+              font: `400 12px/1.4 ${t.mono}`,
+              color: t.ink,
+              background: t.surface,
+              border: '1px solid rgba(22,32,43,.16)',
+              borderRadius: 8,
+              padding: compact ? '9px 10px' : '7px 9px',
+              marginBottom: 2,
+            }}
+          >
+            {regions.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
           {scores.map((row, i) => (
             <RankRow
               key={row.iata_code}

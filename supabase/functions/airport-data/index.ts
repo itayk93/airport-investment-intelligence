@@ -25,7 +25,9 @@ Deno.serve(async (req) => {
       // The scoring model, served from the backend so the UI never hardcodes weights that
       // could drift from scripts/score.mjs.
       model: {
-        comparison_set: 'pilot-5',
+        // Every distinct regional set present in the current scores, derived rather than
+        // hardcoded so the panel cannot advertise a set that scoring did not produce.
+        comparison_sets: [...new Set(scores.map((r: { comparison_set_id?: string }) => r.comparison_set_id).filter(Boolean))].sort(),
         capacity_pressure_weights: [
           { key: 'taxiOut', label: 'Average taxi-out time', source: 'BTS On-Time · minutes per departure', weight: 0.4 },
           { key: 'nasDelay', label: 'NAS delay per departure', source: 'BTS On-Time · air-traffic-system minutes', weight: 0.35 },
@@ -39,7 +41,8 @@ Deno.serve(async (req) => {
         caveats: [
           { tag: '01', text: 'Weights are a chosen heuristic, not an industry standard. The FAA itself uses separate throughput, demand, and delay criteria rather than one weighted composite.' },
           { tag: '02', text: 'No public dataset publishes runway, gate, or terminal capacity. Capacity pressure and unmet demand are modeled proxies built from delay and forecast data.' },
-          { tag: '03', text: 'Scores are relative to this 5-airport comparison set. 1.00 means "most pressured of these five", not "at absolute capacity".' },
+          { tag: '03', text: 'Scores are relative to an airport\'s own US Census region, not national and not absolute. 1.00 means "most pressured in that region". Scores from different regions are not comparable — compare the underlying metrics instead.' },
+          { tag: '06', text: 'Airports below 100 departures per month are covered but not scored: at that sample size one bad day moves the delay averages more than genuine congestion does.' },
           { tag: '04', text: 'Congestion data covers US domestic flights by BTS reporting carriers only. International departures at SFO and LAX are not in the delay figures.' },
           { tag: '05', text: 'The 2,000-mile long-haul threshold is our own definition, not a BTS or FAA standard.' },
         ],

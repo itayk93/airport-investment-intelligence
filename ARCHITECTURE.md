@@ -4,8 +4,11 @@ An AI agent that helps analysts identify US airports where modernization investm
 likely to pay back, using only public BTS and FAA data. Scoring is deterministic code; the
 LLM explains and compares, it never computes.
 
-**Pilot set:** SFO, LAX, SNA, ANC, BOS. Five airports, deliberately — see
-[Scope & honesty](#scope-uncertainty-and-what-this-does-not-do).
+**Coverage:** every US airport BTS reports departures from — 347 covered, 163 scored across
+9 regional comparison sets. Airports below the sample floor are covered but deliberately
+unscored. Coverage grew from a 5-airport pilot in stage 14; the reasoning, measurements, and
+the tradeoffs it forced are in [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
+See also [Scope & honesty](#scope-uncertainty-and-what-this-does-not-do).
 
 ---
 
@@ -189,9 +192,19 @@ endpoint is broken (302 to an error page), and BTS On-Time is a 277 MB CSV that 
 streamed, not an API. Cost: a slower start. Benefit: no schema built around fields that
 turn out not to exist.
 
-**Five airports, deeply, over fifty shallowly.** One On-Time month is a 31 MB download and
-a 277 MB stream. Breadth was traded for correctness and honest coverage reporting. Adding
-airports is a config-list change, not a code change.
+**Coverage from the source, not from a list.** The build started with five hand-picked
+airports, trading breadth for correctness. Stage 14 measured that tradeoff instead of
+assuming it: the On-Time CSV is national already (a full pass is 11 s) and T-100 aggregates
+server-side (all 1,311 US origins is one 10 s request), so breadth was nearly free — while a
+hand-picked list silently decided the answer to every regional question. Coverage is now
+whatever BTS reports. The real ceiling is the data's: only ~230 airports have enough
+On-Time volume to score. See [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
+
+**Regional comparison sets, not one national ranking.** Min-max normalisation is relative by
+construction, so a national set would let the busiest and quietest US airports define the
+endpoints and compress every regional difference toward zero. Ranking within a region also
+matches the question being asked. Cost: scores are not comparable across regions, which the
+prompt, the panel, and the caveats all state explicitly.
 
 **Scores materialised, not computed on read.** Scoring runs as a batch step and writes to
 `airport_scores`; the agent only ever `SELECT`s. Keeps determinism outside the LLM loop and
@@ -236,8 +249,14 @@ reviewer should ask:
 - **No public dataset publishes runway, gate, or terminal capacity** at the needed
   granularity. Capacity Pressure and Unmet Demand are *modeled proxies* from delay and
   forecast data — never presented as published capacity figures.
-- **Scores are relative to the 5-airport set.** 1.00 means "most pressured of these five",
-  not "at absolute capacity". Adding airports shifts every score.
+- **Scores are relative to an airport's own US Census region**, never national and never
+  absolute. 1.00 means "most pressured in that region". **Scores from different regions are
+  not comparable** — BOS at 0.9962 in New England and SFO at 0.8457 in the Pacific sit near
+  the top of two different scales. Cross-region comparison must use the underlying metrics.
+- **163 of 347 covered airports are scored.** 179 fall below the 300 departures/month sample
+  floor (~10 departures/day), 3 have no FAA TAF forecast, and 2 sit in a region with too few
+  scoreable peers to rank. Each is reported as covered but unranked with its reason, rather
+  than being scored from a sample too small to mean anything.
 - **Congestion data is US-domestic only** (BTS reporting carriers). International
   departures at SFO/LAX are absent from delay figures; T-100 covers volume including
   international.

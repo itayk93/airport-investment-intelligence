@@ -19,7 +19,7 @@ export function classifyScope(message: string, hasConversationContext = false): 
 }
 
 export const OFF_TOPIC_REPLY =
-  'I can only help with airport modernization screening and the available FAA/BTS airport data. Try asking me to compare airports, explain congestion or growth metrics, or assess an airport in the five-airport pilot.';
+  'I can only help with airport modernization screening and the available FAA/BTS airport data. Try asking me to compare airports, explain congestion or growth metrics, or assess a covered US airport.';
 
 export const SOCIAL_REPLY =
   'I analyze US airport modernization opportunities using FAA and BTS data. Ask me to compare SFO, LAX, SNA, ANC, or BOS, or to explain their congestion, traffic, growth, or expansion scores.';

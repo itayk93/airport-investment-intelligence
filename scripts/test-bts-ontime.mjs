@@ -11,11 +11,14 @@ import { execFileSync } from 'node:child_process';
 // makes any "which airport in region X" answer a function of the list rather than of the
 // data. Small origins are still aggregated here and filtered at output by MIN_DEPARTURES.
 const LONG_HAUL_MILES = 2000; // assumption; BTS publishes no long-haul flag
-// Sample-size floor. Below this, a single bad day moves avg_taxi_out_minutes and
-// nas_delay_min_per_dep enough to outrank a genuinely congested hub. Airports under the
-// floor are written out with `sufficientSample: false` so downstream code can report
-// "not enough data" instead of ranking noise.
-const MIN_DEPARTURES = 100;
+// Sample-size floor: ~10 departures/day, so one fully disrupted day is at most ~3% of the
+// month's sample. Below this, a single bad day moves avg_taxi_out_minutes and
+// nas_delay_min_per_dep enough to outrank a genuinely congested hub — an earlier floor of
+// 100/month left RDD (134 departures, 8.31 NAS delay minutes per departure, more than
+// double Boston's) ranking fourth in a 37-airport region. Airports under the floor are
+// written out with `sufficientSample: false` so downstream code can report "not enough
+// data" instead of ranking noise.
+const MIN_DEPARTURES = 300;
 const [year = '2026', month = '5'] = process.argv.slice(2);
 
 const name = `On_Time_Reporting_Carrier_On_Time_Performance_1987_present_${year}_${month}`;

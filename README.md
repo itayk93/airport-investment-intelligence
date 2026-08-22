@@ -101,8 +101,9 @@ Ingestion upserts on primary key, so re-running is safe.
 
 ## Scope
 
-Five airports (SFO, LAX, SNA, ANC, BOS), one month of congestion data, no capacity dataset
-in existence anywhere public. Scores are relative to this comparison set, and the scoring
-weights are a stated heuristic rather than an industry standard. These limits are surfaced
+347 covered airports, 163 scored across 9 regional comparison sets, one month of congestion
+data, no capacity dataset in existence anywhere public. Scores are relative to an airport's
+own region and are not comparable across regions, and the scoring weights are a stated
+heuristic rather than an industry standard. These limits are surfaced
 in the UI and volunteered by the agent — see
 [ARCHITECTURE.md §5](ARCHITECTURE.md#5-scope-uncertainty-and-what-this-does-not-do).

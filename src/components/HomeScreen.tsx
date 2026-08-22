@@ -35,7 +35,10 @@ export function HomeScreen({
   compact: boolean;
   onStart: () => void;
 }) {
-  const airportCount = data?.scores.length ?? 5;
+  // Scored, not merely covered — the headline number should be the one the ranking can
+  // actually stand behind. The covered-but-unscored airports are reported in the panel.
+  const airportCount = data?.scores.length ?? 0;
+  const regionCount = data?.model.comparison_sets.length ?? 0;
 
   return (
     <div
@@ -221,7 +224,7 @@ export function HomeScreen({
                   font: `400 ${compact ? 11 : 11.5}px/1.55 ${t.mono}`,
                 }}
               >
-                Scope: {airportCount} airports · screening model, not ROI · current coverage shown inside the analysis workspace
+                Scope: {airportCount} scored airports across {regionCount} regional comparison sets · ranked within a region, never across · screening model, not ROI
               </div>
             </div>
           </section>

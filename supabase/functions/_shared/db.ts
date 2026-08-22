@@ -13,7 +13,10 @@ if (!DSN) throw new Error('AGENT_READER_DSN is not set');
 
 const sql = postgres(DSN, { max: 2, idle_timeout: 20, prepare: false });
 
-export const COMPARISON_SET = 'pilot-5';
+// Scores are computed per region, so there is no single global comparison set any more.
+// Each scored airport belongs to exactly one regional set, carried on the row as
+// `comparison_set_id`. Callers report that value rather than assuming one name.
+// See docs/14-coverage-expansion.md.
 
 export async function checkRateLimit(bucket: string, limit: number, window: string) {
   const rows = await sql<{ allowed: boolean }[]>`
@@ -32,11 +35,26 @@ export function asIataCodes(value: unknown, limit = 20): string[] {
     .slice(0, limit);
 }
 
+/**
+ * Every covered airport, with whether it is actually scored. Coverage and scoreability are
+ * different things now: a small airport is in the data but is excluded from ranking for
+ * sample-size reasons, and the agent must be able to tell a user which of the two applies.
+ */
 export function listAirports() {
   return sql`
-    select iata_code, name, city, state, region
-    from airports
-    order by iata_code
+    select a.iata_code, a.name, a.city, a.state, a.region,
+           (s.iata_code is not null) as scored,
+           a.score_exclusion_reason,
+           s.comparison_set_id
+    from airports a
+    left join lateral (
+      select s.iata_code, s.comparison_set_id
+      from airport_scores s
+      where s.iata_code = a.iata_code
+      order by s.computed_at desc
+      limit 1
+    ) s on true
+    order by a.iata_code
   `;
 }
 
@@ -47,17 +65,22 @@ export function getScores(codes: string[] = []) {
   const latest = sql`
     select distinct on (s.iata_code)
            s.iata_code, a.name, a.city, a.state, a.region,
+           s.comparison_set_id,
            s.capacity_pressure, s.forecast_growth_gap_pct, s.unmet_demand_score,
            s.long_haul_share_pct, s.expansion_score, s.inputs_json, s.computed_at
     from airport_scores s
     join airports a on a.iata_code = s.iata_code
-    where s.comparison_set_id = ${COMPARISON_SET}
     order by s.iata_code, s.computed_at desc
   `;
+  // Ordering is by comparison set first: expansion_score is only meaningful against an
+  // airport's regional peers, so an unsegmented national sort would invite exactly the
+  // cross-region comparison the model is not making.
   return codes.length
     ? sql`select * from (${latest}) latest
-          where iata_code in ${sql(codes)} order by expansion_score desc nulls last`
-    : sql`select * from (${latest}) latest order by expansion_score desc nulls last`;
+          where iata_code in ${sql(codes)}
+          order by comparison_set_id, expansion_score desc nulls last`
+    : sql`select * from (${latest}) latest
+          order by comparison_set_id, expansion_score desc nulls last`;
 }
 
 export function getMetrics(

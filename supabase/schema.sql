@@ -9,8 +9,15 @@ create table if not exists airports (
   city        text,
   state       text,
   region      text,
-  faa_locid   text
+  faa_locid   text,
+  -- Why an airport is covered but not ranked, written by scripts/score.mjs on every run.
+  -- Kept as data rather than left to the agent to infer: "PVD is covered but below the
+  -- sample floor" is an answer the model must be able to read, not guess. Null while
+  -- scoring has not run; scored airports are reset to null.
+  score_exclusion_reason text
 );
+
+alter table airports add column if not exists score_exclusion_reason text;
 
 create table if not exists airport_metrics_monthly (
   iata_code                         text not null references airports (iata_code),

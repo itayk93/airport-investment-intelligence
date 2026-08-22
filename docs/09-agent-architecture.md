@@ -136,7 +136,8 @@ Unseen-question checks after the generic-tool refactor:
   identity linking, retention, consent, and deletion policy.
 - Twilio Sandbox onboarding can expire and international delivery is not guaranteed; an
   approved sender is required before calling the channel production-ready.
-- `comparison_set_id` is hard-coded to `pilot-5`. Supporting arbitrary comparison sets
-  means re-running scoring per set.
+- `comparison_set_id` is the airport's US Census region (stage 14). Scores are therefore
+  not comparable across regions, and the prompt instructs the agent to compare underlying
+  metrics instead. Arbitrary ad-hoc comparison sets would still mean re-running scoring.
 - Only one month of congestion data is ingested, so trend-over-time questions can't be
   answered yet — the prompt instructs the agent to check coverage rather than imply more.
