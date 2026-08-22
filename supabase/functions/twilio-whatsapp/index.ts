@@ -25,14 +25,40 @@ const AUDIO_EXTENSIONS: Record<string, string> = {
   'audio/x-m4a': 'm4a',
 };
 
-function twiml(message: string, status = 200): Response {
-  const escaped = message
+function escapeXml(value: string): string {
+  return value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&apos;');
-  return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escaped}</Message></Response>`, {
+}
+
+function splitMessage(message: string, limit = 1_400): string[] {
+  const remaining = message.trim();
+  if (remaining.length <= limit) return [remaining];
+
+  const chunks: string[] = [];
+  let rest = remaining;
+  while (rest.length > limit) {
+    const window = rest.slice(0, limit + 1);
+    const paragraphBreak = window.lastIndexOf('\n\n');
+    const lineBreak = window.lastIndexOf('\n');
+    const space = window.lastIndexOf(' ');
+    const naturalBreak = Math.max(paragraphBreak, lineBreak, space);
+    const cut = naturalBreak > 0 ? naturalBreak : limit;
+    chunks.push(rest.slice(0, cut).trim());
+    rest = rest.slice(cut).trim();
+  }
+  if (rest) chunks.push(rest);
+  return chunks;
+}
+
+function twiml(message: string, status = 200): Response {
+  const messages = splitMessage(message)
+    .map((chunk) => `<Message>${escapeXml(chunk)}</Message>`)
+    .join('');
+  return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${messages}</Response>`, {
     status,
     headers: { 'Content-Type': 'text/xml; charset=utf-8' },
   });
