@@ -26,7 +26,13 @@ docs/04-decisions-and-talking-points.md
 docs/promptforge-selected-prompts.md
 
 # Hebrew-language versions of the docs (including the interview prep). Written for my own
-# reading rather than for the reviewer, and they duplicate content the English documents
+# reading rather than for anyone else, and they duplicate content the English documents
 # already carry, so the public repository keeps one language.
 docs/*-he.html
 docs/*-he.md
+
+# Cover page written to accompany a copy of this project when it is handed to someone.
+# It restates ARCHITECTURE.md and README.md for that one purpose, so it travels with the
+# copy rather than living in the repository.
+docs/SUBMISSION.md
+docs/submission.html

@@ -11,9 +11,6 @@ revenue inputs are outside the dataset.
 is used. Start there. The same document as a formatted page:
 **[docs/architecture.html](docs/architecture.html)**.
 
-**→ [docs/SUBMISSION.md](docs/SUBMISSION.md)** — one-page submission summary: deliverable map,
-KPIs, interfaces, and stated limits.
-
 **→ [docs/11-review-remediation.md](docs/11-review-remediation.md)** — review findings,
 fixes, corrected scores, and verification record.
 
@@ -73,7 +70,6 @@ follow-ups remain fully supported in the web chat.
 .github/workflows/       scheduled daily + annual data refresh
 docs/                    stage-by-stage build log, 00–15
   ARCHITECTURE.md        the design document (read this first)
-  SUBMISSION.md          one-page submission summary
   DATA_PLAN.md           endpoint-level map of the three data sources
 src/                     Vite + React + TypeScript UI
 supabase/
