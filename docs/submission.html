@@ -49,8 +49,8 @@
   .lede { color:var(--muted); font-size:clamp(1.03rem,2vw,1.15rem); max-width:56ch; }
   .links { display:flex; flex-wrap:wrap; gap:.5rem 1.4rem; padding-top:1rem; border-top:1px solid var(--rule);
            font:500 .86rem/1.6 var(--mono); }
-  .links a { text-decoration:none; }
-  .links a::before { content:"→ "; color:var(--faint); }
+  .links a { text-decoration:underline; text-underline-offset:.22em; }
+  .links a::before { content:"→ "; color:var(--faint); text-decoration:none; }
 
   main { display:grid; gap:2.5rem; }
   section { display:grid; gap:1rem; scroll-margin-top:2rem; }
