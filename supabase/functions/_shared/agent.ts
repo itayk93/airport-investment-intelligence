@@ -1,0 +1,140 @@
+import { SYSTEM_PROMPT } from '../agent-chat/prompt.ts';
+import { toolDefinitions, runTool } from '../agent-chat/tools.ts';
+
+const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+const MODEL = 'gpt-4o-mini';
+const MAX_TOOL_ROUNDS = 4;
+const MAX_MESSAGES = 20;
+const MAX_MESSAGE_CHARS = 2_000;
+const MAX_TOOL_RESULT_BYTES = 12 * 1024;
+const MAX_OUTPUT_TOKENS = 900;
+const encoder = new TextEncoder();
+const SCORE_DISCLOSURE =
+  'Screening caveat: these are modeled proxies, not published terminal capacity or ROI. Scores are relative to the five-airport pilot; weights are heuristic, and congestion evidence currently covers one month. Treat this as low-to-moderate-confidence screening, not an investment decision.';
+
+export interface AgentInputMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface ModelMessage {
+  role: 'system' | 'user' | 'assistant' | 'tool';
+  content: string | null;
+  tool_calls?: unknown;
+  tool_call_id?: string;
+}
+
+export interface AgentResult {
+  reply: string;
+  tool_trace: { tool: string; args: unknown }[];
+  budget_exhausted?: boolean;
+}
+
+function addScoreDisclosure(reply: string, toolTrace: AgentResult['tool_trace']) {
+  if (!toolTrace.some((call) => call.tool === 'get_airport_scores')) return reply;
+  return `${reply.trim()}\n\n${SCORE_DISCLOSURE}`;
+}
+
+function boundedToolResult(result: unknown): string {
+  const serialized = JSON.stringify(result);
+  if (encoder.encode(serialized).byteLength <= MAX_TOOL_RESULT_BYTES) return serialized;
+
+  const originalBytes = encoder.encode(serialized).byteLength;
+  let low = 0;
+  let high = serialized.length;
+  let bounded = '';
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2);
+    const candidate = JSON.stringify({
+      truncated: true,
+      original_bytes: originalBytes,
+      preview: serialized.slice(0, middle),
+    });
+    if (encoder.encode(candidate).byteLength <= MAX_TOOL_RESULT_BYTES) {
+      bounded = candidate;
+      low = middle + 1;
+    } else {
+      high = middle - 1;
+    }
+  }
+  return bounded;
+}
+
+async function callOpenAI(messages: ModelMessage[]) {
+  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages,
+      tools: toolDefinitions,
+      temperature: 0.2,
+      max_tokens: MAX_OUTPUT_TOKENS,
+    }),
+  });
+  if (!response.ok) throw new Error(`OpenAI ${response.status}: ${await response.text()}`);
+  return response.json();
+}
+
+/** Shared channel-independent agent. HTTP concerns stay in each channel adapter. */
+export async function runAgent(input: AgentInputMessage[]): Promise<AgentResult> {
+  const history = input
+    .filter((message) => message.role === 'user' || message.role === 'assistant')
+    .slice(-MAX_MESSAGES)
+    .map((message) => ({
+      role: message.role,
+      content: String(message.content ?? '').slice(0, MAX_MESSAGE_CHARS),
+    }));
+  if (!history.length) throw new Error('At least one message is required');
+
+  const messages: ModelMessage[] = [{ role: 'system', content: SYSTEM_PROMPT }, ...history];
+  const toolTrace: AgentResult['tool_trace'] = [];
+
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    const completion = await callOpenAI(messages);
+    const modelMessage = completion.choices?.[0]?.message;
+    if (!modelMessage) throw new Error('Empty response from model');
+    messages.push(modelMessage);
+
+    const calls = modelMessage.tool_calls ?? [];
+    if (!calls.length) {
+      return {
+        reply: addScoreDisclosure(modelMessage.content ?? '', toolTrace),
+        tool_trace: toolTrace,
+      };
+    }
+
+    for (const call of calls) {
+      let args: Record<string, unknown> = {};
+      try {
+        args = JSON.parse(call.function.arguments || '{}');
+      } catch {
+        args = {};
+      }
+      toolTrace.push({ tool: call.function.name, args });
+
+      let result: unknown;
+      try {
+        result = await runTool(call.function.name, args);
+      } catch (error) {
+        result = { error: `Tool failed: ${error instanceof Error ? error.message : String(error)}` };
+      }
+      messages.push({
+        role: 'tool',
+        tool_call_id: call.id,
+        content: boundedToolResult(result),
+      });
+    }
+  }
+
+  return {
+    reply:
+      "I wasn't able to finish gathering the data within the tool-call limit. Try asking about fewer airports at once.",
+    tool_trace: toolTrace,
+    budget_exhausted: true,
+  };
+}

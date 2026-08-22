@@ -20,8 +20,8 @@ LLM explains and compares, it never computes.
                                   ▼                 │                    │
                           Supabase Postgres  ──────▶┤                    │
                           4 tables                  │                    │
-                                  ▲                 └── agent-chat ──────┘
-                          scripts/score.mjs             (OpenAI + 4 tools)
+                                  ▲                 └── shared agent ────┬─▶ Web chat
+                          scripts/score.mjs             (OpenAI + 4 tools)└─▶ WhatsApp
                           deterministic KPIs
 ```
 
@@ -160,6 +160,9 @@ question resolved in 1–2 rounds.
    `"Ignore all previous instructions"` had no effect.
 4. **Secrets never reach the browser.** The OpenAI key and database DSN live in Supabase
    secrets, readable only server-side. Only the publishable key ships to the client.
+5. **WhatsApp requests are authenticated.** The channel adapter validates Twilio's HMAC
+   signature over the exact webhook URL and form fields before invoking the agent. Sender
+   numbers are never logged or sent to the model; rate limiting stores only a salted hash.
 
 ---
 
@@ -181,6 +184,12 @@ tool calls trivial. Cost: scores go stale until re-run.
 
 **Typed tools over a general SQL tool.** A general query tool would answer more questions.
 It would also hand a language model arbitrary SQL. Chose the smaller, safer surface.
+
+**WhatsApp as an adapter, not a second agent.** The web endpoint and Twilio webhook call
+one shared agent engine, so prompt, tools, limits, and caveats cannot drift. The Sandbox is
+deliberately a reviewer demo: QR/deep-link onboarding, no approved production sender, and
+stateless WhatsApp turns. Cross-channel identity or stored phone-number history would add
+privacy and retention obligations that are not justified in a one-day prototype.
 
 **No markdown library in the UI.** ~40 kB to render four constructs the design styles very
 specifically. A ~90-line parser maps replies onto the design's text/bullet/note line types.

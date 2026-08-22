@@ -49,6 +49,18 @@ The four questions from the brief, all verified end to end:
 
 Follow-up questions work — the agent resolves references to earlier turns.
 
+## WhatsApp demo
+
+The header's **WhatsApp** button opens a QR code and deep link for the Twilio WhatsApp
+Sandbox. Send the prepared join message, then ask the same airport questions in WhatsApp.
+Both channels use the same agent engine, prompt, deterministic tools, limits, and caveats.
+
+The Sandbox is a reviewer demo, not a production WhatsApp sender. Twilio may expire the
+session and does not guarantee international delivery. The webhook verifies
+`X-Twilio-Signature`, rate-limits a one-way hash of the sender, and keeps the Auth Token in
+Supabase secrets. WhatsApp turns are stateless in this one-day prototype; conversational
+follow-ups remain fully supported in the web chat.
+
 ## Layout
 
 ```

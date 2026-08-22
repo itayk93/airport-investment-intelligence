@@ -1,6 +1,15 @@
 import { t } from '../lib/theme';
+import { WhatsAppLauncher } from './WhatsAppLauncher';
 
-export function Header({ subtitle, compact = false }: { subtitle: string; compact?: boolean }) {
+export function Header({
+  subtitle,
+  compact = false,
+  onHome,
+}: {
+  subtitle: string;
+  compact?: boolean;
+  onHome?: () => void;
+}) {
   return (
     <header
       style={{
@@ -53,9 +62,41 @@ export function Header({ subtitle, compact = false }: { subtitle: string; compac
           </div>
         </div>
       </div>
-      {!compact && (
-        <div style={{ font: `400 10.5px/1 ${t.mono}`, color: t.onInk50 }}>{subtitle}</div>
-      )}
+      <div style={{ display: 'flex', alignItems: 'center', gap: compact ? 6 : 12, minWidth: 0 }}>
+        {!compact && (
+          <div style={{ font: `400 10.5px/1 ${t.mono}`, color: t.onInk50 }}>{subtitle}</div>
+        )}
+        {onHome && (
+          <button
+            type="button"
+            onClick={onHome}
+            aria-label="Back to home"
+            title="Back to home"
+            className={compact ? 'press' : undefined}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 7,
+              minWidth: compact ? 44 : undefined,
+              minHeight: 44,
+              padding: compact ? '0 10px' : '0 13px',
+              border: '1px solid rgba(246,244,239,.24)',
+              borderRadius: 9,
+              background: 'rgba(246,244,239,.08)',
+              color: t.inkOn,
+              font: `500 12px/1 ${t.sans}`,
+              cursor: 'pointer',
+            }}
+          >
+            <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>
+              ←
+            </span>
+            {!compact && <span>Back to home</span>}
+          </button>
+        )}
+        <WhatsAppLauncher compact={compact} />
+      </div>
     </header>
   );
 }
