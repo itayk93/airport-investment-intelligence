@@ -176,7 +176,7 @@ async function getAirportData(args: Record<string, unknown>): Promise<unknown> {
 export async function runTool(name: string, args: Record<string, unknown>): Promise<unknown> {
   switch (name) {
     case 'list_airports':
-      return { rows: await listAirports() };
+      return { rows: await listAirports(), available_metrics: catalog() };
     case 'get_airport_data':
       return getAirportData(args);
     default:
