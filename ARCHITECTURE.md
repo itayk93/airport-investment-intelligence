@@ -6,7 +6,7 @@ LLM explains and compares, it never computes.
 
 **Coverage:** every US airport BTS reports departures from — 358 covered, 163 scored across
 9 regional comparison sets, over thirteen months of congestion data (June 2025 – June 2026).
-Counts move as the monthly refresh cron ingests new BTS months; the app derives them live
+Counts move as the refresh cron ingests new BTS months; the app derives them live
 from the database, and the figures quoted in these docs are as of 2026-08-22. Airports below the sample floor are covered but deliberately
 unscored. Coverage grew from a 5-airport pilot in stage 14; the reasoning, measurements, and
 the tradeoffs it forced are in [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
@@ -103,7 +103,7 @@ Snapshot of the airports named in the brief, read from the deployed API on 2026-
 `Expansion score` column is only comparable down a region, never across one** — SFO and
 BTV each top their own scale. The live figures are always in the app's analysis panel;
 this table is a point-in-time illustration, not the source of truth, because the refresh
-cron re-scores monthly.
+cron re-scores whenever BTS publishes a new month.
 
 | Airport | Region | Capacity pressure | Growth gap (pp) | Unmet demand | **Expansion score** |
 |---|---|---|---|---|---|
@@ -311,7 +311,7 @@ reviewer should ask:
   defensible confidence level is low-to-moderate for screening and insufficient for an
   investment decision.
 - **Refresh is scheduled, but shallow.** Two GitHub Actions workflows re-ingest and
-  re-score (monthly for BTS On-Time, annually for the FAA TAF). What is *not* automated:
+  re-score (daily checks for a new BTS On-Time month, annually for the FAA TAF). What is *not* automated:
   alerting beyond GitHub's failed-run email, the FAA TAF vintage URL (pinned by hand), and
   backfills deeper than four months. See `docs/06`.
 

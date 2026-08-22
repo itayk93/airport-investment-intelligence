@@ -3,7 +3,7 @@
 // Deliberately separate from db.ts: that module opens a Postgres connection at import
 // time, which would make this pure formatting logic untestable without a live database.
 //
-// This exists because refresh is scheduled (.github/workflows/refresh-monthly.yml). The
+// This exists because refresh is scheduled (.github/workflows/refresh-daily.yml). The
 // period used to be hardcoded as "twelve months, June 2025 through May 2026" in both the
 // system prompt and the UI's caveat list. The first cron run added a month and made both
 // statements false while the agent went on asserting the old one confidently. Facts about

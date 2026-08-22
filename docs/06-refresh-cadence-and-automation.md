@@ -9,11 +9,11 @@ The initial build ran `node scripts/ingest.mjs 2025` by hand. Refresh is now sch
 
 | Workflow | Schedule | What it does |
 |---|---|---|
-| `.github/workflows/refresh-monthly.yml` | 5th of each month, 06:00 UTC | Fetches any newly published BTS On-Time month, ingests, re-scores, commits the new aggregate |
+| `.github/workflows/refresh-daily.yml` | Daily, 06:00 UTC | Checks whether BTS has published a month we lack; if so ingests, re-scores, and commits the new aggregate |
 | `.github/workflows/refresh-annual.yml` | 1 March, 06:00 UTC | Re-parses the FAA TAF vintage, ingests, re-scores |
 
 Both also accept `workflow_dispatch` for a manual run. They share a `concurrency` group so
-a monthly and an annual run can never write to the database at the same time.
+a daily and an annual run can never write to the database at the same time.
 
 ### Required one-time setup: repository secrets
 
@@ -36,7 +36,7 @@ Notes:
   publishable key only (see `docs/08-secrets-management.md`).
 - `scripts/lib/env.mjs` reads `.env` but never overwrites an existing `process.env` value,
   so the same scripts work unchanged locally and in CI. There is no `.env` in the runner.
-- Verify by running **Actions → Monthly data refresh → Run workflow**. A successful run with
+- Verify by running **Actions → Data refresh → Run workflow**. A successful run with
   no new BTS month ends with `No new BTS month published. Database unchanged.` in the summary —
   that is a pass, not a skip-because-broken.
 
@@ -74,25 +74,48 @@ the database lives.
 | BTS On-Time Performance (TranStats ZIP) | One new ZIP per month | Similar lag — 2026-06 was the newest ZIP available; 2026-07 returned an error page (not yet published) |
 | FAA TAF | Once a year ("Final" release) | The 2025 vintage covers historical actuals through FY2024 and forecasts through FY2055 |
 
-This means: there's no value in polling BTS more than monthly, and no value in re-running
-the FAA TAF ingestion more than once a year — the source itself doesn't change more
-often than that. Polling faster than the source publishes would just re-fetch identical
-data.
+New *data* therefore appears at most monthly. That is an argument for re-ingesting at most
+monthly — it is not an argument for *checking* at most monthly, because the publication
+date itself is unpredictable. The distinction matters and is the subject of the next
+section: a check is one HTTP range request, while an ingest only happens when the check
+finds something.
 
-## How the monthly workflow handles publication lag
+## Why daily, for a source that publishes monthly
+
+BTS publishes on no fixed date. Any monthly schedule is therefore a guess about *when in
+the month* they publish, and a wrong guess costs up to ~30 extra days of staleness on top
+of the source's own 2-3 month lag. Checking daily removes the guess: worst-case staleness
+drops from about a month to about a day.
+
+It is nearly free. When nothing new is published the job is a checkout plus three HTTP
+range probes — about 11 seconds — and this repository is public, so Actions minutes are
+unmetered. The database is written only when a month actually arrives, and the commit step
+is skipped entirely, so a quiet day leaves no trace beyond a green run.
+
+The FAA TAF job stays annual: its source genuinely publishes once a year, its URL is pinned
+to a vintage, and running it daily would download ~40 MB to re-upsert identical rows.
+
+## How the daily workflow handles publication lag
 
 BTS publishes on its own schedule, so the job cannot assume a specific month is ready.
 
 1. It looks back **4, 3, and 2 months** and skips any month whose aggregate is already in
-   `data/out/`. This means a missed or failed run self-heals: the next month picks up
+   `data/out/`. This means a missed or failed run self-heals: the next day picks up
    whatever is still absent, rather than needing a manual backfill.
 2. For each missing month it runs `scripts/test-bts-ontime.mjs`, which probes with
    `Range: bytes=0-0` and reads `Content-Range` before downloading the ~31 MB ZIP. An
    unpublished month exits non-zero and is treated as a **skip, not a failure** — verified
    against the live source on 2026-08-22: `2026-6` returned 31,606,062 bytes and `2026-7`
    returned no range header.
-3. If nothing new was published, the job ends without touching the database.
-4. Otherwise: `ingest.mjs` → `score.mjs` → commit the new aggregate.
+3. **"Not published" and "published but broken" are distinguished.** The workflow matches
+   the script's `not published yet` message explicitly; any *other* non-zero exit — a
+   corrupt ZIP, a network fault, a parser bug — emits a `::error::` annotation and fails
+   the job. Treating every failure as a skip would have made those cases green, and at a
+   daily cadence that month would silently never ingest and never send an email. The three
+   branches (skip / fail / success) are covered by a stubbed-runner test of the extracted
+   step script.
+4. If nothing new was published, the job ends without touching the database.
+5. Otherwise: `ingest.mjs` → `score.mjs` → commit the new aggregate.
 
 Idempotence is inherited, not rebuilt: every write goes through
 `Prefer: resolution=merge-duplicates` (see `docs/05-ingestion-pipeline.md`), so re-running

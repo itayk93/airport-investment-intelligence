@@ -47,7 +47,7 @@ references to earlier turns).
 ## Stated limits
 
 - **358 covered airports, 163 scored**, and thirteen months of on-time data (June 2025 – June 2026)
-  as of 2026-08-22; the monthly refresh cron moves these, and the app derives them live. Scores are *relative
+  as of 2026-08-22; the refresh cron moves these, and the app derives them live. Scores are *relative
   to the airport's own US Census region*, not absolute and not comparable across regions.
   Airports under 300 departures/month are covered but not ranked — see
   [`docs/14-coverage-expansion.md`](14-coverage-expansion.md).

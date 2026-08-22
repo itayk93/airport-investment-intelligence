@@ -1,4 +1,4 @@
-# Monthly data refresh — BTS On-Time Performance, then re-score.
+# Data refresh — BTS On-Time Performance, then re-score.
 #
 # Why GitHub Actions and not Supabase Cron: Supabase Edge Functions cap CPU at 2s per
 # request. Every stage here exceeds that (the 277 MB CSV pass alone is ~11s), and
@@ -6,15 +6,18 @@
 # available in the edge runtime. A full runner runs the existing scripts unmodified.
 # See docs/06-refresh-cadence-and-automation.md.
 #
-# Runs on the 5th: BTS publishes monthly with a ~2-3 month lag, so this looks back a few
-# months and fetches whichever month is newly available. If nothing new is published, the
-# job ends without touching the database.
+# Why daily rather than monthly, for a source that publishes monthly: BTS publishes on no
+# fixed date, so any monthly schedule is a guess about when they publish, and a bad guess
+# costs up to ~30 days of staleness on top of the source's own ~2-3 month lag. Checking
+# daily removes the guess. It is close to free: when nothing new is published the job is a
+# checkout plus three HTTP range probes, ~11s, and this repository is public so Actions
+# minutes are unmetered. The database is only touched when a month actually arrives.
 
-name: Monthly data refresh
+name: Data refresh
 
 on:
   schedule:
-    - cron: '0 6 5 * *' # 06:00 UTC, 5th of each month
+    - cron: '0 6 * * *' # 06:00 UTC daily
   workflow_dispatch: # manual run, for demos and backfills
 
 permissions:
@@ -42,12 +45,19 @@ jobs:
           node-version: 22
 
       # Try the months BTS could plausibly have published that we do not already have.
-      # test-bts-ontime.mjs probes with `Range: bytes=0-0` first and exits non-zero if the
-      # month is not published yet, so an unavailable month is a skip, not a failure.
+      # test-bts-ontime.mjs probes with `Range: bytes=0-0` before downloading, and exits
+      # non-zero with "not published yet" when the month is absent.
+      #
+      # "Not published" and "published but broken" must not look the same. Treating every
+      # non-zero exit as a skip would turn a corrupt file, a network fault, or a parser bug
+      # into a green run — and at a daily cadence that month would silently never ingest
+      # and never send an email. So the not-published message is matched explicitly, and
+      # anything else fails the job loudly.
       - name: Fetch newly published On-Time months
         id: fetch
         run: |
           newest=''
+          broken=''
           for back in 4 3 2; do
             ym=$(date -u -d "$(date -u +%Y-%m-01) -${back} month" +%Y-%-m)
             if [ -f "data/out/ontime-${ym}.json" ]; then
@@ -57,15 +67,24 @@ jobs:
             year=${ym%-*}
             month=${ym#*-}
             echo "::group::${ym}"
-            if node scripts/test-bts-ontime.mjs "$year" "$month"; then
+            if out=$(node scripts/test-bts-ontime.mjs "$year" "$month" 2>&1); then
+              echo "$out"
               newest="$ym"
+            elif printf '%s' "$out" | grep -q 'not published yet'; then
+              echo "${ym}: not published yet, will retry tomorrow"
             else
-              echo "${ym}: not published yet, will retry next month"
+              echo "$out"
+              echo "::error::${ym} appears published but could not be processed"
+              broken="${broken} ${ym}"
             fi
             echo "::endgroup::"
           done
           echo "newest=${newest}" >> "$GITHUB_OUTPUT"
           echo "year=${newest%-*}" >> "$GITHUB_OUTPUT"
+          if [ -n "$broken" ]; then
+            echo "failed to process:${broken}"
+            exit 1
+          fi
 
       # Upserts on primary key (Prefer: resolution=merge-duplicates), so re-running a month
       # is idempotent. data/out/faa-taf-annual.json is gitignored (15 MB, derived), so the

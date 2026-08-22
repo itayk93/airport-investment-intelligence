@@ -70,7 +70,7 @@ follow-ups remain fully supported in the web chat.
 
 ```
 ARCHITECTURE.md          the design document (read this first)
-.github/workflows/       scheduled monthly + annual data refresh
+.github/workflows/       scheduled daily + annual data refresh
 DATA_PLAN.md             endpoint-level map of the three data sources
 docs/                    stage-by-stage build log, 00–10
 src/                     Vite + React + TypeScript UI
@@ -100,7 +100,7 @@ node scripts/score.mjs
 
 Ingestion upserts on primary key, so re-running is safe.
 
-This also runs on a schedule: `.github/workflows/refresh-monthly.yml` fetches any newly
+This also runs on a schedule: `.github/workflows/refresh-daily.yml` checks daily and fetches any newly
 published BTS month, re-ingests, re-scores, and commits the new aggregate;
 `refresh-annual.yml` does the same for the FAA TAF vintage.
 
