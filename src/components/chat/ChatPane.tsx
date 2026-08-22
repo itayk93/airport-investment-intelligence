@@ -147,6 +147,8 @@ export function ChatPane({
   const scroller = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Keep the welcome screen at its natural top. Auto-scroll only after conversation starts.
+    if (messages.length === 0 && !pending) return;
     const el = scroller.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, pending]);
