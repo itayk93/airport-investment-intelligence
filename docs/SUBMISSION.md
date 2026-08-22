@@ -1,5 +1,7 @@
 # Airport Investment Intelligence Agent — Submission
 
+**Submitted by:** Itay Karkason ([itayk93@gmail.com](mailto:itayk93@gmail.com))
+
 **Live app:** https://airport-investment-intelligence.vercel.app
 **Source:** https://github.com/itayk93/airport-investment-intelligence
 
