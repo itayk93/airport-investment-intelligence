@@ -21,9 +21,6 @@ Deno.serve(async (req) => {
     return json({
       scores,
       covered_airport_count: coveredAirportCount,
-      // Temporary rollout compatibility: the currently deployed UI reads only `.length`.
-      // Remove after the frontend using covered_airport_count is live.
-      airports: Array.from({ length: coveredAirportCount }, () => null),
       coverage,
       // The scoring model, served from the backend so the UI never hardcodes weights that
       // could drift from scripts/score.mjs.
