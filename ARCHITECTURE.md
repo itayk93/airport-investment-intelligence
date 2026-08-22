@@ -287,8 +287,10 @@ reviewer should ask:
   revenue, financing, land constraints, and terminal/gate capacity are not inputs. The
   defensible confidence level is low-to-moderate for screening and insufficient for an
   investment decision.
-- **Nothing is automated.** Ingestion and scoring were run by hand. Refresh cadence and a
-  proposed schedule are in `docs/06`; no cron exists.
+- **Refresh is scheduled, but shallow.** Two GitHub Actions workflows re-ingest and
+  re-score (monthly for BTS On-Time, annually for the FAA TAF). What is *not* automated:
+  alerting beyond GitHub's failed-run email, the FAA TAF vintage URL (pinned by hand), and
+  backfills deeper than four months. See `docs/06`.
 
 ---
 
@@ -327,5 +329,6 @@ node scripts/score.mjs
 | `07-scoring-results-explained.md` | The results in plain language |
 | `09-agent-architecture.md` | Tools, prompt, security, verified behaviour |
 | `13-generic-airport-data-tool.md` | Generic retrieval contract, discovery, safety, and live verification |
+| `15-cost-scale-and-eval.md` | Per-query cost, scale ceilings, model choice, evaluation gap |
 | `10-frontend-architecture.md` | UI structure and design decisions |
 | `DATA_PLAN.md` | Endpoint-level data map |

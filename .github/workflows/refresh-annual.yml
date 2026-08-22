@@ -1,0 +1,57 @@
+# Annual data refresh — FAA Terminal Area Forecast, then re-score.
+#
+# Separate from the monthly workflow because the source cadence is different: the FAA
+# publishes one "Final" TAF vintage per year. Re-running it monthly would re-download a
+# ~40 MB zip and re-upsert identical rows. See docs/06-refresh-cadence-and-automation.md.
+#
+# The URL in scripts/parse-faa-taf-full.py is pinned to a vintage
+# (APO100_TAF_Final_2025.zip). A new vintage needs that constant updated, so this job is
+# scheduled as a reminder that runs and re-scores; if the new vintage is not yet live the
+# download fails and GitHub emails the failure. That is the intended signal.
+
+name: Annual FAA TAF refresh
+
+on:
+  schedule:
+    - cron: '0 6 1 3 *' # 06:00 UTC, 1 March — after the FAA's usual winter release
+  workflow_dispatch:
+
+permissions:
+  contents: read # faa-taf-annual.json is gitignored (15 MB, derived) — nothing to commit
+
+concurrency:
+  group: data-refresh # never let this overlap the monthly job
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install openpyxl
+
+      # Downloads the TAF zip if absent, then writes data/out/faa-taf-annual.json —
+      # one row per (airport, year, scenario) from 2014 on.
+      - name: Parse the FAA TAF annual series
+        run: python3 scripts/parse-faa-taf-full.py
+
+      # With faa-taf-annual.json present, ingest upserts airport_forecast_annual as well as
+      # re-checking the monthly tables. Idempotent on primary key.
+      - name: Ingest
+        run: node scripts/ingest.mjs "$(date -u +%Y)"
+
+      - name: Re-score
+        run: node scripts/score.mjs

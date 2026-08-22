@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ארכיטקטורת סוכן מודיעין להשקעות בשדות תעופה">
+  <title>ארכיטקטורת המערכת — סוכן מודיעין להשקעות בשדות תעופה</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper:#efece4; --surface:#f7f5f0; --card:#fff; --ink:#16202b;
+      --muted:rgba(22,32,43,.68); --faint:rgba(22,32,43,.5);
+      --rule:rgba(22,32,43,.14); --soft:rgba(22,32,43,.07);
+      --accent:#b45309; --accent-soft:rgba(180,83,9,.10); --good:#2f6b4f;
+      --display:'Frank Ruhl Libre',serif; --body:'Assistant',sans-serif;
+      --mono:'IBM Plex Mono',monospace;
+    }
+    @media (prefers-color-scheme:dark) {
+      :root { --paper:#12181f; --surface:#19212b; --card:#1e2732; --ink:#ece7de;
+        --muted:rgba(236,231,222,.72); --faint:rgba(236,231,222,.52);
+        --rule:rgba(236,231,222,.16); --soft:rgba(236,231,222,.08);
+        --accent:#e8a33d; --accent-soft:rgba(232,163,61,.13); --good:#6fbf95; }
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:300 17px/1.72 var(--body); }
+    a { color:var(--accent); text-underline-offset:.18em; }
+    code,.ltr,.num { font-family:var(--mono); direction:ltr; unicode-bidi:isolate; }
+    .page { width:min(72rem,100%); margin:auto; padding:clamp(2rem,5vw,5rem) clamp(1rem,4vw,3rem) 5rem; }
+    header { max-width:52rem; display:grid; gap:1.2rem; margin-bottom:3rem; }
+    h1,h2,h3,p { margin:0; }
+    h1 { font:700 clamp(2.25rem,6vw,4rem)/1.08 var(--display); text-wrap:balance; }
+    h2 { font:700 clamp(1.55rem,3vw,2rem)/1.25 var(--display); }
+    h3 { font:700 1.04rem/1.4 var(--body); }
+    p,li { max-width:48rem; }
+    .lede { color:var(--muted); font-size:clamp(1.08rem,2vw,1.3rem); max-width:46rem; }
+    .eyebrow { font:500 .72rem/1 var(--mono); letter-spacing:.08em; color:var(--faint); display:flex; align-items:center; gap:.7rem; }
+    .eyebrow::after { content:""; height:1px; flex:1; background:var(--rule); }
+    .meta { display:flex; flex-wrap:wrap; gap:.55rem 1.5rem; padding-top:1.2rem; border-top:1px solid var(--rule); color:var(--faint); font:400 .76rem/1.4 var(--mono); }
+    nav { position:sticky; top:0; z-index:2; margin:0 calc(clamp(1rem,4vw,3rem) * -1) 3rem; padding:.8rem clamp(1rem,4vw,3rem); display:flex; gap:1rem; overflow:auto; background:color-mix(in srgb,var(--paper) 90%,transparent); backdrop-filter:blur(12px); border-block:1px solid var(--soft); }
+    nav a { color:var(--muted); text-decoration:none; white-space:nowrap; font-size:.86rem; }
+    main { display:grid; gap:3.5rem; }
+    section { display:grid; gap:1.15rem; scroll-margin-top:5rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr)); gap:.9rem; }
+    .card { background:var(--card); border:1px solid var(--soft); border-radius:12px; padding:1.25rem; display:grid; gap:.65rem; }
+    .card p { font-size:.96rem; color:var(--muted); }
+    .callout { max-width:52rem; background:var(--accent-soft); border-inline-start:3px solid var(--accent); border-radius:8px; padding:1rem 1.2rem; display:grid; gap:.45rem; }
+    .flow { direction:ltr; display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; align-items:stretch; }
+    .flow > div { direction:rtl; background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:1rem; text-align:center; position:relative; }
+    .flow > div:not(:last-child)::after { content:'\2192'; direction:ltr; position:absolute; left:-.72rem; top:50%; transform:translateY(-50%); color:var(--accent); font:500 1.25rem var(--mono); z-index:1; }
+    .flow b { display:block; margin-bottom:.35rem; }
+    .flow small { color:var(--faint); }
+    pre { margin:0; direction:ltr; text-align:left; overflow:auto; background:var(--surface); border:1px solid var(--soft); border-radius:10px; padding:1rem; font:400 .79rem/1.75 var(--mono); color:var(--muted); }
+    ul,ol { margin:0; padding-inline-start:1.35rem; display:grid; gap:.65rem; }
+    li::marker { color:var(--accent); font-weight:700; }
+    .scroll { overflow:auto; border:1px solid var(--soft); border-radius:12px; background:var(--card); }
+    table { width:100%; min-width:42rem; border-collapse:collapse; font-size:.9rem; }
+    th,td { padding:.7rem .8rem; text-align:right; border-bottom:1px solid var(--soft); vertical-align:top; }
+    th { color:var(--faint); font:500 .7rem/1.4 var(--mono); letter-spacing:.04em; }
+    td.num { text-align:left; white-space:nowrap; }
+    tr:last-child td { border:0; }
+    .good { color:var(--good); font-weight:600; }
+    footer { margin-top:4rem; border-top:1px solid var(--rule); padding-top:1.2rem; color:var(--faint); font-size:.86rem; }
+    @media (max-width:720px) {
+      .flow { grid-template-columns:1fr; }
+      .flow > div:not(:last-child)::after { content:'\2193'; left:50%; top:auto; bottom:-1rem; transform:translateX(-50%); }
+      nav { margin-bottom:2.25rem; }
+    }
+    @media print {
+      nav { display:none; } body { background:#fff; color:#111; font-size:11pt; }
+      .page { width:auto; padding:0; } section { break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="eyebrow">מסמך ארכיטקטורה · אוגוסט 2026</div>
+    <h1>סוכן מודיעין להשקעות בשדות תעופה</h1>
+    <p class="lede">מערכת שמזהה שדות תעופה בארה״ב שבהם השקעת מודרניזציה עשויה להיות מוצדקת. הקוד מחשב ציונים דטרמיניסטיים מנתונים ציבוריים; מודל השפה שולף, משווה ומסביר — לעולם לא מחשב את הציון.</p>
+    <div class="meta"><span>356 שדות מכוסים</span><span>163 מדורגים</span><span>9 קבוצות השוואה</span><span>יוני 2025–מאי 2026</span></div>
+  </header>
+
+  <nav aria-label="תוכן עניינים">
+    <a href="#shape">מבנה</a><a href="#data">נתונים</a><a href="#score">דירוג</a><a href="#ai">שכבת AI</a><a href="#frontend">ממשק</a><a href="#security">אבטחה</a><a href="#tradeoffs">פשרות</a><a href="#limits">מגבלות</a><a href="#run">הרצה</a>
+  </nav>
+
+  <main>
+    <section id="shape">
+      <div class="eyebrow">01 · תמונת מערכת</div>
+      <h2>ארבע שכבות, מקור אמת אחד</h2>
+      <div class="flow" aria-label="זרימת הנתונים במערכת">
+        <div><b>מקורות ציבוריים</b><small>BTS T-100 · BTS On-Time · FAA TAF</small></div>
+        <div><b>טעינה ודירוג</b><small>Node/Python · חישוב דטרמיניסטי</small></div>
+        <div><b>Supabase</b><small>Postgres · Edge Functions · הרשאת קריאה בלבד</small></div>
+        <div><b>ערוצי שימוש</b><small>React Web · WhatsApp</small></div>
+      </div>
+      <p>שתי פונקציות הקצה קוראות דרך מודול שאילתות משותף אחד, <code>supabase/functions/_shared/db.ts</code>. פאנל הניתוח והסוכן מבצעים אותה שאילתה ולכן אינם יכולים להציג הגדרות שונות לאותו ציון.</p>
+      <div class="grid">
+        <div class="card"><h3>Frontend</h3><p><span class="ltr">Vite + React + TypeScript strict</span>. ממשק דו־טורי במחשב וגיליון ניתוח תחתון במובייל.</p></div>
+        <div class="card"><h3>Backend</h3><p><span class="ltr">Supabase Postgres + Deno Edge Functions</span>. שלוש פונקציות: נתונים, צ׳אט ו־WhatsApp.</p></div>
+        <div class="card"><h3>AI</h3><p><span class="ltr">OpenAI gpt-4o-mini</span> בטמפרטורה <span class="num">0.2</span>, עם שני כלים מוקלדים ולולאה תחומה.</p></div>
+        <div class="card"><h3>Pipeline</h3><p>סקריפטים ב־Node וב־Python לטעינה, ניקוי, אגרגציה וחישוב ציונים מראש.</p></div>
+      </div>
+    </section>
+
+    <section id="data">
+      <div class="eyebrow">02 · שכבת הנתונים</div>
+      <h2>שלושה מקורות ציבוריים, ללא נתונים סינתטיים</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>מקור</th><th>מידע</th><th>רזולוציה</th><th>קליטה</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ltr">BTS T-100</span></td><td>נוסעים, המראות, מושבים, פנים־ארצי/בינלאומי</td><td>חודשי לכל שדה</td><td><span class="ltr">Socrata API</span></td></tr>
+          <tr><td><span class="ltr">BTS On-Time</span></td><td>עיכובים, זמן הסעה, ביטולים, עיכוב NAS ומרחק</td><td>טיסה בודדת, נצברת לחודש</td><td><span class="ltr">TranStats ZIP</span></td></tr>
+          <tr><td><span class="ltr">FAA TAF 2025</span></td><td>תחזיות נוסעים ופעילות עד שנת הכספים 2055</td><td>שנתי לכל שדה</td><td><span class="ltr">ZIP</span></td></tr>
+        </tbody>
+      </table></div>
+      <p>הציונים נשמרים בטבלת <code>airport_scores</code> ולא מחושבים בזמן קריאה. כך תוצאת כל ריצה ניתנת לשחזור, ושאילתות המשתמש נשארות פשוטות ומהירות.</p>
+    </section>
+
+    <section id="score">
+      <div class="eyebrow">03 · מתודולוגיית דירוג</div>
+      <h2>עומס נוכחי כפול פער צמיחה</h2>
+      <div class="card"><h3>לחץ קיבולת</h3><p>מדד לעומס הנוכחי, מנורמל בין שדות באותו אזור.</p><pre>CapacityPressure = 0.40 × norm(avg taxi-out minutes)
+                 + 0.35 × norm(NAS delay minutes / departure)
+                 + 0.25 × norm(% flights delayed over 15 min)</pre></div>
+      <div class="card"><h3>פער צמיחה</h3><p>התחזית של FAA מול המגמה שנמדדה ממקור עצמאי.</p><pre>GrowthGap(pp) = FAA TAF enplanement CAGR (FY2024→FY2035)
+              − BTS T-100 measured CAGR   (2014→2024)</pre></div>
+      <div class="card"><h3>ביקוש לא מסופק וציון הרחבה</h3><p>פער חיובי נספר רק כשהשדה כבר לחוץ. צמיחה בשדה פנוי אינה מסומנת כביקוש לא מסופק.</p><pre>UnmetDemandRaw = max(0, GrowthGap) × CapacityPressure
+UnmetDemand    = norm(UnmetDemandRaw)
+
+ExpansionScore = 0.50 × UnmetDemand
+               + 0.30 × norm(TAF CAGR)
+               + 0.20 × CapacityPressure</pre></div>
+      <div class="callout"><h3>המשקלים הם היוריסטיקה</h3><p>הם אינם מכוילים מול אמת מידה אמפירית. אין מאגר ציבורי של פרויקטי הרחבה שסומנו כהצלחה או ככישלון. לכן הממשק מציג תמיד את רכיבי הציון לצד הציון המשוקלל.</p></div>
+    </section>
+
+    <section id="ai">
+      <div class="eyebrow">04 · שכבת הסוכן</div>
+      <h2>מודל השפה מסביר מספרים קבועים</h2>
+      <div class="grid">
+        <div class="card"><h3><code>list_airports</code></h3><p>פותר שמות מקומות ואזורים לקודי IATA ומדווח על הכיסוי בפועל.</p></div>
+        <div class="card"><h3><code>get_airport_data</code></h3><p>שולף מדדים מורשים, תקופות ותחומים ממילון נתונים קנוני. אין SQL חופשי.</p></div>
+      </div>
+      <ol>
+        <li>הבקשה עוברת אימות, נרמול והגבלת אורך.</li>
+        <li>בסיבוב הראשון המודל חייב לקרוא לכלי.</li>
+        <li>הכלי מחזיר ערכים יחד עם מקור, יחידה, תקופה ותחום.</li>
+        <li>המודל מסביר ומסכם. התהליך מוגבל לארבעה סבבי כלים בקוד.</li>
+      </ol>
+      <p>אותו מנוע משותף, <code>_shared/agent.ts</code>, משרת את צ׳אט ה־Web ואת WhatsApp. מתאמי הערוצים מטפלים רק באימות תעבורה, מגבלות קצב, נרמול קלט ועיצוב תשובה.</p>
+      <div class="callout"><h3>חוזה תשובה</h3><p>מסקנה תחילה, שניים עד ארבעה מספרים מכריעים, הסבר קצר והסתייגות אחת רלוונטית. ברירת המחדל: עד 120 מילים ותקרת יצירה של 320 טוקנים.</p></div>
+    </section>
+
+    <section id="frontend">
+      <div class="eyebrow">05 · ארכיטקטורת הממשק</div>
+      <h2>רכיבים אינם ניגשים ישירות לרשת</h2>
+      <pre>src/
+  config.ts               environment validation
+  api/                    typed contracts + fetch clients
+  hooks/                  chat, airport data, voice, media query
+  lib/                    theme + safe reply parser
+  components/
+    chat/                 messages + composer
+    panel/                shared analysis body + desktop/mobile shells</pre>
+      <ul>
+        <li>קריאות רשת מרוכזות ב־<code>api/client.ts</code>; המרת ערכי <span class="ltr">Postgres numeric</span> מתבצעת במקום יחיד.</li>
+        <li>בקשה קודמת מבוטלת בעת שליחה מחדש כדי למנוע תשובות שמגיעות בסדר שגוי.</li>
+        <li><code>PanelBody.tsx</code> משותף למחשב ולמובייל; רק מעטפת התצוגה משתנה.</li>
+        <li>תשובות מפוענחות בלי <code>dangerouslySetInnerHTML</code> ובלי ספריית Markdown כבדה.</li>
+        <li>קלט קולי בדפדפן משתמש ב־<span class="ltr">SpeechRecognition</span>; אין העלאת אודיו ואין מפתח נוסף.</li>
+      </ul>
+    </section>
+
+    <section id="security">
+      <div class="eyebrow">06 · אבטחה</div>
+      <h2>הגנה בכמה שכבות</h2>
+      <ol>
+        <li><strong>תפקיד DB לקריאה בלבד.</strong> <code>agent_reader</code> מקבל <span class="ltr">SELECT</span> על ארבע טבלאות בלבד ו־<span class="num">5s</span> timeout.</li>
+        <li><strong>אין משטח SQL למודל.</strong> כלים מקבלים פרמטרים מוקלדים, קודי IATA נבדקים ומספר השדות בכל קריאה מוגבל.</li>
+        <li><strong>הודעות מערכת וכלי מהלקוח נזרקות.</strong> מתקבלים רק תורי <span class="ltr">user</span> ו־<span class="ltr">assistant</span>.</li>
+        <li><strong>סודות נשארים בשרת.</strong> מפתח OpenAI ומחרוזת החיבור נשמרים ב־Supabase Secrets.</li>
+        <li><strong>WhatsApp מאומת.</strong> חתימת HMAC של Twilio נבדקת מול כתובת ה־Webhook המדויקת; הגבלת הקצב שומרת hash מומלח בלבד.</li>
+        <li><strong>הודעות קוליות תחומות.</strong> הורדה רק מ־<code>api.twilio.com</code>, עד <span class="num">10 MB</span>, תמלול בזיכרון ומחיקה.</li>
+      </ol>
+    </section>
+
+    <section id="tradeoffs">
+      <div class="eyebrow">07 · החלטות ופשרות</div>
+      <h2>בחירות מרכזיות</h2>
+      <div class="grid">
+        <div class="card"><h3>אזורי השוואה</h3><p>נרמול ארצי היה דוחס את ההבדלים. הדירוג מתבצע בתוך אזורי Census. המחיר: ציונים מאזורים שונים אינם ברי־השוואה.</p></div>
+        <div class="card"><h3>שנה מלאה</h3><p>12 חודשי עומס החליפו חודש מייצג. התוצאה בניו אינגלנד התהפכה, ונחשפה הטיית הסרת הקרח בחורף.</p></div>
+        <div class="card"><h3>כלים מוקלדים</h3><p>פחות גמישות מ־SQL כללי, אך משטח קטן, בטוח וניתן לביקורת.</p></div>
+        <div class="card"><h3>ציונים מחושבים מראש</h3><p>קריאות מהירות ודטרמיניזם. המחיר: צריך להריץ מחדש אחרי רענון נתונים.</p></div>
+        <div class="card"><h3>WhatsApp כמתאם</h3><p>אין סוכן שני. הערוצים חולקים הנחיות, כלים, מגבלות והסתייגויות.</p></div>
+        <div class="card"><h3>העיצוב מול האמת</h3><p>המערכת אימצה את השפה החזותית שסופקה, אך הסירה 44 שדות פיקטיביים ומודל משקל שונה.</p></div>
+      </div>
+    </section>
+
+    <section id="limits">
+      <div class="eyebrow">08 · תחום ואי־ודאות</div>
+      <h2>מה המערכת אינה יודעת</h2>
+      <ul>
+        <li>אין מקור ציבורי לקיבולת מסלולים, שערים או טרמינלים ברזולוציה הדרושה. לחץ קיבולת וביקוש לא מסופק הם מדדים עקיפים.</li>
+        <li><strong>163 מתוך 356</strong> שדות מכוסים מקבלים ציון. היתר מתחת לסף המדגם, חסרי תחזית או חסרי קבוצת עמיתים מספקת.</li>
+        <li>נתוני העיכוב כוללים טיסות פנים־ארציות של חברות מדווחות בלבד. נתוני נפח T-100 כוללים גם תנועה בינלאומית.</li>
+        <li>שנה אחת קובעת רמת עומס, לא מגמה. זמן הסעה בחורף כולל הסרת קרח שאינה מופרדת מרוויה תשתיתית.</li>
+        <li>סף טיסה ארוכה של <span class="num">2,000</span> מייל הוא הגדרת המערכת, לא תקן BTS או FAA.</li>
+        <li>זה אינו מודל רווחיות, ROI או החזר השקעה. עלות פרויקט, הכנסה, מימון ומגבלות קרקע אינן קלט.</li>
+        <li>רמת הביטחון מתאימה למיון ראשוני בלבד: נמוכה עד בינונית, לא מספיקה להחלטת השקעה.</li>
+      </ul>
+    </section>
+
+    <section id="run">
+      <div class="eyebrow">09 · הפעלה</div>
+      <h2>הרצה מקומית ובנייה מחדש</h2>
+      <pre>npm install
+npm run dev          # http://localhost:5173</pre>
+      <p>נדרש קובץ <code>.env</code> עם <code>VITE_SUPABASE_URL</code> ו־<code>VITE_SUPABASE_PUBLISHABLE_KEY</code>.</p>
+      <pre>node scripts/test-bts-ontime.mjs 2026 5
+python3 scripts/parse-faa-taf-full.py
+node scripts/ingest.mjs 2025
+node scripts/score.mjs</pre>
+      <div class="callout"><h3>מצב אימות</h3><p class="good">הבנייה עוברת ב־TypeScript strict. צ׳אט, דירוג, פירוט וכיסוי נבדקו מקצה לקצה מול פונקציות הקצה.</p></div>
+    </section>
+  </main>
+
+  <footer>
+    מקור: <code>ARCHITECTURE.md</code>. הרחבות: <code>docs/03-scoring-methodology.md</code>, <code>docs/09-agent-architecture.md</code>, <code>docs/10-frontend-architecture.md</code>, <code>docs/14-coverage-expansion.md</code>.
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+# Monthly data refresh — BTS On-Time Performance, then re-score.
+#
+# Why GitHub Actions and not Supabase Cron: Supabase Edge Functions cap CPU at 2s per
+# request. Every stage here exceeds that (the 277 MB CSV pass alone is ~11s), and
+# scripts/test-bts-ontime.mjs shells out to `unzip` and streams from disk — neither is
+# available in the edge runtime. A full runner runs the existing scripts unmodified.
+# See docs/06-refresh-cadence-and-automation.md.
+#
+# Runs on the 5th: BTS publishes monthly with a ~2-3 month lag, so this looks back a few
+# months and fetches whichever month is newly available. If nothing new is published, the
+# job ends without touching the database.
+
+name: Monthly data refresh
+
+on:
+  schedule:
+    - cron: '0 6 5 * *' # 06:00 UTC, 5th of each month
+  workflow_dispatch: # manual run, for demos and backfills
+
+permissions:
+  contents: write # commits the new month's aggregate back to main
+
+concurrency:
+  group: data-refresh # never let this overlap the annual TAF job
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Try the months BTS could plausibly have published that we do not already have.
+      # test-bts-ontime.mjs probes with `Range: bytes=0-0` first and exits non-zero if the
+      # month is not published yet, so an unavailable month is a skip, not a failure.
+      - name: Fetch newly published On-Time months
+        id: fetch
+        run: |
+          newest=''
+          for back in 4 3 2; do
+            ym=$(date -u -d "$(date -u +%Y-%m-01) -${back} month" +%Y-%-m)
+            if [ -f "data/out/ontime-${ym}.json" ]; then
+              echo "${ym}: already have it"
+              continue
+            fi
+            year=${ym%-*}
+            month=${ym#*-}
+            echo "::group::${ym}"
+            if node scripts/test-bts-ontime.mjs "$year" "$month"; then
+              newest="$ym"
+            else
+              echo "${ym}: not published yet, will retry next month"
+            fi
+            echo "::endgroup::"
+          done
+          echo "newest=${newest}" >> "$GITHUB_OUTPUT"
+          echo "year=${newest%-*}" >> "$GITHUB_OUTPUT"
+
+      # Upserts on primary key (Prefer: resolution=merge-duplicates), so re-running a month
+      # is idempotent. data/out/faa-taf-annual.json is gitignored (15 MB, derived), so the
+      # forecast upsert is a deliberate no-op here — TAF is annual and has its own workflow.
+      - name: Ingest
+        if: steps.fetch.outputs.newest != ''
+        run: node scripts/ingest.mjs "${{ steps.fetch.outputs.year }}"
+
+      # airport_scores is materialised, not computed on read, so it must be rebuilt after
+      # every ingestion. score.mjs inserts the new run, then deletes rows older than the
+      # run start — only after all writes succeed.
+      - name: Re-score
+        if: steps.fetch.outputs.newest != ''
+        run: node scripts/score.mjs
+
+      # The monthly aggregates are ~240 KB each and tracked in git, which is what keeps
+      # `node scripts/ingest.mjs` reproducible from a clean checkout. The 31 MB zip and
+      # 277 MB CSV are deleted by the fetch script and never committed.
+      - name: Commit the new month
+        if: steps.fetch.outputs.newest != ''
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/out/ontime-*.json
+          git diff --staged --quiet || git commit -m "chore(data): add BTS On-Time ${{ steps.fetch.outputs.newest }}"
+          git push
+
+      - name: Summary
+        run: |
+          if [ -n "${{ steps.fetch.outputs.newest }}" ]; then
+            echo "Ingested and re-scored ${{ steps.fetch.outputs.newest }}." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No new BTS month published. Database unchanged." >> "$GITHUB_STEP_SUMMARY"
+          fi
