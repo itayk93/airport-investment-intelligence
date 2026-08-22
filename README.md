@@ -102,8 +102,13 @@ Ingestion upserts on primary key, so re-running is safe.
 
 This also runs on a schedule: `.github/workflows/refresh-monthly.yml` fetches any newly
 published BTS month, re-ingests, re-scores, and commits the new aggregate;
-`refresh-annual.yml` does the same for the FAA TAF vintage. Both need the repository
-secrets `VITE_SUPABASE_URL` and `SUPABASE_SECRET_KEY`. See
+`refresh-annual.yml` does the same for the FAA TAF vintage.
+
+**Before either can run**, add two repository secrets in GitHub under
+**Settings → Secrets and variables → Actions**: `VITE_SUPABASE_URL` and
+`SUPABASE_SECRET_KEY` (the `sb_secret_...` key, since ingestion writes — not the
+publishable one). Without them every run fails on `Missing VITE_SUPABASE_URL or
+SUPABASE_SECRET_KEY`. See
 [`docs/06-refresh-cadence-and-automation.md`](docs/06-refresh-cadence-and-automation.md),
 which also covers why Supabase Cron cannot run this pipeline.
 

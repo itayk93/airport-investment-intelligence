@@ -15,8 +15,30 @@ The initial build ran `node scripts/ingest.mjs 2025` by hand. Refresh is now sch
 Both also accept `workflow_dispatch` for a manual run. They share a `concurrency` group so
 a monthly and an annual run can never write to the database at the same time.
 
-**Setup required once:** repository secrets `VITE_SUPABASE_URL` and `SUPABASE_SECRET_KEY`.
-The service key is used only inside the runner; nothing scheduled touches the browser bundle.
+### Required one-time setup: repository secrets
+
+**Neither workflow can run until these two secrets exist.** Without them the scripts throw
+`Missing VITE_SUPABASE_URL or SUPABASE_SECRET_KEY` and the run fails.
+
+In GitHub: **Settings → Secrets and variables → Actions → New repository secret**. Add both:
+
+| Secret | Value | Where it comes from |
+|---|---|---|
+| `VITE_SUPABASE_URL` | `https://<project-ref>.supabase.co` | Supabase dashboard → Project Settings → Data API |
+| `SUPABASE_SECRET_KEY` | `sb_secret_...` | Supabase dashboard → Project Settings → API keys. **Secret key, not the publishable one** — ingestion writes, so the read-only key will not work |
+
+Notes:
+
+- These are **repository secrets**, not environment secrets — the workflows reference them
+  as `secrets.NAME` with no `environment:` block.
+- The secret key is a full-access service credential. It is read only inside the runner and
+  passed to the scripts as env vars; it never reaches the browser bundle, which uses the
+  publishable key only (see `docs/08-secrets-management.md`).
+- `scripts/lib/env.mjs` reads `.env` but never overwrites an existing `process.env` value,
+  so the same scripts work unchanged locally and in CI. There is no `.env` in the runner.
+- Verify by running **Actions → Monthly data refresh → Run workflow**. A successful run with
+  no new BTS month ends with `No new BTS month published. Database unchanged.` in the summary —
+  that is a pass, not a skip-because-broken.
 
 ### Why GitHub Actions and not Supabase Cron
 

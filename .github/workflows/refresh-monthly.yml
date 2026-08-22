@@ -27,6 +27,9 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    # Repository secrets, added under Settings -> Secrets and variables -> Actions.
+    # SUPABASE_SECRET_KEY must be the sb_secret_... key: ingestion writes, so the
+    # publishable key will not work. Setup steps: docs/06-refresh-cadence-and-automation.md.
     env:
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
