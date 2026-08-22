@@ -48,6 +48,8 @@ Configured server secrets used by the runtime:
 - `TWILIO_AUTH_TOKEN` — webhook HMAC validation and authenticated media download.
 - `AGENT_READER_DSN` — SELECT-only database connection.
 - `RATE_LIMIT_SALT` — one-way hashing for anonymous rate-limit buckets.
+- `RATE_LIMIT_EXEMPT_IP_HASHES` — optional; salted IP hashes exempt from the per-IP hourly
+  cap (the dev machine). Hashes only, never raw addresses; the global daily cap still applies.
 - `ALLOWED_ORIGINS` — optional web-channel CORS allowlist.
 
 ## What this means practically

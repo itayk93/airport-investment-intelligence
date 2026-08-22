@@ -7,6 +7,23 @@
 // answers. MAX_TOOL_ROUNDS caps the loop in code, not in the prompt.
 import { runAgent } from '../_shared/agent.ts';
 import { checkRateLimit } from '../_shared/db.ts';
+
+// Per-caller hourly cap. Sized for a full evaluation session (nine prepared questions plus
+// follow-ups), not for load: the 500/day global cap is what bounds actual spend.
+const RATE_LIMIT_PER_IP_PER_HOUR = 60;
+
+// Hashed addresses exempt from the per-IP cap — the development machine, so building and
+// testing the agent does not consume the same budget a reviewer needs. Stored as a Supabase
+// secret rather than in code: it is the salted hash, not the address, and it never reaches
+// the browser. The global daily cap still applies to exempt callers, so this cannot run up
+// unbounded spend. Set with:
+//   npx supabase secrets set RATE_LIMIT_EXEMPT_IP_HASHES=<hash>[,<hash>]
+const EXEMPT_IP_HASHES = new Set(
+  (Deno.env.get('RATE_LIMIT_EXEMPT_IP_HASHES') ?? '')
+    .split(',')
+    .map((h) => h.trim().toLowerCase())
+    .filter(Boolean),
+);
 import { isAllowedOrigin, json, preflight } from '../_shared/http.ts';
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -61,10 +78,25 @@ Deno.serve(async (req) => {
 
   try {
     const ipHash = await sha256(`${clientIp(req)}:${RATE_LIMIT_SALT}`);
-    const ipAllowed = await checkRateLimit(`ip:${ipHash}`, 15, '1 hour');
+    // 15/hour turned out to be below what one real session uses: the welcome screen offers
+    // nine prepared questions, and follow-ups are the feature being demonstrated, so a
+    // reviewer working through the app hit the wall mid-evaluation and saw a broken agent
+    // rather than a cost guard. The daily global cap below is the actual spend ceiling;
+    // this one only stops a single caller from consuming it alone.
+    const exempt = EXEMPT_IP_HASHES.has(ipHash);
+    const ipAllowed = exempt ||
+      (await checkRateLimit(`ip:${ipHash}`, RATE_LIMIT_PER_IP_PER_HOUR, '1 hour'));
     if (!ipAllowed) {
       console.warn(JSON.stringify({ event: 'rate_limit_denied', scope: 'ip', ip_hash: ipHash }));
-      return json({ error: 'Too many requests. Try again in an hour.' }, 429, req, { 'Retry-After': '3600' });
+      return json(
+        {
+          error:
+            `Rate limit reached: ${RATE_LIMIT_PER_IP_PER_HOUR} questions per hour from one address. This is a demo cost guard, not an agent failure — the analysis panel keeps working, and chat resumes within the hour.`,
+        },
+        429,
+        req,
+        { 'Retry-After': '3600' },
+      );
     }
     const globalAllowed = await checkRateLimit('global', 500, '1 day');
     if (!globalAllowed) {

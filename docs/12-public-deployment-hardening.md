@@ -28,8 +28,21 @@ protect media, and expose useful events for operations.
 
 `agent-chat` applies both limits before calling OpenAI:
 
-- 15 accepted requests per IP-derived bucket per rolling hour.
+- 60 accepted requests per IP-derived bucket per rolling hour.
 - 500 accepted requests globally per rolling day.
+
+The hourly cap started at 15 and was raised after it fired during a real evaluation
+session: the welcome screen offers nine prepared questions and follow-ups are the feature
+being demonstrated, so 15 was below one honest walkthrough and presented as a broken agent
+rather than as a cost guard. The 429 body now says which limit was hit, that it is a demo
+guard, and that the deterministic analysis panel keeps working. The daily global cap is
+what actually bounds spend; the per-IP cap only stops one caller consuming it alone.
+
+`RATE_LIMIT_EXEMPT_IP_HASHES` (optional, comma-separated salted hashes) skips the per-IP
+cap for listed callers — the development machine, so building and testing does not spend
+the reviewer's budget. Exempt callers are still subject to the global daily cap, so the
+exemption cannot produce unbounded spend. Only hashes are configured, never addresses, and
+the value is a server-side secret that never reaches the browser.
 
 `twilio-whatsapp` separately allows 20 accepted requests per salted sender hash per rolling
 hour. Raw phone numbers are neither stored nor logged by application code.
