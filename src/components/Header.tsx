@@ -16,21 +16,16 @@ export function Header({ subtitle, compact = false }: { subtitle: string; compac
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: compact ? 10 : 14, minWidth: 0 }}>
-        <div
+        <img
+          src="/favicon.svg"
+          alt=""
+          aria-hidden="true"
           style={{
             flex: 'none',
-            width: compact ? 26 : 30,
-            height: compact ? 26 : 30,
-            border: `1.5px solid ${t.accent}`,
-            borderRadius: '50%',
-            display: 'grid',
-            placeItems: 'center',
-            font: `600 ${compact ? 10 : 11}px/1 ${t.mono}`,
-            color: t.accentHi,
+            width: compact ? 30 : 34,
+            height: compact ? 30 : 34,
           }}
-        >
-          AI
-        </div>
+        />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
           <div
             style={{
