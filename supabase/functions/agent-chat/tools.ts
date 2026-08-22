@@ -32,7 +32,7 @@ export const toolDefinitions = [
     function: {
       name: 'get_airport_scores',
       description:
-        'Get the deterministic investment scores (capacity pressure, forecast growth gap, unmet demand, expansion score, long-haul share) for specific airports, or for all airports ranked by expansion score. Use for ranking, comparison, and "which airport is the best candidate" questions.',
+        'Get the deterministic investment scores (capacity pressure, forecast growth gap, unmet demand, expansion score, long-haul share) for specific airports, or for all airports ranked by expansion score. Always use this tool for a long-haul percentage/share question; read long_haul_share_pct. Also use for ranking, comparison, and "which airport is the best candidate" questions.',
       parameters: {
         type: 'object',
         properties: {
@@ -52,7 +52,7 @@ export const toolDefinitions = [
     function: {
       name: 'get_airport_metrics',
       description:
-        'Get the raw monthly operational metrics behind the scores — departure delay, taxi-out, cancellation rate, NAS/weather/carrier delay per departure, long-haul departures, passengers, seats. Use when asked about congestion detail, delays, long-haul percentages, or for the evidence behind a score.',
+        'Get raw monthly operational evidence behind the scores — departure delay, taxi-out, cancellation rate, NAS/weather/carrier delay per departure, long-haul departures, passengers, and seats. Use for congestion detail, delays, or evidence behind a score. For a direct long-haul percentage/share question, use get_airport_scores instead.',
       parameters: {
         type: 'object',
         properties: {
