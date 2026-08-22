@@ -17,3 +17,11 @@ data/raw/
 # `python3 scripts/parse-faa-taf-full.py` (reads the cached zip in data/raw/).
 data/out/faa-taf-annual.json
 .vercel
+
+# Interview preparation and internal talking points. This repository is public and these
+# read as a rehearsal script rather than as project documentation, so they stay local.
+# Removed from history on 2026-08-22 with git-filter-repo.
+docs/interview-prep-he.md
+docs/04-decisions-and-talking-points.md
+# Prompt text copied verbatim from a third-party site; not part of this project's work.
+docs/promptforge-selected-prompts.md
