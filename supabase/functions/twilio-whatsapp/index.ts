@@ -127,7 +127,9 @@ async function transcribeAudio(params: URLSearchParams): Promise<string> {
 
   const mediaResponse = await fetch(mediaUrl, {
     headers: { Authorization: `Basic ${btoa(`${accountSid}:${TWILIO_AUTH_TOKEN}`)}` },
-    redirect: 'error',
+    // Twilio's authenticated API URL redirects to its media store. The initial URL is
+    // signature-bound and allowlisted above; following Twilio's own redirect is required.
+    redirect: 'follow',
   });
   if (!mediaResponse.ok) throw new Error(`Twilio media ${mediaResponse.status}`);
   const audio = await readBounded(mediaResponse, MAX_AUDIO_BYTES);
