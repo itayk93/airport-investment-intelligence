@@ -172,17 +172,8 @@ function RankRow({
         <div className="grow-bar" style={{ height: '100%', background: tone, width: barWidth(score) }} />
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          gap: compact ? 14 : 16,
-          font: `400 10.5px/1.3 ${t.mono}`,
-          color: t.ink50,
-        }}
-      >
-        <span>pressure {pct(num(row.capacity_pressure))}</span>
-        <span>gap {signed(num(row.forecast_growth_gap_pct))}pp</span>
-        {!compact && <span>long-haul {pct(num(row.long_haul_share_pct), 1)}%</span>}
+      <div style={{ font: `400 10.5px/1.3 ${t.mono}`, color: t.ink50 }}>
+        demand gap {signed(num(row.forecast_growth_gap_pct))}pp
       </div>
     </div>
   );
@@ -378,9 +369,7 @@ export function PanelBody({
 
       {!loading && !error && scores.length > 0 && (
         <div className="fade" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <SectionLabel compact={compact} right={data?.model.comparison_set}>
-            RANKED CANDIDATES
-          </SectionLabel>
+          <SectionLabel compact={compact}>TOP AIRPORTS</SectionLabel>
           {scores.map((row, i) => (
             <RankRow
               key={row.iata_code}
@@ -394,7 +383,7 @@ export function PanelBody({
         </div>
       )}
 
-      {data && (
+      {data && detail && (
         <>
           <Weights
             title={compact ? 'PAYBACK INDEX — WEIGHTS' : 'EXPANSION SCORE — WEIGHTS'}

@@ -6,19 +6,17 @@ import { AgentMessage } from './AgentMessage';
 // The four questions the assignment names, so a reviewer can exercise the system without
 // typing — and so the agent's scope is legible before the first question.
 const SUGGESTIONS = [
-  'Which airports in New England are strong candidates for terminal expansion?',
-  'Compare LA and Santa Ana airport congestion levels.',
-  'What is the percentage of long haul flights out of Anchorage airport?',
-  'What is the unmet flight demand in SFO airport and why?',
+  'Best airport in New England?',
+  'Compare LAX and SNA',
+  'ANC long-haul share?',
+  'Why does SFO rank first?',
 ];
 
 function Welcome({
   onPick,
-  coverageNote,
   compact,
 }: {
   onPick: (q: string) => void;
-  coverageNote: string;
   compact: boolean;
 }) {
   const [hover, setHover] = useState<number | null>(null);
@@ -28,7 +26,7 @@ function Welcome({
         maxWidth: compact ? undefined : 640,
         display: 'flex',
         flexDirection: 'column',
-        gap: compact ? 16 : 20,
+        gap: compact ? 16 : 18,
         paddingTop: compact ? 0 : 8,
       }}
     >
@@ -40,19 +38,8 @@ function Welcome({
           maxWidth: compact ? undefined : '24ch',
         }}
       >
-        Which airports will pay back a terminal build?
+        Where should we invest?
       </div>
-      <p
-        style={{
-          margin: 0,
-          font: `400 ${compact ? 13.5 : 14}px/1.6 ${t.sans}`,
-          color: t.ink60,
-          maxWidth: compact ? undefined : '52ch',
-          textWrap: 'pretty',
-        }}
-      >
-        {coverageNote}
-      </p>
       <div
         style={{
           display: 'flex',
@@ -62,7 +49,7 @@ function Welcome({
         }}
       >
         <div style={{ font: `500 10px/1 ${t.mono}`, letterSpacing: '.09em', color: t.ink42 }}>
-          TRY
+          QUICK QUESTIONS
         </div>
         {SUGGESTIONS.map((q, i) => (
           <button
@@ -103,14 +90,12 @@ export function ChatPane({
   messages,
   pending,
   onSend,
-  coverageNote,
   compact = false,
   footer,
 }: {
   messages: ChatMessage[];
   pending: boolean;
   onSend: (text: string) => void;
-  coverageNote: string;
   compact?: boolean;
   footer?: React.ReactNode;
 }) {
@@ -147,7 +132,7 @@ export function ChatPane({
         }}
       >
         {messages.length === 0 && (
-          <Welcome onPick={onSend} coverageNote={coverageNote} compact={compact} />
+          <Welcome onPick={onSend} compact={compact} />
         )}
 
         {messages.map((m) => (

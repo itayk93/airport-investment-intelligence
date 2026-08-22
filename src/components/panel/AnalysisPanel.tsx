@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { labelStyle, t } from '../../lib/theme';
+import { t } from '../../lib/theme';
 import type { AirportDataResponse } from '../../api/types';
 import { PanelBody } from './PanelBody';
 
@@ -33,18 +33,12 @@ export function AnalysisPanel({
           top: 0,
           background: t.panelBg,
           borderBottom: `1px solid rgba(22,32,43,.12)`,
-          padding: '15px 22px 12px',
+          padding: '14px 22px',
           zIndex: 2,
         }}
       >
-        <div style={labelStyle}>ANALYSIS</div>
-        <div style={{ font: `600 15px/1.25 ${t.sans}`, marginTop: 5, letterSpacing: '-.01em' }}>
-          {detail ? `${detail.iata_code} · ${detail.city ?? detail.name}` : 'Modernization opportunity index'}
-        </div>
-        <div style={{ font: `400 11.5px/1.45 ${t.mono}`, color: t.ink50, marginTop: 3 }}>
-          {detail
-            ? 'click again to return to the full ranking'
-            : `deterministic · ${data?.scores.length ?? 0} airports · set ${data?.model.comparison_set ?? '—'}`}
+        <div style={{ font: `600 15px/1.25 ${t.sans}`, letterSpacing: '-.01em' }}>
+          {detail ? `${detail.iata_code} · ${detail.city ?? detail.name}` : 'Investment ranking'}
         </div>
       </div>
 

@@ -30,17 +30,13 @@ export function App() {
   // Coverage is stated up front rather than discovered mid-conversation — the assignment
   // asks for scoping to be communicated clearly, and only one month of congestion data has
   // been ingested. Both strings are derived from the database, never hardcoded.
-  const { headerNote, welcomeNote } = useMemo(() => {
+  const headerNote = useMemo(() => {
     const congestion = data?.coverage.find((c) => c.data_scope === 'domestic_ontime');
     const volume = data?.coverage.find((c) => c.data_scope === 't100_all');
     const count = data?.scores.length ?? 0;
 
     if (!congestion || !volume) {
-      return {
-        headerNote: 'loading coverage…',
-        welcomeNote:
-          'I screen US airports for modernization opportunities using public BTS and FAA congestion and growth data — and I show the arithmetic behind every number.',
-      };
+      return 'loading coverage…';
     }
 
     const congestionPeriod =
@@ -48,10 +44,7 @@ export function App() {
         ? formatPeriod(congestion.last_period)
         : `${formatPeriod(congestion.first_period)}–${formatPeriod(congestion.last_period)}`;
 
-    return {
-      headerNote: `${count} airports · congestion ${congestionPeriod} · BTS + FAA`,
-      welcomeNote: `I screen ${count} US airports for modernization opportunities using public BTS and FAA congestion and growth data — and I show the arithmetic. This is not an ROI model. Congestion figures cover ${congestionPeriod}; traffic volume covers ${formatPeriod(volume.first_period)}–${formatPeriod(volume.last_period)}.`,
-    };
+    return `${count} airports · congestion ${congestionPeriod} · BTS + FAA`;
   }, [data]);
 
   const shell: React.CSSProperties = {
@@ -93,7 +86,6 @@ export function App() {
           messages={messages}
           pending={pending}
           onSend={ask}
-          coverageNote={welcomeNote}
           compact
           footer={
             <>
@@ -130,7 +122,6 @@ export function App() {
           messages={messages}
           pending={pending}
           onSend={ask}
-          coverageNote={welcomeNote}
           footer={
             <Composer
               onSend={ask}

@@ -2,7 +2,7 @@ import { t } from '../lib/theme';
 import { WhatsAppLauncher } from './WhatsAppLauncher';
 
 export function Header({
-  subtitle,
+  subtitle: _subtitle,
   compact = false,
   onHome,
 }: {
@@ -35,7 +35,7 @@ export function Header({
             height: compact ? 30 : 34,
           }}
         />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+        <div style={{ minWidth: 0 }}>
           <div
             style={{
               font: `600 ${compact ? 13.5 : 14.5}px/${compact ? 1.2 : 1.15} ${t.sans}`,
@@ -47,25 +47,9 @@ export function Header({
           >
             Airport Investment Intelligence
           </div>
-          {/* On mobile the coverage line lives here, since there is no room for a second
-              right-aligned column. */}
-          <div
-            style={{
-              font: `400 ${compact ? 10 : 11}px/${compact ? 1.3 : 1.2} ${t.mono}`,
-              color: t.onInk50,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {compact ? subtitle : 'modernization screening agent · pilot set'}
-          </div>
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: compact ? 6 : 12, minWidth: 0 }}>
-        {!compact && (
-          <div style={{ font: `400 10.5px/1 ${t.mono}`, color: t.onInk50 }}>{subtitle}</div>
-        )}
         {onHome && (
           <button
             type="button"
