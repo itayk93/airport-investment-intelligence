@@ -4,8 +4,8 @@ An AI agent that helps analysts identify US airports where modernization investm
 likely to pay back, using only public BTS and FAA data. Scoring is deterministic code; the
 LLM explains and compares, it never computes.
 
-**Coverage:** every US airport BTS reports departures from — 347 covered, 163 scored across
-9 regional comparison sets. Airports below the sample floor are covered but deliberately
+**Coverage:** every US airport BTS reports departures from — 356 covered, 163 scored across
+9 regional comparison sets, over twelve months of congestion data (June 2025 – May 2026). Airports below the sample floor are covered but deliberately
 unscored. Coverage grew from a 5-airport pilot in stage 14; the reasoning, measurements, and
 the tradeoffs it forced are in [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
 See also [Scope & honesty](#scope-uncertainty-and-what-this-does-not-do).
@@ -197,8 +197,16 @@ airports, trading breadth for correctness. Stage 14 measured that tradeoff inste
 assuming it: the On-Time CSV is national already (a full pass is 11 s) and T-100 aggregates
 server-side (all 1,311 US origins is one 10 s request), so breadth was nearly free — while a
 hand-picked list silently decided the answer to every regional question. Coverage is now
-whatever BTS reports. The real ceiling is the data's: only ~230 airports have enough
-On-Time volume to score. See [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
+whatever BTS reports. The real ceiling is the data's: only ~170 airports file enough On-Time
+volume to score. See [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
+
+**A full year of congestion data, not a representative month.** The build shipped on one
+month and documented that as a limitation. Backfilling eleven more cost ~25 minutes and
+reversed the headline result: New England's top candidate changed from MHT to BTV, and MHT
+fell to last. One month could not separate a congested airport from an airport having a bad
+month. It also exposed a weakness the single month had hidden — winter taxi-out includes
+de-icing — which is now the model's most important stated caveat. See
+[docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
 
 **Regional comparison sets, not one national ranking.** Min-max normalisation is relative by
 construction, so a national set would let the busiest and quietest US airports define the
@@ -253,25 +261,24 @@ reviewer should ask:
   absolute. 1.00 means "most pressured in that region". **Scores from different regions are
   not comparable** — BOS at 0.9962 in New England and SFO at 0.8457 in the Pacific sit near
   the top of two different scales. Cross-region comparison must use the underlying metrics.
-- **163 of 347 covered airports are scored.** 179 fall below the 300 departures/month sample
-  floor (~10 departures/day), 3 have no FAA TAF forecast, and 2 sit in a region with too few
-  scoreable peers to rank. Each is reported as covered but unranked with its reason, rather
+- **163 of 356 covered airports are scored.** 189 fall below the 300 departures/month sample
+  floor (~10 departures/day, averaged over the year), 2 have no FAA TAF forecast, and 2 sit
+  in a region with too few scoreable peers to rank. Each is reported as covered but unranked with its reason, rather
   than being scored from a sample too small to mean anything.
 - **Congestion data is US-domestic only** (BTS reporting carriers). International
   departures at SFO/LAX are absent from delay figures; T-100 covers volume including
   international.
-- **One month of congestion data (May 2026) is ingested.** Trend questions cannot be
-  answered yet. The app computes and displays this coverage from the database rather than
-  claiming more. May is a deliberate choice of month, not just the one that was available:
-  it sits outside both the summer peak and the winter-holiday peak, so it is closer to a
-  neutral operating month than a June or a December would be. Two consequences worth
-  stating plainly. Seasonal bias partly cancels within a comparison set, because every
-  airport in a region is measured in the same month — a bad-weather month hurts all of
-  them, and the ranking is relative. It does not cancel for airports whose demand is
-  itself seasonal: BGR, BTV and MHT serve ski and summer traffic, and May falls between
-  their seasons, so their congestion may be measured at a favourable point. The forecast
-  side of the model is unaffected — it rests on ten years of T-100 actuals and the FAA
-  TAF, not on this month.
+- **Twelve months of congestion data (June 2025 – May 2026).** A full annual cycle, so no
+  season is double-counted and Capacity Pressure is a yearly average rather than one month's
+  weather. One year is still not a trend: it establishes a level, not a direction. The app
+  computes and displays the actual coverage from the database rather than claiming more.
+- **Winter taxi-out includes de-icing, and the model cannot separate it.** BTV averages over
+  30 minutes of taxi-out in December and under 18 in summer, which lifts northern airports
+  in the congestion ranking for a reason that is weather rather than runway or gate
+  saturation — and a terminal does not fix weather. Separating the two needs a weather join
+  this dataset does not have. This is the most important caveat on the current numbers, and
+  the agent is instructed to raise it whenever a northern airport ranks high on congestion.
+  It only became visible after a full year was ingested; a single spring month hid it.
 - **FAA TAF is annual**, 2025 vintage, historical actuals only through FY2024.
 - **The 2,000-mile long-haul threshold is our definition**, not a BTS or FAA standard.
 - **Growth-gap spans differ in length** (10y historical vs 11y forecast) because T-100 only

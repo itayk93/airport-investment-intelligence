@@ -18,61 +18,76 @@ explained the way it would be explained to a non-technical stakeholder.
 - **Expansion Score** — the final number, a weighted blend of everything above — "how
   strong a candidate is this airport for expansion investment?"
 
-## What it says about each airport (run 2026-08-22)
+## What it says about each airport (run 2026-08-22, twelve months of data)
 
-Scores are computed **within each US Census region**, so the tables below are two separate
-rankings, not one list. A 1.00 in New England and a 1.00 in the Pacific are not the same
-thing — see [`docs/14-coverage-expansion.md`](14-coverage-expansion.md).
+Congestion is averaged over **June 2025 – May 2026**, a full annual cycle. Scores are
+computed **within each US Census region**, so the tables below are two separate rankings,
+not one list — see [`docs/14-coverage-expansion.md`](14-coverage-expansion.md).
 
 ### New England (7 scored of 12 covered)
 
 | airport | capacity pressure | forecast gap (pp) | unmet demand | expansion score |
 |---|---|---|---|---|
-| MHT Manchester | 0.34 | +6.81 | 1.00 | **0.62** |
-| BGR Bangor | 0.54 | +0.17 | 0.04 | 0.43 |
-| BTV Burlington | 0.35 | +1.71 | 0.26 | 0.37 |
-| BOS Boston | 1.00 | −0.91 | 0.00 | 0.29 |
-| PVD Providence | 0.24 | +1.17 | 0.12 | 0.21 |
-| PWM Portland | 0.14 | −1.37 | 0.00 | 0.15 |
-| BDL Hartford | 0.16 | +0.46 | 0.03 | 0.05 |
+| BTV Burlington | 0.87 | +1.71 | 1.00 | **0.84** |
+| BGR Bangor | 0.84 | +0.17 | 0.09 | 0.51 |
+| BOS Boston | 0.66 | −0.91 | 0.00 | 0.23 |
+| PWM Portland | 0.19 | −1.37 | 0.00 | 0.16 |
+| PVD Providence | 0.08 | +1.17 | 0.07 | 0.15 |
+| MHT Manchester | 0.01 | +6.81 | 0.07 | 0.09 |
+| BDL Hartford | 0.11 | +0.46 | 0.04 | 0.04 |
 
-- **MHT (Manchester)** — the region's leading candidate, and the clearest illustration of
-  why coverage matters: the FAA forecasts it growing **6.81 pp faster** than its own measured
-  2014–2024 trend, on top of mid-range congestion. The 5-airport build could not see this
-  airport at all.
-- **BOS (Boston)** — the instructive case: the most congested airport in New England by a
-  wide margin (1.00), yet its Unmet Demand Score is exactly **0**, because the FAA expects it
-  to *slow down* relative to its historical trend. The model is saying "crowded, but not
-  growth-driven — congestion here is not an expansion thesis."
-- **PVD, BDL, PWM** — covered, real, and mid-to-low on every axis. Their presence is what
-  makes the ranking a ranking.
+- **BTV (Burlington)** — the region's leading candidate: sustained congestion across the
+  year *and* a positive forecast gap. Read the de-icing caveat below before treating that
+  congestion as structural.
+- **BOS (Boston)** — the instructive case, and unchanged by a year of data: real congestion,
+  but its Unmet Demand Score is exactly **0** because the FAA expects it to *slow down*
+  relative to its own historical trend. Crowded, but not growth-driven.
+- **MHT (Manchester)** — the same idea from the other side. It has by far the highest
+  forecast growth gap in New England (+6.81 pp) and still ranks last, because it is the
+  calmest airport in the region (0.01). Fast growth with no congestion is headroom, not
+  unmet demand.
+- **PVD, BDL, PWM** — covered, real, mid-to-low on every axis. Their presence is what makes
+  the ranking a ranking.
 
 ### Pacific (31 scored), the original pilot airports within it
 
 | airport | capacity pressure | forecast gap (pp) | unmet demand | expansion score |
 |---|---|---|---|---|
-| SFO | 0.85 | +2.07 | 1.00 | **0.89** |
-| PDX | 0.35 | +2.34 | 0.47 | 0.54 |
-| LAX | 0.45 | +1.15 | 0.30 | 0.37 |
-| SNA | 0.47 | +0.12 | 0.03 | 0.21 |
-| ANC | 0.13 | +0.52 | 0.04 | 0.16 |
+| SFO | 0.84 | +2.07 | 1.00 | **0.89** |
+| PDX | 0.50 | +2.34 | 0.67 | 0.66 |
+| LAX | 0.64 | +1.15 | 0.42 | 0.47 |
+| SNA | 0.46 | +0.12 | 0.02 | 0.20 |
+| ANC | 0.20 | +0.52 | 0.05 | 0.16 |
 
-- **SFO** — still first in its set against 30 peers, not 4: heavily congested *and* forecast
-  to grow fastest. Both signals point the same way, which is the textbook case.
-- **LAX** — moderately congested, moderate forecast growth. A reasonable case, less urgent.
-- **SNA (Santa Ana)** — congestion close to LAX's, but almost no forecast growth gap, so it
+- **SFO** — first in its set against 30 peers and a full year of data. Both signals point
+  the same way at the same time, which is the textbook case.
+- **LAX** — genuinely congested, moderate forecast growth. A reasonable case, less urgent.
+- **SNA (Santa Ana)** — congestion in LAX's range, but almost no forecast growth gap, so it
   does not convert into an expansion thesis.
-- **ANC (Anchorage)** — least congested of these five, moderate growth. No crowding to
-  relieve.
+- **ANC (Anchorage)** — low congestion, moderate growth. Nothing to relieve.
+
+### One month would have said something different
+
+An earlier run used May 2026 alone and ranked MHT first and BTV third. A full year reverses
+them. BTV's taxi-out runs 28–33 minutes November through February and under 18 in summer;
+MHT is calm in almost every month. **A single month cannot tell a congested airport apart
+from an airport having a bad month.**
+
+### The caveat the year created
+
+**Winter taxi-out includes de-icing.** BTV and BGR top the New England congestion ranking
+partly because northern airports spend winter mornings in de-icing queues. That is real
+delay and real cost, but it is weather rather than runway or gate saturation, and a new
+terminal does not fix it. The agent raises this whenever a northern airport ranks high.
 
 ## The takeaway
 
 Within each region the leading candidate is the airport where both signals — current
 congestion and forecast growth — point the same way at the same time: SFO in the Pacific,
-MHT in New England. High congestion alone is not enough (BOS), and high growth alone is not
+BTV in New England. High congestion alone is not enough (BOS), and high growth alone is not
 enough (a quiet airport growing fast is healthy, not strained).
 
 This is an opportunity-screening result, not a profitability or payback forecast. With
-regional comparison sets, one month of congestion evidence, and no project-cost or capacity
-data anywhere public, confidence is low-to-moderate for prioritizing further diligence and
+regional comparison sets, one year of congestion evidence, an unseparated weather component
+in that evidence, and no project-cost or capacity data anywhere public, confidence is low-to-moderate for prioritizing further diligence and
 insufficient for an investment decision.

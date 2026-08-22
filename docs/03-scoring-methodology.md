@@ -10,42 +10,62 @@ measured actuals, not FAA's own historical estimate); forecast CAGR uses FAA TAF
 2024→2035 — spans differ in length (10y vs 11y) because T-100 only goes back to 2014,
 noted in the script, not hidden.
 
-Verified output after the stage-14 coverage expansion — 163 airports scored across 10
-regional comparison sets, run 2026-08-22. Two sets shown; `comparison_set_id` is the region.
+Verified output over **twelve months of congestion data (June 2025 – May 2026)**, a full
+annual cycle — 163 airports scored across 9 regional comparison sets, run 2026-08-22. Two
+sets shown; `comparison_set_id` is the region.
 
 `comparison_set_id='New England'` (7 scored, 12 covered):
 
 | airport | capacity pressure | forecast growth gap (pp) | unmet demand score | expansion score |
 |---|---|---|---|---|
-| MHT | 0.34 | **+6.81** | **1.00** | **0.62** |
-| BGR | 0.54 | +0.17 | 0.04 | 0.43 |
-| BTV | 0.35 | +1.71 | 0.26 | 0.37 |
-| BOS | **1.00** | −0.91 | 0.00 | 0.29 |
-| PVD | 0.24 | +1.17 | 0.12 | 0.21 |
-| PWM | 0.14 | −1.37 | 0.00 | 0.15 |
-| BDL | 0.16 | +0.46 | 0.03 | 0.05 |
+| BTV | **0.87** | +1.71 | **1.00** | **0.84** |
+| BGR | 0.84 | +0.17 | 0.09 | 0.51 |
+| BOS | 0.66 | −0.91 | 0.00 | 0.23 |
+| PWM | 0.19 | −1.37 | 0.00 | 0.16 |
+| PVD | 0.08 | +1.17 | 0.07 | 0.15 |
+| MHT | 0.01 | **+6.81** | 0.07 | 0.09 |
+| BDL | 0.11 | +0.46 | 0.04 | 0.04 |
 
 `comparison_set_id='Pacific'` (31 scored), the original pilot airports within it:
 
 | airport | capacity pressure | forecast growth gap (pp) | unmet demand score | expansion score |
 |---|---|---|---|---|
-| SFO | 0.85 | **+2.07** | **1.00** | **0.89** |
-| PDX | 0.35 | +2.34 | 0.47 | 0.54 |
-| LAX | 0.45 | +1.15 | 0.30 | 0.37 |
-| SNA | 0.47 | +0.12 | 0.03 | 0.21 |
-| ANC | 0.13 | +0.52 | 0.04 | 0.16 |
+| SFO | 0.84 | **+2.07** | **1.00** | **0.89** |
+| PDX | 0.50 | +2.34 | 0.67 | 0.66 |
+| LAX | 0.64 | +1.15 | 0.42 | 0.47 |
+| SNA | 0.46 | +0.12 | 0.02 | 0.20 |
+| ANC | 0.20 | +0.52 | 0.05 | 0.16 |
 
-SFO still ranks #1 in its set — matching the qualitative read from stage 1 (highest forecast
-growth *and* worst current congestion among the original five) even though it is now measured
-against 30 peers rather than 4. BOS shows a *negative* growth gap (FAA forecasts slower
-growth than BTS's measured 2014-2024 actual trend), which correctly drives its Unmet Demand
-Score to the floor (0) despite it now having the **highest** Capacity Pressure in New
-England. Both are explicit invariants covered by regression tests, and both survived the
-comparison-set change unchanged.
+**SFO still ranks first in its set**, against 30 peers and a full year of data rather than
+4 peers and one month — the strongest single piece of evidence that the model is measuring
+something real. **BOS still floors at exactly 0 Unmet Demand**, because the FAA forecasts
+it slower than its own measured T-100 trend, regardless of congestion. Both are regression
+invariants and both survived every change to coverage, comparison set, and time span.
 
-The substantive result of expanding coverage: New England's top candidate is MHT, an airport
-the 5-airport build could not see at all, while BOS — the only New England airport it could
-see — ranks fourth.
+### What a full year changed, and why it matters
+
+An earlier run used a single month (May 2026) and produced a materially different New
+England ranking: MHT first at 0.62, BTV third, BOS fourth. With twelve months the order is
+almost reversed — **BTV first at 0.84, MHT last at 0.09.**
+
+The cause is visible in the monthly data. BTV's taxi-out runs 28–33 minutes from November
+through February and under 18 in summer; MHT is the calmest airport in the region across
+almost every month. One month cannot distinguish a congested airport from an airport having
+a bad month, and the earlier ranking was reading the second as the first.
+
+MHT is now the model's own illustration of its central idea, from the other direction: it
+has by far the **highest** forecast growth gap in New England (+6.81 pp) and still scores
+last, because its Capacity Pressure is 0.01. Fast growth at an uncongested airport is
+headroom, not unmet demand — the gate does exactly what it was designed to do.
+
+### A caveat this created
+
+**Winter taxi-out includes de-icing.** BTV and BGR rank top of New England on congestion
+partly because northern airports spend winter mornings in de-icing queues. That is real
+delay and it is real cost, but it is weather, not runway or gate saturation, and building a
+terminal does not fix it. Separating de-icing from structural congestion needs a weather
+join this dataset does not have. The agent is instructed to raise this whenever a northern
+airport ranks high on congestion.
 
 ### Eligibility
 
@@ -54,17 +74,16 @@ rather than silently dropped:
 
 | Condition | Airports |
 |---|---|
-| Below 300 departures/month (sample floor) | 179 |
-| No FAA TAF forecast for the facility | 3 |
+| Below 300 departures/month averaged over the year | 189 |
+| No FAA TAF forecast for the facility | 2 |
 | In a region with fewer than 3 scoreable airports | 2 |
 
 Below the floor, one bad day moves `avg_taxi_out_minutes` and `nas_delay_min_per_dep` more
-than genuine congestion does, so a score would be noise wearing a number's clothes. The floor
-is ~10 departures/day, so one fully disrupted day is at most ~3% of a month's sample; it was
-raised from 100 after a 134-departure airport ranked fourth in a 37-airport region on delay
-averages a single bad week could produce (docs/14-coverage-expansion.md). Regions
-with fewer than 3 scoreable airports are also left unranked: min-max over 1–2 members returns
-0, 0.5 or 1 by arithmetic regardless of the inputs.
+than genuine congestion does, so a score would be noise wearing a number's clothes. The
+floor is ~10 departures/day; it was raised from 100 after a 134-departure airport ranked
+fourth in a 37-airport region (docs/14-coverage-expansion.md). Regions with fewer than 3
+scoreable airports are also left unranked: min-max over 1–2 members returns 0, 0.5 or 1 by
+arithmetic regardless of the inputs.
 
 ## Design constraint: two KPIs, not one KPI twice
 
@@ -77,8 +96,8 @@ gap*, and the second is explicitly gated by the first rather than computed indep
 
 Answers: "how strained is this airport's operation right now, relative to peers?"
 
-Inputs, all from the currently ingested `airport_metrics_monthly` BTS On-Time months
-(currently one month):
+Inputs, averaged across the twelve ingested `airport_metrics_monthly` BTS On-Time months
+(June 2025 – May 2026):
 
 | Signal | Field | Why |
 |---|---|---|

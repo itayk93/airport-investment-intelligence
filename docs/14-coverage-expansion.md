@@ -146,12 +146,16 @@ Unscored, with reasons — the tally the script prints on every run:
     2  only 2 scoreable airports in US Territories — too few for a relative ranking
 ```
 
+(Stage 15 backfilled a full year of congestion data; the current figures are 356 covered,
+163 scored, 193 unscored. See the postscript.)
+
 US Territories is the rule from decision 4 firing on real data: PR and VI have two scoreable
 origins between them, and a two-member min-max scale returns 0 and 1 by arithmetic. They stay
 covered and are reported as unranked rather than being given scores that would look like a
 ranking.
 
-New England went from 1 covered airport to 12 covered and 7 scored:
+New England went from 1 covered airport to 12 covered and 7 scored. **The table below is
+the single-month result, kept because stage 15 overturned it — see the postscript:**
 
 | rank | airport | capacity pressure | growth gap (pp) | unmet demand | expansion score |
 |---|---|---|---|---|---|
@@ -208,3 +212,72 @@ re-observed after this change.
 - **IATA/LOCID matching is assumed, not resolved.** TAF is keyed by FAA LOCID; where it
   differs from the IATA code the airport simply gets no forecast and is reported unscored,
   rather than being matched to the wrong facility. Six airports fall into this case.
+
+
+---
+
+## Postscript — stage 15: a full year of congestion data overturned the headline
+
+Stage 14 shipped on **one month** of BTS On-Time data (May 2026) and documented that as a
+limitation. Stage 15 backfilled eleven more months, giving **June 2025 – May 2026**, a
+complete annual cycle with no season counted twice.
+
+Cost, again measured rather than assumed: 11 downloads at ~31 MB, ~11 s of parsing each,
+about 25 minutes end to end. Peak disk stayed near 310 MB because the extraction step now
+deletes the 277 MB CSV and the zip once a month has been aggregated into its ~240 KB JSON
+(`KEEP_RAW=1` opts out). Ingest of all twelve months: 10.5 s.
+
+### The headline reversed
+
+| | one month (May 2026) | twelve months |
+|---|---|---|
+| New England #1 | **MHT** 0.62 | **BTV** 0.84 |
+| MHT | #1 | **#7, last** at 0.09 |
+| BTV | #3 | #1 |
+| BOS | #4 | #3 |
+
+The monthly data shows exactly why. BTV's taxi-out runs 28–33 minutes from November through
+February and under 18 in summer. MHT is the calmest airport in the region in almost every
+month; May happened to be its worst relative showing. **One month could not tell a congested
+airport apart from an airport having a bad month, and stage 14's ranking read the second as
+the first.**
+
+This is worth stating plainly rather than quietly correcting: the finding stage 14 led with
+— "the top candidate is MHT, an airport the previous build could not see" — was an artifact
+of the sample window. The *argument* held completely: hand-picked coverage produced a wrong
+answer, and expanding it was right. The specific airport it produced did not.
+
+### MHT is now the better illustration anyway
+
+MHT has by far the highest forecast growth gap in New England, **+6.81 pp**, and ranks
+**last**. Its Capacity Pressure is 0.01 — the calmest airport in the region. The gate in the
+Unmet Demand formula does exactly what it was built to do: fast growth at an uncongested
+airport is headroom, not unmet demand. The model now demonstrates its central idea from both
+directions at once — BOS is congested without growth, MHT is growing without congestion, and
+neither is a candidate.
+
+### A new caveat the year created
+
+**Winter taxi-out includes de-icing.** BTV and BGR lead New England on congestion partly
+because northern airports spend winter mornings in de-icing queues. That is real delay and
+real cost, but it is weather rather than runway or gate saturation, and a terminal does not
+fix it. Separating the two needs a weather join this dataset does not have. It is now the
+most important caveat on the current numbers, and the agent prompt instructs the model to
+raise it whenever a northern airport ranks high on congestion.
+
+Adding a year of data did not only sharpen the answer — it exposed a weakness in the metric
+that a single spring month had hidden.
+
+### Current figures
+
+```
+356 airports covered · 163 scored · 9 regional comparison sets
+193 unscored
+  189  below the 300 departures/month sample floor (annual average)
+    2  no FAA TAF forecast for this facility
+    2  only 2 scoreable airports in US Territories
+```
+
+Both regression invariants survived the change, which is the check that mattered most:
+**SFO still ranks first in the Pacific** (0.8863, against 30 peers and a full year), and
+**BOS still floors at exactly 0 Unmet Demand.**

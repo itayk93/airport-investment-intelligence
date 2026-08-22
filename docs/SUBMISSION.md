@@ -46,7 +46,7 @@ references to earlier turns).
 
 ## Stated limits
 
-- **347 covered airports, 163 scored**, and one month of on-time data. Scores are *relative
+- **356 covered airports, 163 scored**, and twelve months of on-time data (June 2025 – May 2026). Scores are *relative
   to the airport's own US Census region*, not absolute and not comparable across regions.
   Airports under 300 departures/month are covered but not ranked — see
   [`docs/14-coverage-expansion.md`](14-coverage-expansion.md).

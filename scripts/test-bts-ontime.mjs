@@ -1,7 +1,7 @@
 // Proof-of-data: BTS Reporting Carrier On-Time Performance (TranStats PREZIP, no API key).
 // Usage: node scripts/test-bts-ontime.mjs [YEAR] [MONTH]
 // Downloads ~31 MB zip -> streams ~277 MB CSV. First run ~3 min, then cached in data/raw/.
-import { createReadStream, existsSync, mkdirSync, writeFileSync, createWriteStream } from 'node:fs';
+import { createReadStream, existsSync, mkdirSync, rmSync, writeFileSync, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import { Readable } from 'node:stream';
 import { createInterface } from 'node:readline';
@@ -25,6 +25,12 @@ const name = `On_Time_Reporting_Carrier_On_Time_Performance_1987_present_${year}
 const url = `https://transtats.bts.gov/PREZIP/${name}.zip`;
 const zipPath = `data/raw/${name}.zip`;
 const csvDir = `data/raw/${name}`;
+
+// The 31 MB zip and the 277 MB CSV it expands to are only needed while this script runs —
+// everything downstream reads the ~240 KB aggregate in data/out/. Backfilling a year kept
+// both and cost ~3.7 GB for no benefit, so they are removed once the month is written.
+// Set KEEP_RAW=1 to keep them (useful when iterating on the parser itself).
+const KEEP_RAW = process.env.KEEP_RAW === '1';
 
 mkdirSync('data/raw', { recursive: true });
 
@@ -149,4 +155,10 @@ const out = [...agg.entries()]
 
 mkdirSync('data/out', { recursive: true });
 writeFileSync(`data/out/ontime-${year}-${month}.json`, JSON.stringify(out, null, 2));
-console.log(JSON.stringify(out, null, 2));
+
+if (!KEEP_RAW) {
+  rmSync(csvDir, { recursive: true, force: true });
+  rmSync(zipPath, { force: true });
+}
+
+console.error(`${year}-${month}: ${out.length} origins, ${out.filter((r) => r.sufficientSample).length} above the sample floor`);

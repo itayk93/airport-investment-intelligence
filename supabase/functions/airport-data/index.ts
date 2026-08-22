@@ -44,8 +44,9 @@ Deno.serve(async (req) => {
           { tag: '03', text: 'Scores are relative to an airport\'s own US Census region, not national and not absolute. 1.00 means "most pressured in that region". Scores from different regions are not comparable — compare the underlying metrics instead.' },
           { tag: '04', text: 'Congestion data covers US domestic flights by BTS reporting carriers only. International departures at SFO and LAX are not in the delay figures.' },
           { tag: '05', text: 'The 2,000-mile long-haul threshold is our own definition, not a BTS or FAA standard.' },
-          { tag: '06', text: 'One month of congestion data (May 2026), chosen as a neutral month outside the summer and winter-holiday peaks. Seasonal bias largely cancels within a region since every airport is measured in the same month, but not for airports whose own demand is seasonal.' },
-          { tag: '07', text: 'Airports below 300 departures per month are covered but not scored: at that sample size a few disrupted days can move delay averages more than genuine congestion does.' },
+          { tag: '06', text: 'Twelve months of congestion data (June 2025 - May 2026), a full annual cycle, so no season is double-counted. Congestion is the average across those months; a single month is not shown as a trend.' },
+          { tag: '07', text: 'Taxi-out time at northern airports includes de-icing in winter. Burlington averages over 30 minutes in December and under 18 in summer. That raises their capacity-pressure score for a reason that is weather, not runway or gate saturation.' },
+          { tag: '08', text: 'Airports below 300 departures per month are covered but not scored: at that sample size a few disrupted days can move delay averages more than genuine congestion does.' },
         ],
       },
     }, 200, req);
