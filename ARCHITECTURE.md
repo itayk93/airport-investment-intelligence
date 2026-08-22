@@ -124,7 +124,7 @@ once — the only airport in its region where both are high.
   is *exactly* zero: the FAA forecasts it growing more slowly than its own measured trend,
   so `max(0, GrowthGap)` clamps. Crowded, but not growing.
 - **MHT — growth without congestion.** By far the largest growth gap anywhere in New
-  England (+6.80 pp), and still last of seven. Its capacity pressure is 0.01, the emptiest
+  England (+6.80 pp), and still second-to-last of seven. Its capacity pressure is 0.01, the emptiest
   airport in the region. Fast growth into an empty airport is headroom, not unmet demand.
 
 Neither would fall out of a model that simply averaged congestion and growth together.
@@ -240,10 +240,9 @@ hand-picked list silently decided the answer to every regional question. Coverag
 whatever BTS reports. The real ceiling is the data's: only ~170 airports file enough On-Time
 volume to score. See [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
 
-**A full year of congestion data, not a representative month.** The build shipped on one
-month and documented that as a limitation. Backfilling eleven more cost ~25 minutes and
-reversed the headline result: New England's top candidate changed from MHT to BTV, and MHT
-fell to last. One month could not separate a congested airport from an airport having a bad
+**A full annual cycle, not a representative month.** The build shipped on one month and
+documented that as a limitation. Backfilling the rest reversed the headline result: New
+England's top candidate changed from MHT to BTV, and MHT fell to sixth of seven. One month could not separate a congested airport from an airport having a bad
 month. It also exposed a weakness the single month had hidden — winter taxi-out includes
 de-icing — which is now the model's most important stated caveat. See
 [docs/14-coverage-expansion.md](docs/14-coverage-expansion.md).
@@ -263,16 +262,13 @@ It would also hand a language model arbitrary SQL. Chose the smaller, safer surf
 `get_airport_data` generalizes the semantic contract, not the database permissions: metric
 names are allowlisted and still map to fixed parameterized queries.
 
-**WhatsApp as an adapter, not a second agent.** The web endpoint and Twilio webhook call
-one shared agent engine, so prompt, tools, limits, and caveats cannot drift. The Sandbox is
-deliberately a reviewer demo: QR/deep-link onboarding, no approved production sender, and
-stateless WhatsApp turns. Cross-channel identity or stored phone-number history would add
-privacy and retention obligations that are not justified in a one-day prototype.
-
-**No markdown library in the UI.** ~40 kB to render four constructs the design styles very
-specifically. A small parser maps replies onto the design's text/bullet/note line types.
-The only non-React UI dependency is `qrcode.react`, used to generate the Sandbox QR locally
-instead of leaking the join URL to an external QR service.
+**Channels are adapters, not second agents.** The web endpoint and the WhatsApp webhook both
+call one engine (`_shared/agent.ts`), so prompt, tools, limits, and caveats cannot drift
+between them — adding a channel means adding an adapter, not a second copy of the agent.
+One honest wart: the engine's collaborators (prompt, scope guard, tools) still sit under the
+`agent-chat/` directory rather than `_shared/`, so the WhatsApp adapter imports through the
+web channel's folder. The seam is right; the file placement is not, and it is a move rather
+than a redesign.
 
 **Composite score, but never shown alone.** Discussed in §2 — ranking requires one number;
 honesty requires the parts.
@@ -337,41 +333,15 @@ reviewer should ask:
 
 ---
 
-## 6. Running it
+## 6. Deeper documentation
 
-```bash
-npm install
-npm run dev          # http://localhost:5173
-```
-
-Requires `.env` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. The database
-is already populated and all three edge functions are deployed. The optional WhatsApp
-channel additionally requires `TWILIO_AUTH_TOKEN` in Supabase secrets and the Sandbox
-inbound webhook pointed at `/functions/v1/twilio-whatsapp`.
-
-To rebuild the data from source:
-
-```bash
-node scripts/test-bts-ontime.mjs 2026 5   # ~31 MB download, streams 277 MB CSV
-python3 scripts/parse-faa-taf-full.py
-node scripts/ingest.mjs 2025
-node scripts/score.mjs
-```
-
----
-
-## 7. Deeper documentation
-
-`docs/` is a stage-by-stage build log. Most relevant:
+Setup and rebuild commands are in [README.md](README.md); this document stays on design.
+`docs/` holds the stage-by-stage build log — most relevant to a reviewer:
 
 | Doc | Contents |
 |---|---|
-| `01-data-feasibility-spike.md` | Source verification, dead ends, sample outputs |
-| `02-database-schema.md` | Schema design and rationale |
 | `03-scoring-methodology.md` | Full formulas and derivation |
-| `07-scoring-results-explained.md` | The results in plain language |
 | `09-agent-architecture.md` | Tools, prompt, security, verified behaviour |
-| `13-generic-airport-data-tool.md` | Generic retrieval contract, discovery, safety, and live verification |
+| `14-coverage-expansion.md` | Why coverage comes from the source rather than a list |
 | `15-cost-scale-and-eval.md` | Per-query cost, scale ceilings, model choice, evaluation gap |
-| `10-frontend-architecture.md` | UI structure and design decisions |
 | `DATA_PLAN.md` | Endpoint-level data map |

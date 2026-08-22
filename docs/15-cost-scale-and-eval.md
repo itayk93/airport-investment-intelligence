@@ -60,9 +60,16 @@ Three separate ceilings, in the order they would be hit:
    realistic bottleneck at demo or pilot scale.
 
 Scaling levers if this became a product, in order of value per effort: raise the OpenAI
-tier (spend threshold, no code), cache identical question+data-version pairs (scores
-change monthly at most, so answers are cacheable for a month), and move the per-caller
-limit from per-function memory to a shared store.
+tier (spend threshold, no code), and cache identical question+data-version pairs (scores
+change monthly at most, so answers are cacheable until the next ingest).
+
+The per-caller limit already lives in Postgres rather than in function memory —
+`check_rate_limit` is a `security definer` function that takes a per-bucket
+`pg_advisory_xact_lock` before counting, so it is correct across concurrent isolates
+rather than per-instance. That is also its scaling inflection point: every chat request
+takes a lock and runs a `count(*)` over the hit table, which serialises requests that
+share a bucket. At demo volume this is irrelevant; the fix at real volume is a counter
+with a TTL in Redis, not a bigger Postgres.
 
 ## 3. Why gpt-5-mini, and what the upgrade path is
 
