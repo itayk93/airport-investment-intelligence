@@ -180,8 +180,8 @@ mattered most:
 
 Deployed and called through the public edge functions:
 
-- `airport-data` returns 163 scores over 9 regional sets, 347 airports, 126 flagged
-  unscored.
+- `airport-data` returns 163 scores over 9 regional sets and a covered count of 347;
+  `list_airports` exposes the 126 unscored airports and their reasons to the agent.
 - **"Which airports in New England are strong candidates for terminal expansion?"** — the
   agent ranks MHT, BGR, BTV with the numbers above and states that scores are relative to
   New England.

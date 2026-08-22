@@ -6,18 +6,6 @@
 
 export type Nullable<T> = T | null;
 
-export interface Airport {
-  iata_code: string;
-  name: string;
-  city: Nullable<string>;
-  state: Nullable<string>;
-  region: Nullable<string>;
-  /** Covered airports are not all scored — see the sample floor in scripts/score.mjs. */
-  scored: boolean;
-  score_exclusion_reason: Nullable<string>;
-  comparison_set_id: Nullable<string>;
-}
-
 export interface ScoreRow {
   iata_code: string;
   name: string;
@@ -31,7 +19,6 @@ export interface ScoreRow {
   unmet_demand_score: Nullable<string | number>;
   long_haul_share_pct: Nullable<string | number>;
   expansion_score: Nullable<string | number>;
-  inputs_json: Nullable<Record<string, unknown>>;
 }
 
 export interface WeightRow {
@@ -62,7 +49,7 @@ export interface ScoringModel {
 
 export interface AirportDataResponse {
   scores: ScoreRow[];
-  airports: Airport[];
+  covered_airport_count: number;
   coverage: CoverageRow[];
   model: ScoringModel;
 }

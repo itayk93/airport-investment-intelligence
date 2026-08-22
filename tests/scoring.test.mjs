@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { normalize, rawUnmetDemand } from '../scripts/lib/scoring.mjs';
+import { groupBy, normalize, rawUnmetDemand } from '../scripts/lib/scoring.mjs';
 import { regionForState, REGIONS } from '../scripts/lib/regions.mjs';
 
 test('zero capacity pressure produces zero unmet demand', () => {
@@ -20,6 +20,18 @@ test('normalization keeps zero at the floor when raw unmet demand is non-negativ
   const norm = normalize(values);
   assert.equal(norm(0), 0);
   assert.equal(norm(2.07), 1);
+});
+
+test('groupBy indexes rows without losing order or missing-key groups', () => {
+  const rows = [
+    { iata_code: 'SFO', month: 1 },
+    { iata_code: 'LAX', month: 1 },
+    { iata_code: 'SFO', month: 2 },
+  ];
+  const grouped = groupBy(rows, 'iata_code');
+  assert.deepEqual(grouped.get('SFO'), [rows[0], rows[2]]);
+  assert.deepEqual(grouped.get('LAX'), [rows[1]]);
+  assert.equal(grouped.get('BOS'), undefined);
 });
 
 // --- Regional comparison sets (stage 14) ---

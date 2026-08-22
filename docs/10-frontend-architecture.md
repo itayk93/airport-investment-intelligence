@@ -41,13 +41,14 @@ pairing, the two-pane 1fr/496px layout, and the component anatomy (rank rows wit
 bars, weight rows, accent-tagged caveats, mono micro-labels).
 
 **What was deliberately not copied:** the mock ships 44 airports of fabricated demo data
-and a different 5-factor weight model. Both were dropped. The UI renders the 5 real
-airports and the actual weights from `scripts/score.mjs`. Shipping an investment tool
+and a different 5-factor weight model. Both were dropped. The UI renders source-derived
+national coverage and the actual weights from `scripts/score.mjs`. Shipping an investment tool
 with plausible-looking fake numbers is the one mistake that would matter most here.
 
 ## Where the panel's numbers come from
 
-A second edge function, `airport-data`, serves scores, coverage, weights, and caveats.
+A second edge function, `airport-data`, serves scores, the covered-airport count, coverage,
+weights, and caveats. Raw score input snapshots stay in Postgres and are not sent to the UI.
 It shares `_shared/db.ts` with the agent's tool layer, so the panel and the agent execute
 the *same query* — they cannot drift or disagree about a score. No LLM sits in the panel's
 path: those numbers are rendered exactly as computed.

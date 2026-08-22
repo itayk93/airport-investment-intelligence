@@ -18,7 +18,7 @@
 // Run: node scripts/score.mjs
 import { loadEnv } from './lib/env.mjs';
 import { makeDb } from './lib/db.mjs';
-import { normalize, rawUnmetDemand } from './lib/scoring.mjs';
+import { groupBy, normalize, rawUnmetDemand } from './lib/scoring.mjs';
 
 loadEnv('.env');
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
@@ -96,8 +96,9 @@ async function main() {
   );
 
   const congestion = {};
+  const ontimeByAirport = groupBy(ontimeRows, 'iata_code');
   for (const a of codes) {
-    const rows = ontimeRows.filter((r) => r.iata_code === a);
+    const rows = ontimeByAirport.get(a) ?? [];
     const avg = (key) => {
       const vals = rows.map((r) => r[key]).filter((v) => v != null).map(Number);
       return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;

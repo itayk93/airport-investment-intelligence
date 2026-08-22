@@ -58,6 +58,12 @@ export function listAirports() {
   `;
 }
 
+/** Count for the public UI, which does not need the full airport directory payload. */
+export async function getAirportCount(): Promise<number> {
+  const rows = await sql<{ count: number }[]>`select count(*)::int as count from airports`;
+  return rows[0]?.count ?? 0;
+}
+
 /** Scores joined to airport names — the shape both the ranking panel and the agent want. */
 export function getScores(codes: string[] = []) {
   // airport_scores retains scoring history. Select one newest row per airport before
@@ -67,7 +73,7 @@ export function getScores(codes: string[] = []) {
            s.iata_code, a.name, a.city, a.state, a.region,
            s.comparison_set_id,
            s.capacity_pressure, s.forecast_growth_gap_pct, s.unmet_demand_score,
-           s.long_haul_share_pct, s.expansion_score, s.inputs_json, s.computed_at
+           s.long_haul_share_pct, s.expansion_score, s.computed_at
     from airport_scores s
     join airports a on a.iata_code = s.iata_code
     order by s.iata_code, s.computed_at desc
@@ -99,7 +105,8 @@ export function getMetrics(
            long_haul_threshold_miles
     from airport_metrics_monthly
     where iata_code in ${sql(codes)} and data_scope = ${scope}
-      and year * 100 + month between ${fromPeriod} and ${toPeriod}
+      and (year, month) >= (${Math.floor(fromPeriod / 100)}, ${fromPeriod % 100})
+      and (year, month) <= (${Math.floor(toPeriod / 100)}, ${toPeriod % 100})
     order by iata_code, year, month
     limit 500
   `;

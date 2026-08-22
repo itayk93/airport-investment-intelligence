@@ -15,3 +15,14 @@ export function normalize(values) {
 export function rawUnmetDemand(forecastGrowthGapPct, capacityPressure) {
   return +(Math.max(0, forecastGrowthGapPct) * Math.max(0, capacityPressure)).toFixed(4);
 }
+
+/** Index rows once by a key instead of repeatedly filtering the full input per entity. */
+export function groupBy(rows, key) {
+  const groups = new Map();
+  for (const row of rows) {
+    const value = row[key];
+    if (!groups.has(value)) groups.set(value, []);
+    groups.get(value).push(row);
+  }
+  return groups;
+}

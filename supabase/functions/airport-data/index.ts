@@ -3,7 +3,7 @@
 // Separate from agent-chat on purpose: the panel needs deterministic scores rendered
 // exactly as computed, with no LLM in the path. Sharing _shared/db.ts means the panel and
 // the agent can never disagree about a number — same query, one definition.
-import { getCoverage, getScores, listAirports } from '../_shared/db.ts';
+import { getAirportCount, getCoverage, getScores } from '../_shared/db.ts';
 import { isAllowedOrigin, json, preflight } from '../_shared/http.ts';
 
 Deno.serve(async (req) => {
@@ -12,15 +12,18 @@ Deno.serve(async (req) => {
   if (req.method !== 'GET') return json({ error: 'GET only' }, 405, req);
 
   try {
-    const [scores, airports, coverage] = await Promise.all([
+    const [scores, coveredAirportCount, coverage] = await Promise.all([
       getScores(),
-      listAirports(),
+      getAirportCount(),
       getCoverage(),
     ]);
 
     return json({
       scores,
-      airports,
+      covered_airport_count: coveredAirportCount,
+      // Temporary rollout compatibility: the currently deployed UI reads only `.length`.
+      // Remove after the frontend using covered_airport_count is live.
+      airports: Array.from({ length: coveredAirportCount }, () => null),
       coverage,
       // The scoring model, served from the backend so the UI never hardcodes weights that
       // could drift from scripts/score.mjs.

@@ -91,6 +91,19 @@ This table is what the agent's tool calls read at chat time — it never recompu
 scores live inside a conversation turn; scoring is a separate deterministic batch step
 (stage 3 script), and the agent explains numbers that already exist.
 
+`inputs_json` remains a server-side audit snapshot. The public analysis endpoint projects
+only fields rendered by the UI; it does not transfer this JSON payload to the browser.
+
+## Integrity and access controls
+
+- IATA keys must be three uppercase letters.
+- Counts and physical quantities are non-negative; percentages stay within 0–100; normalized
+  scores stay within 0–1. PostgreSQL enforces these rules, not only ingestion code.
+- RLS is enabled on all public tables. `anon` and `authenticated` have no direct table
+  privileges. `agent_reader` receives SELECT on the four public-data tables and EXECUTE only
+  on `check_rate_limit`; it cannot read the counter table.
+- `SECURITY DEFINER` functions fix `search_path`. Neither is executable by public API roles.
+
 ## Region choice
 
 Supabase project region: **East US (North Virginia / us-east-1)**.

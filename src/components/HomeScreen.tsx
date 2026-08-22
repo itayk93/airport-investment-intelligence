@@ -38,7 +38,7 @@ export function HomeScreen({
   // Scored, not merely covered — the headline number should be the one the ranking can
   // actually stand behind. The covered-but-unscored airports are reported in the panel.
   const scoredCount = data?.scores.length ?? 0;
-  const coveredCount = data?.airports.length ?? 0;
+  const coveredCount = data?.covered_airport_count ?? 0;
   const regionCount = data?.model.comparison_sets.length ?? 0;
 
   return (

@@ -59,6 +59,12 @@ are revoked from `public`, `anon`, and `authenticated`. `agent_reader` receives 
 uses a transaction-level advisory lock per bucket. The lock makes count-and-insert atomic,
 so concurrent requests cannot race past a limit.
 
+Migration `20260822000200_least_privilege_constraints_and_indexes.sql` also revokes the
+Supabase default function grants explicitly from `anon` and `authenticated`. Revoking only
+`PUBLIC` was insufficient because those roles had direct grants. Live verification confirms
+neither public role can execute either `SECURITY DEFINER` function, and `agent_reader`
+cannot select the counter table directly.
+
 Denied requests return `429`, a plain-language JSON error, and `Retry-After`. Limiter
 failures return `503` and fail closed; they never fall through to a paid OpenAI request.
 
@@ -189,6 +195,13 @@ Live verification completed after deployment:
 - Live airport data: `200`, 347 covered airports, 163 current scores, and the correct
   300-departure sample-floor disclosure.
 - Production dependency audit: zero known vulnerabilities.
+- Public `check_rate_limit` RPC attempt: `401 permission denied`; the same operation through
+  `agent_reader` remains functional in a live chat request.
+- Six database domain constraints validated against all current rows.
+- Monthly-metric query uses `idx_metrics_airport_scope_time`; measured execution was
+  0.096 ms for the representative two-airport range query.
+- `airport-data` payload reduced from 192,546 to 56,874 bytes by keeping score audit inputs
+  server-side and returning a count instead of the full airport directory.
 
 ## Layer 0 owner checklist
 
