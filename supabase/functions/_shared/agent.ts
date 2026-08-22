@@ -8,10 +8,10 @@ const MAX_TOOL_ROUNDS = 4;
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_CHARS = 2_000;
 const MAX_TOOL_RESULT_BYTES = 12 * 1024;
-const MAX_OUTPUT_TOKENS = 900;
+const MAX_OUTPUT_TOKENS = 320;
 const encoder = new TextEncoder();
 const SCORE_DISCLOSURE =
-  'Screening caveat: these are modeled proxies, not published terminal capacity or ROI. Scores are relative to the five-airport pilot; weights are heuristic, and congestion evidence currently covers one month. Treat this as low-to-moderate-confidence screening, not an investment decision.';
+  'Caveat: modeled proxy, relative to the five-airport pilot, with one month of congestion data. Not an ROI estimate.';
 
 export interface AgentInputMessage {
   role: 'user' | 'assistant';
