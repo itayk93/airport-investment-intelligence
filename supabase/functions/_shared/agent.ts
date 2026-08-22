@@ -4,12 +4,30 @@ import { toolDefinitions, runTool } from '../agent-chat/tools.ts';
 import { describeCongestionCoverage, getCoverage, type CoverageRow } from './db.ts';
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-const MODEL = 'gpt-4o-mini';
+const MODEL = 'gpt-5-mini';
+// The GPT-5 family takes different parameters from the 4o family on chat/completions: the
+// output cap is `max_completion_tokens`, and `temperature` is not accepted at all. Keeping
+// this as a derived flag rather than editing the body by hand means switching MODEL back to
+// a 4o-family id stays a one-line change.
+const IS_GPT5 = MODEL.startsWith('gpt-5');
 const MAX_TOOL_ROUNDS = 4;
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_CHARS = 2_000;
-const MAX_TOOL_RESULT_BYTES = 12 * 1024;
+// A region listing now carries every airport's scores, because ranking from a hand-picked
+// code list produced partial rankings. The largest region (Pacific, 57 covered) lands near
+// 12 KB, so the old 12 KB budget truncated it — and a truncated tool result reaches the
+// model as broken JSON, which is why it returned an empty answer rather than a wrong one.
+// The headroom also absorbs the coverage the refresh cron keeps adding. At gpt-5-mini input
+// pricing the worst case is a fraction of a cent per call.
+const MAX_TOOL_RESULT_BYTES = 32 * 1024;
+// Visible answer length. The prose budget in the prompt is ~120-150 words, well inside this.
 const MAX_OUTPUT_TOKENS = 320;
+// GPT-5 spends output tokens on reasoning before it writes anything, and those count
+// against the same ceiling — a 320 cap can be consumed entirely by reasoning and return an
+// empty message. So the cap is raised and reasoning is held to the lowest setting: this is
+// retrieval and explanation over four small tables, not a problem that needs deliberation.
+const MAX_COMPLETION_TOKENS = 2_000;
+const REASONING_EFFORT = 'low';
 const encoder = new TextEncoder();
 
 // Memoized for the isolate's lifetime: the underlying data changes at most monthly (the
@@ -27,8 +45,15 @@ function congestionCoverage(): Promise<string> {
     }));
   return pending;
 }
+// Deliberately short, and shown once per conversation rather than under every message.
+// The previous version ran 33 words on every score answer, which is how a disclosure turns
+// into wallpaper that nobody reads — and it duplicated the situational caveat the model had
+// often already written. It also hardcoded "one year" of data, which the refresh cron made
+// wrong. What stays is the part a reader could actually be misled by: these are modeled,
+// region-relative, and not a return estimate. Situational caveats (de-icing at northern
+// airports, small samples) are the model's job and are raised in context.
 const SCORE_DISCLOSURE =
-  'Caveat: modeled proxy, ranked within the airport\'s own region, over one year of congestion data that still mixes weather with structural congestion. Not an ROI estimate.';
+  'Scores are a modeled screening proxy, ranked within each airport\'s own region — not an ROI estimate.';
 
 export interface AgentInputMessage {
   role: 'user' | 'assistant';
@@ -48,7 +73,11 @@ export interface AgentResult {
   budget_exhausted?: boolean;
 }
 
-function addScoreDisclosure(reply: string, toolTrace: AgentResult['tool_trace']) {
+function addScoreDisclosure(
+  reply: string,
+  toolTrace: AgentResult['tool_trace'],
+  history: ModelMessage[],
+) {
   const scoreMetrics = new Set([
     'capacity_pressure',
     'forecast_growth_gap_pct',
@@ -56,11 +85,32 @@ function addScoreDisclosure(reply: string, toolTrace: AgentResult['tool_trace'])
     'expansion_score',
   ]);
   const usedScores = toolTrace.some((call) => {
-    if (call.tool !== 'get_airport_data' || !call.args || typeof call.args !== 'object') return false;
+    if (!call.args || typeof call.args !== 'object') return false;
+    // list_airports now returns the score columns too, because ranking a region from a
+    // hand-picked code list was producing partial rankings. That made it a score source,
+    // so it has to trigger the disclosure as well — otherwise the fix would have quietly
+    // opened a path to score answers that carry no disclosure at all.
+    if (call.tool === 'list_airports') return true;
+    if (call.tool !== 'get_airport_data') return false;
     const metrics = (call.args as { metrics?: unknown }).metrics;
     return Array.isArray(metrics) && metrics.some((metric) => scoreMetrics.has(String(metric)));
   });
   if (!usedScores) return reply;
+  // The prompt forbids a generic closing caveat because the system appends one, and the
+  // model does it anyway. Compliance is not a mechanism: strip a trailing paragraph that
+  // is merely restating the standing disclosure. A caveat that raises something specific
+  // (de-icing, a small sample, a particular month) does not match and is left alone.
+  const generic = /(modeled|modelled)\s+proxy|not\s+an\s+roi|roi\s+estimate|project[- ]cost/i;
+  reply = reply.trim().replace(/\n\n(?:\*\*)?caveat\b[^\n]*(?:\n(?!\n)[^\n]*)*$/i, (match) =>
+    generic.test(match) ? '' : match,
+  );
+  // Once per conversation, not once per message. The turn's own history is the state: if an
+  // earlier answer already carries it, the reader has seen it and repeating it only trains
+  // them to skip the last paragraph.
+  const alreadyDisclosed = history.some(
+    (message) => message.role === 'assistant' && String(message.content ?? '').includes(SCORE_DISCLOSURE),
+  );
+  if (alreadyDisclosed) return reply;
   return `${reply.trim()}\n\n${SCORE_DISCLOSURE}`;
 }
 
@@ -102,8 +152,9 @@ async function callOpenAI(messages: ModelMessage[], requireTool: boolean) {
       messages,
       tools: toolDefinitions,
       tool_choice: requireTool ? 'required' : 'auto',
-      temperature: 0.2,
-      max_tokens: MAX_OUTPUT_TOKENS,
+      ...(IS_GPT5
+        ? { max_completion_tokens: MAX_COMPLETION_TOKENS, reasoning_effort: REASONING_EFFORT }
+        : { temperature: 0.2, max_tokens: MAX_OUTPUT_TOKENS }),
     }),
   });
   if (!response.ok) throw new Error(`OpenAI ${response.status}: ${await response.text()}`);
@@ -146,7 +197,7 @@ export async function runAgent(input: AgentInputMessage[]): Promise<AgentResult>
     const calls = modelMessage.tool_calls ?? [];
     if (!calls.length) {
       return {
-        reply: addScoreDisclosure(modelMessage.content ?? '', toolTrace),
+        reply: addScoreDisclosure(modelMessage.content ?? '', toolTrace, history),
         tool_trace: toolTrace,
       };
     }

@@ -26,7 +26,7 @@ export const toolDefinitions = [
     function: {
       name: 'list_airports',
       description:
-        'Discover which airports are covered and resolve city, state, or region names to IATA codes. Each row reports whether the airport is scored and which regional comparison set it belongs to; a covered airport can be unscored because its traffic is below the sample floor. Pass region to narrow the list — coverage is a few hundred airports, so an unfiltered call returns all of them. Use before claiming that a place is not covered.',
+        'Discover which airports are covered, resolve city/state/region names to IATA codes, AND rank a region. Each row carries the airport\'s scores (capacity_pressure, unmet_demand_score, forecast_growth_gap_pct, expansion_score) plus whether it is scored and which comparison set it belongs to; a covered airport can be unscored because its traffic is below the sample floor. THIS IS THE ONLY CORRECT WAY TO ANSWER "which airports in region X rank highest" — one call with a region returns every airport in that set with its scores, so you rank the complete set. Never assemble a ranking by passing a hand-picked list of codes to get_airport_data: that ranks whatever you happened to ask about, not the region. Use before claiming that a place is not covered.',
       parameters: {
         type: 'object',
         properties: {
@@ -107,6 +107,12 @@ function scopesFor(metric: MetricName, requested?: DataScope): DataScope[] {
 
 async function getAirportData(args: Record<string, unknown>): Promise<unknown> {
   const airports = asIataCodes(args.airports);
+  // asIataCodes caps the list. Dropping the overflow silently is how a partial answer gets
+  // presented as a complete ranking: ask for 31 Pacific airports, get 20 back, and rank
+  // those as if they were the region. The overflow is reported so the model can say the
+  // list was cut instead of quietly ranking a subset.
+  const requestedCount = Array.isArray(args.airports) ? args.airports.length : 0;
+  const droppedForLimit = Math.max(0, requestedCount - airports.length);
   const metrics = asMetricNames(args.metrics);
   const unknown = unknownMetricNames(args.metrics);
   const requestedScope = args.scope === 'domestic_ontime' || args.scope === 't100_all'
@@ -180,6 +186,12 @@ async function getAirportData(args: Record<string, unknown>): Promise<unknown> {
       ? [...new Set(scoreRows.map((r) => r.comparison_set_id).filter(Boolean))]
       : undefined,
     metric_metadata: catalog(metrics),
+    // Present only when the request exceeded the per-call airport cap, so a truncated
+    // result can never be mistaken for the full set.
+    airports_dropped_over_limit: droppedForLimit || undefined,
+    incomplete_result_warning: droppedForLimit
+      ? `Only the first ${airports.length} airports were queried; ${droppedForLimit} were dropped. This result is NOT the full set — do not present it as a regional ranking. Use list_airports, which returns scores for every airport in a region in one call.`
+      : undefined,
     rows,
     unavailable_metrics: [...unavailable],
     available_metrics: unavailable.size ? catalog() : undefined,
@@ -192,24 +204,70 @@ async function getAirportData(args: Record<string, unknown>): Promise<unknown> {
   };
 }
 
+/**
+ * Trim an airport row to what the model can actually use.
+ *
+ * Two jobs. Size: a region's rows plus the metric catalog overflowed the tool-result byte
+ * budget once scores were added here, and a truncated result reaches the model as broken
+ * JSON. Honesty: scores are rounded to two decimals at the source rather than asking the
+ * model to round in prose. The fourth decimal of a modeled proxy is noise, and a number
+ * that is never produced cannot be quoted.
+ */
+function compactAirportRow(row: DataRow): DataRow {
+  const round = (v: unknown) => (v === null || v === undefined ? undefined : Number(Number(v).toFixed(2)));
+  const out: DataRow = {
+    iata_code: row.iata_code,
+    name: row.name,
+    state: row.state,
+    region: row.region,
+    scored: row.scored,
+  };
+  if (row.scored) {
+    out.comparison_set_id = row.comparison_set_id;
+    out.capacity_pressure = round(row.capacity_pressure);
+    out.unmet_demand_score = round(row.unmet_demand_score);
+    out.forecast_growth_gap_pct = round(row.forecast_growth_gap_pct);
+    out.expansion_score = round(row.expansion_score);
+  } else if (row.score_exclusion_reason) {
+    out.score_exclusion_reason = row.score_exclusion_reason;
+  }
+  return out;
+}
+
 export async function runTool(name: string, args: Record<string, unknown>): Promise<unknown> {
   switch (name) {
     case 'list_airports': {
       const all = await listAirports() as unknown as DataRow[];
       const filter = typeof args.region === 'string' ? args.region.trim().toLowerCase() : '';
-      const rows = filter
+      const matched = filter
         ? all.filter((r) =>
           String(r.region ?? '').toLowerCase() === filter ||
           String(r.state ?? '').toLowerCase() === filter
         )
         : all;
+      // Scored airports first, best expansion score first, then the unscored tail. Two
+      // reasons: the answer to "who ranks highest here" is then the top of the array, and
+      // if the result ever is truncated it loses unrankable airports rather than the
+      // ranking itself. Degrading into a shorter correct list beats degrading into a
+      // wrong one.
+      const rows = [...matched]
+        .sort((a, b) => {
+          if (a.scored !== b.scored) return a.scored ? -1 : 1;
+          if (!a.scored) return String(a.iata_code).localeCompare(String(b.iata_code));
+          return Number(b.expansion_score ?? 0) - Number(a.expansion_score ?? 0);
+        })
+        .map(compactAirportRow);
       const summary = {
         // Reported explicitly so an empty filtered result reads as "no match in a known
         // region list" rather than as "coverage is empty".
         total_airports_covered: all.length,
         scored_airports: all.filter((r) => r.scored).length,
         regions: [...new Set(all.map((r) => r.region).filter(Boolean))].sort(),
-        available_metrics: catalog(),
+        // The metric dictionary is for discovery. A region-filtered call is a ranking
+        // request, and the rows already carry the scores, so sending several KB of catalog
+        // alongside them pushes the result past the tool-result byte budget — which
+        // truncates the JSON and leaves the model with nothing usable.
+        available_metrics: filter ? undefined : catalog(),
       };
       // An unfiltered dump of every covered airport exceeds the tool-result byte budget and
       // comes back to the model as a truncated JSON fragment — worse than no rows at all.

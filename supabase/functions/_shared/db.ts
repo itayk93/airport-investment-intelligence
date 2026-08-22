@@ -45,10 +45,13 @@ export function listAirports() {
     select a.iata_code, a.name, a.city, a.state, a.region,
            (s.iata_code is not null) as scored,
            a.score_exclusion_reason,
-           s.comparison_set_id
+           s.comparison_set_id,
+           s.capacity_pressure, s.unmet_demand_score,
+           s.forecast_growth_gap_pct, s.expansion_score
     from airports a
     left join lateral (
-      select s.iata_code, s.comparison_set_id
+      select s.iata_code, s.comparison_set_id, s.capacity_pressure,
+             s.unmet_demand_score, s.forecast_growth_gap_pct, s.expansion_score
       from airport_scores s
       where s.iata_code = a.iata_code
       order by s.computed_at desc

@@ -15,7 +15,7 @@ rate limiting, input normalization, and response formatting.
 |---|---|---|
 | Scoring / ranking | **Deterministic code** (`scripts/score.mjs`), pre-computed into `airport_scores` | The assignment requires ranking logic that isn't just LLM output. The numbers are auditable and identical on every run. |
 | Data retrieval | **Typed tools** over a read-only Postgres role | No free-form SQL for the model to write. |
-| Interpretation, comparison, explanation, follow-up | **LLM** (OpenAI `gpt-4o-mini`, temperature 0.2) | This is genuinely language work — explaining *why* SFO ranks above LAX, handling "why is it ahead of the second one?" |
+| Interpretation, comparison, explanation, follow-up | **LLM** (OpenAI `gpt-5-mini`, low reasoning effort) | This is genuinely language work — explaining *why* SFO ranks above LAX, handling "why is it ahead of the second one?" |
 
 The system prompt states explicitly: *"You do NOT calculate scores yourself... Never invent
 a figure you did not retrieve from a tool."* The model is an explainer over fixed numbers,

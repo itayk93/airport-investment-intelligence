@@ -5,8 +5,16 @@ happens under load, and how answer quality is (and is not) verified.
 
 ## 1. What one chat query costs
 
-Model: `gpt-4o-mini` — $0.15 per 1M input tokens, $0.60 per 1M output tokens
-(OpenAI list price, checked 2026-08-22).
+Model: `gpt-5-mini` — $0.25 per 1M input tokens, $2.00 per 1M output tokens
+(OpenAI list price, checked 2026-08-22). It replaced `gpt-4o-mini` ($0.15/$0.60), which
+roughly doubles the per-query cost off a very low base.
+
+Two parameter differences matter and are handled in `_shared/agent.ts`: the GPT-5 family
+takes `max_completion_tokens` rather than `max_tokens`, and **does not accept a custom
+`temperature` at all** — the 4o-family setting of 0.2 is gone. Determinism now rests on the
+structural controls (scores computed in code, typed tools, forced first tool call), not on
+a sampling parameter. Reasoning is pinned to `low`: this is retrieval and explanation over
+four small tables, not a problem that needs deliberation.
 
 Per-request budget, measured from the deployed function's actual limits:
 
@@ -15,17 +23,17 @@ Per-request budget, measured from the deployed function's actual limits:
 | System prompt (`agent-chat/prompt.ts`, ~8.2 KB) | ~2,000 tokens |
 | Tool schemas (`tools.ts` JSON schemas) | ~1,200 tokens |
 | History (capped: 20 messages, 2,000 chars each) | typically 200–2,000 tokens |
-| Tool results (capped 12 KB per result) | typically 300–1,500 tokens |
-| Output (capped `max_tokens: 320`) | ≤320 tokens per round |
+| Tool results (capped 32 KB per result) | 300–8,000 tokens; a full region listing is the top end |
+| Output (capped `max_completion_tokens: 2,000`) | reasoning + answer share this budget |
 
 A typical question resolves in 1–2 tool rounds. The prompt + tool schemas are re-sent
 every round, so:
 
-- **Typical query (2 rounds): ~8–10k input + ~400 output ≈ $0.0015–0.002** — about a
-  fifth of a cent.
-- **Worst case (4 rounds, full history, full tool results): ~25k input + ~1.3k output
-  ≈ $0.005** — half a cent. The 4-round cap in code is also the cost ceiling.
-- **1,000 queries ≈ $2. 100k queries ≈ $200.** The LLM is not the expensive part of
+- **Typical query (2 rounds): ~10k input + ~600 output ≈ $0.004** — under half a cent.
+  Reasoning tokens bill as output, which is why the output side is no longer negligible.
+- **Worst case (4 rounds, full history, a full region listing): ~40k input + ~2k output
+  ≈ $0.014.** The 4-round cap in code is also the cost ceiling.
+- **1,000 queries ≈ $4. 100k queries ≈ $400.** The LLM is still not the expensive part of
   this system at any realistic scale; Supabase and data refresh dominate operational
   effort, not OpenAI spend.
 - WhatsApp voice notes add Whisper transcription at $0.006/minute of audio (capped at
@@ -42,7 +50,7 @@ Three separate ceilings, in the order they would be hit:
    60 requests/hour — a cost-protection choice for a public demo, documented in
    `docs/12-public-deployment-hardening.md`. This trips long before any provider limit.
 2. **OpenAI rate limits second.** Limits are per-tier (tier = cumulative spend). On the
-   entry tier, `gpt-4o-mini` allows on the order of 500 requests/min and 200k
+   entry tier a mini-class model allows on the order of 500 requests/min and 200k
    tokens/min; at ~10k tokens per query that is roughly 20 concurrent queries per
    minute. One tier up raises this ~10×. The mitigation is the same one already shipped:
    the deterministic panel (`airport-data`, no LLM) keeps working when chat is limited,
@@ -56,12 +64,12 @@ tier (spend threshold, no code), cache identical question+data-version pairs (sc
 change monthly at most, so answers are cacheable for a month), and move the per-caller
 limit from per-function memory to a shared store.
 
-## 3. Why gpt-4o-mini, and what the upgrade path is
+## 3. Why gpt-5-mini, and what the upgrade path is
 
 The model's job here is routing, reference resolution, and phrasing — not computation.
 Scoring is deterministic code; the model never produces a number that wasn't returned by
 a tool. For that job a small model is fast (~1–2s to first token), cheap (above), and
-sufficient: all four brief questions resolved correctly in testing at temperature 0.2.
+sufficient: all four brief questions resolved correctly in testing.
 
 What would justify upgrading, and to what:
 

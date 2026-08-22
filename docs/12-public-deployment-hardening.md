@@ -118,7 +118,7 @@ a real user turn receive `400`; client-supplied system and tool roles remain exc
   HTTPS on `api.twilio.com` and inside the signed Account SID path.
 - Twilio's authenticated redirect to its media store is followed only after that initial
   allowlist check. The response is streamed into a bounded 10 MB buffer.
-- Audio is sent server-to-server to `gpt-4o-mini-transcribe`, then discarded. It is never
+- Audio is sent server-to-server to `gpt-5-mini-transcribe`, then discarded. It is never
   returned to the browser or written to the database.
 - Long agent replies are split on natural text boundaries into TwiML messages below 1,400
   characters, leaving margin under Twilio's general 1,600-character body limit.

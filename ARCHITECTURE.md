@@ -35,7 +35,7 @@ SELECT-only Postgres role. The analysis panel and the agent therefore execute th
 query — they cannot drift or disagree about what a score is.
 
 **Stack:** Vite + React + TypeScript (strict) · Supabase Postgres + Edge Functions (Deno) ·
-OpenAI `gpt-4o-mini` · Node/Python scripts for ingestion and scoring.
+OpenAI `gpt-5-mini` · Node/Python scripts for ingestion and scoring.
 
 ---
 
@@ -153,7 +153,7 @@ compliance alone.
 |---|---|---|
 | Scoring, ranking, normalisation | **Deterministic code** (`scripts/score.mjs`) | Auditable, identical on every run, no model variance |
 | Data retrieval | **Typed tools** over a read-only role | No free-form SQL for the model to write |
-| Interpretation, comparison, explanation, follow-up | **LLM** (`gpt-4o-mini`, temp 0.2) | Genuinely language work |
+| Interpretation, comparison, explanation, follow-up | **LLM** (`gpt-5-mini`, low reasoning) | Genuinely language work |
 
 The LLM is an **explainer over fixed numbers**. Its system prompt states: *"You do NOT
 calculate scores yourself… Never invent a figure you did not retrieve from a tool."* The
