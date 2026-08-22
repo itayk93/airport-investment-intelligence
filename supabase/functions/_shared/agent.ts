@@ -71,7 +71,7 @@ function boundedToolResult(result: unknown): string {
   return bounded;
 }
 
-async function callOpenAI(messages: ModelMessage[]) {
+async function callOpenAI(messages: ModelMessage[], requireTool: boolean) {
   if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -83,6 +83,7 @@ async function callOpenAI(messages: ModelMessage[]) {
       model: MODEL,
       messages,
       tools: toolDefinitions,
+      tool_choice: requireTool ? 'required' : 'auto',
       temperature: 0.2,
       max_tokens: MAX_OUTPUT_TOKENS,
     }),
@@ -106,7 +107,7 @@ export async function runAgent(input: AgentInputMessage[]): Promise<AgentResult>
   const toolTrace: AgentResult['tool_trace'] = [];
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const completion = await callOpenAI(messages);
+    const completion = await callOpenAI(messages, round === 0);
     const modelMessage = completion.choices?.[0]?.message;
     if (!modelMessage) throw new Error('Empty response from model');
     messages.push(modelMessage);
