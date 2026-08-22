@@ -7,6 +7,10 @@ const RATE_LIMIT_SALT = Deno.env.get('RATE_LIMIT_SALT');
 const MAX_BODY_BYTES = 16 * 1024;
 const MAX_MESSAGE_CHARS = 2_000;
 const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
+// Twilio signs the configured public URL. Supabase may expose a different internal URL to
+// the Edge runtime, so signature validation must use this exact canonical webhook value.
+const TWILIO_WEBHOOK_URL =
+  'https://hfwremsegdtqaghuqrdv.supabase.co/functions/v1/twilio-whatsapp';
 const encoder = new TextEncoder();
 const AUDIO_EXTENSIONS: Record<string, string> = {
   'audio/aac': 'aac',
@@ -51,7 +55,7 @@ async function validTwilioSignature(req: Request, params: URLSearchParams): Prom
   if (!received || !TWILIO_AUTH_TOKEN) return false;
 
   const names = [...new Set(params.keys())].sort();
-  let signed = req.url;
+  let signed = TWILIO_WEBHOOK_URL;
   for (const name of names) {
     for (const value of params.getAll(name).sort()) signed += `${name}${value}`;
   }
