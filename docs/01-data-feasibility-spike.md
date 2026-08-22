@@ -15,7 +15,7 @@ reachable, keyless public source — before touching a database, an agent, or a 
    for the 5 pilot airports, cached to `data/out/*.json`.
 
 Full technical detail (endpoints, fields, quirks, sample output) lives in
-`DATA_PLAN.md` at the repo root — that file is the source of truth for stage 1.
+[`DATA_PLAN.md`](DATA_PLAN.md) in this folder — that file is the source of truth for stage 1.
 This doc is the narrative of *how* it was done and why.
 
 ## Key findings
@@ -68,6 +68,6 @@ MHT, PWM, BTV) — no new source required.
 
 ## Artifacts produced
 
-- `DATA_PLAN.md` — full technical data map
+- [`DATA_PLAN.md`](DATA_PLAN.md) — full technical data map
 - `scripts/test-bts-t100.mjs`, `scripts/test-bts-ontime.mjs`, `scripts/test-faa-taf.py`
 - `data/out/*.json` — verified sample outputs (gitignored raw downloads in `data/raw/`)

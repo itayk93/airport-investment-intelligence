@@ -3,7 +3,7 @@
 This `docs/` folder is a running log of how this project was built, stage by stage,
 so the process can be explained afterward — not just the final code.
 
-**The submitted design document is [`../ARCHITECTURE.md`](../ARCHITECTURE.md)** — scoring
+**The submitted design document is [`ARCHITECTURE.md`](ARCHITECTURE.md)** — scoring
 methodology, key tradeoffs, and where AI is used, in one self-contained read. This folder
 is the supporting detail behind it.
 
@@ -23,7 +23,7 @@ a chat interface, clear reasoning, and explicit assumptions/uncertainty/scoping.
 
 1. **Data feasibility spike** — prove every metric can actually be computed from a real,
    reachable, keyless source before writing any schema or agent code.
-   → [`01-data-feasibility-spike.md`](01-data-feasibility-spike.md), and `DATA_PLAN.md` at repo root.
+   → [`01-data-feasibility-spike.md`](01-data-feasibility-spike.md), and [`DATA_PLAN.md`](DATA_PLAN.md) in this folder.
 2. **Database schema design** — shaped by the real fields discovered in stage 1, not by
    assumption. → [`02-database-schema.md`](02-database-schema.md)
 3. **Deterministic scoring methodology** — the KPI math the agent leans on before any LLM
@@ -34,7 +34,7 @@ a chat interface, clear reasoning, and explicit assumptions/uncertainty/scoping.
 6. Chat UI (Vite + React — see [`10-frontend-architecture.md`](10-frontend-architecture.md))
 7. WhatsApp channel (Twilio Sandbox QR/deep link, signed webhook, text + voice notes)
 
-Cutting across all of these: [`../ARCHITECTURE.md`](../ARCHITECTURE.md) §4 records the key
+Cutting across all of these: [`ARCHITECTURE.md`](ARCHITECTURE.md) §4 records the key
 tradeoffs and why each was chosen (regional comparison sets, the sample floor, typed tools
 over a general SQL tool), and [`06-refresh-cadence-and-automation.md`](06-refresh-cadence-and-automation.md)
 covers how often each source actually publishes new data and how ingestion would be

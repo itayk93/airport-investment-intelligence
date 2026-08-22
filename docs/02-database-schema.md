@@ -2,7 +2,7 @@
 
 Designed only after stage 1 proved which fields actually exist in the real sources.
 No column here is speculative — every field maps to something verified in
-`DATA_PLAN.md` / `data/out/*.json`.
+`DATA_PLAN.md` (in this `docs/` folder) / `data/out/*.json`.
 
 DDL: `supabase/schema.sql`. The schema is applied to the linked Supabase project; later
 production changes live in `supabase/migrations/`.

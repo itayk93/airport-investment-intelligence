@@ -79,7 +79,7 @@ The function enforces:
 - 2,000 characters per accepted message.
 - 32 KiB request bodies, checked against `Content-Length` and actual bytes before JSON
   parsing.
-- 320 completion tokens per OpenAI call.
+- 2,000 completion tokens per OpenAI call (`gpt-5-mini`).
 - 12 KiB serialized tool results before results enter later tool rounds.
 - Four tool rounds, unchanged from the existing bounded loop.
 
@@ -177,31 +177,13 @@ Deployed functions:
 - `airport-data`
 - `twilio-whatsapp`
 
-Live verification completed after deployment:
-
-- Allowed-origin airport data request: `200`, with the current national airport directory
-  and regional score set.
-- Allowed-origin chat request: `200`, one real tool call and a valid answer.
-- Disallowed browser origin: `403` with `Origin not allowed`.
-- Request body over 32 KiB: `413` with `Request body exceeds 32 KB.`
-- Local Node tests: 4/4 passed.
-- Live WhatsApp voice note: signed request accepted, Twilio media redirect followed,
-  OpenAI transcription completed, agent answer produced, and split TwiML reply delivered.
-- Deno checks for all three Edge Functions: passed.
-- Production TypeScript/Vite build: passed.
-- Node regression suite: 7 passed.
-- Deno Edge Function suite: 12 passed, including malformed chat-body cases.
-- Live malformed `null` chat body: `400` with a stable JSON error.
-- Live airport data: `200`, 347 covered airports, 163 current scores, and the correct
-  300-departure sample-floor disclosure.
-- Production dependency audit: zero known vulnerabilities.
-- Public `check_rate_limit` RPC attempt: `401 permission denied`; the same operation through
-  `agent_reader` remains functional in a live chat request.
-- Six database domain constraints validated against all current rows.
-- Monthly-metric query uses `idx_metrics_airport_scope_time`; measured execution was
-  0.096 ms for the representative two-airport range query.
-- `airport-data` payload reduced from 192,546 to 56,874 bytes by keeping score audit inputs
-  server-side and returning a count instead of the full airport directory.
+Live verification completed after deployment, covering: allowed/disallowed origin handling
+(`200`/`403`), oversized-body and malformed-body rejection (`413`/`400`), a live WhatsApp
+voice-note round trip end to end, both Edge Function test suites (Node 7/7, Deno 12/12
+including malformed-body cases), a clean production build and dependency audit, the
+`check_rate_limit` RPC correctly denying direct public access, all six database domain
+constraints against current rows, and the `airport-data` payload cut from 192,546 to 56,874
+bytes by moving score-audit inputs server-side.
 
 ## Layer 0 owner checklist
 

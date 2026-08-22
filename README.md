@@ -7,7 +7,7 @@ revenue inputs are outside the dataset.
 
 **[Open the live app](https://airport-investment-intelligence.vercel.app)**
 
-**→ [ARCHITECTURE.md](ARCHITECTURE.md)** — scoring methodology, key tradeoffs, and where AI
+**→ [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — scoring methodology, key tradeoffs, and where AI
 is used. Start there. The same document as a formatted page:
 **[docs/architecture.html](docs/architecture.html)**.
 
@@ -70,10 +70,10 @@ follow-ups remain fully supported in the web chat.
 ## Layout
 
 ```
-ARCHITECTURE.md          the design document (read this first)
 .github/workflows/       scheduled daily + annual data refresh
-DATA_PLAN.md             endpoint-level map of the three data sources
 docs/                    stage-by-stage build log, 00–10
+  ARCHITECTURE.md        the design document (read this first)
+  DATA_PLAN.md           endpoint-level map of the three data sources
 src/                     Vite + React + TypeScript UI
 supabase/
   schema.sql             4-table schema
@@ -122,4 +122,4 @@ the agent read the current period from the database rather than asserting a fixe
 own region and are not comparable across regions, and the scoring weights are a stated
 heuristic rather than an industry standard. These limits are surfaced
 in the UI and volunteered by the agent — see
-[ARCHITECTURE.md §5](ARCHITECTURE.md#5-scope-uncertainty-and-what-this-does-not-do).
+[docs/ARCHITECTURE.md §06](docs/ARCHITECTURE.md#06-assumptions-uncertainty-and-scoping).

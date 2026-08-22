@@ -66,7 +66,7 @@ A full runner runs the existing scripts unmodified, with no rewrite and no secon
 the scoring logic. The deciding factor is that the work is heavy and disk-local, not where
 the database lives.
 
-## How often each upstream source actually publishes new data
+## Publish cadence, and why the check runs daily anyway
 
 | Source | Publish cadence | Typical lag observed |
 |---|---|---|
@@ -74,26 +74,15 @@ the database lives.
 | BTS On-Time Performance (TranStats ZIP) | One new ZIP per month | Similar lag — 2026-06 was the newest ZIP available; 2026-07 returned an error page (not yet published) |
 | FAA TAF | Once a year ("Final" release) | The 2025 vintage covers historical actuals through FY2024 and forecasts through FY2055 |
 
-New *data* therefore appears at most monthly. That is an argument for re-ingesting at most
-monthly — it is not an argument for *checking* at most monthly, because the publication
-date itself is unpredictable. The distinction matters and is the subject of the next
-section: a check is one HTTP range request, while an ingest only happens when the check
-finds something.
+New data appears at most monthly, but BTS publishes on no fixed date within the month, so a
+monthly *check* would be a guess that can cost up to ~30 extra days of staleness. A daily
+check removes the guess (worst case drops to about a day) and is nearly free: when nothing
+new is published the job is a checkout plus three HTTP range probes, about 11 seconds, on a
+public repo with unmetered Actions minutes. The database is only written, and a commit only
+made, when a month actually arrives.
 
-## Why daily, for a source that publishes monthly
-
-BTS publishes on no fixed date. Any monthly schedule is therefore a guess about *when in
-the month* they publish, and a wrong guess costs up to ~30 extra days of staleness on top
-of the source's own 2-3 month lag. Checking daily removes the guess: worst-case staleness
-drops from about a month to about a day.
-
-It is nearly free. When nothing new is published the job is a checkout plus three HTTP
-range probes — about 11 seconds — and this repository is public, so Actions minutes are
-unmetered. The database is written only when a month actually arrives, and the commit step
-is skipped entirely, so a quiet day leaves no trace beyond a green run.
-
-The FAA TAF job stays annual: its source genuinely publishes once a year, its URL is pinned
-to a vintage, and running it daily would download ~40 MB to re-upsert identical rows.
+The FAA TAF job stays annual: its source genuinely publishes once a year and its URL is
+pinned to a vintage, so running it daily would just re-download ~40 MB of identical rows.
 
 ## How the daily workflow handles publication lag
 

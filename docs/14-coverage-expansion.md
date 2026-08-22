@@ -11,28 +11,23 @@ what?
 
 ## Position 1 — expand modestly, to roughly 30 large airports
 
-The argument for expanding at all was that one of the brief's four example questions —
-*"Which airports in New England are strong candidates for terminal expansion?"* — had only
-one covered airport in New England. The agent answered honestly that coverage was limited,
-which satisfies the brief's *communicate scoping* requirement but does not answer the
-question. A ranking over one candidate is not a ranking.
-
-The argument for keeping it small was `ARCHITECTURE.md`'s stated tradeoff: five airports
-deeply over fifty shallowly, with breadth traded for correctness.
+The argument for expanding at all: one of the brief's four example questions — *"Which
+airports in New England are strong candidates for terminal expansion?"* — had only one
+covered airport in New England. Answering honestly that coverage was limited satisfies the
+brief's *communicate scoping* requirement but doesn't answer the question; a ranking over
+one candidate isn't a ranking. The argument for keeping it small was `ARCHITECTURE.md`'s
+stated tradeoff: five airports deeply over fifty shallowly.
 
 ## Position 2 — that misreads the question
 
-Objection raised in review: the brief asks about a *region*, not about big airports. If the
-question is "which airport in New England", then covering Boston and Hartford but not
-Providence and Manchester does not produce a partial answer — it produces a wrong one, and
-the wrongness is invisible, because the ranking looks complete either way. The conclusion is
-determined by who was let into the list.
+Objection raised in review: the brief asks about a *region*, not about big airports.
+Covering Boston and Hartford but not Providence and Manchester doesn't produce a partial
+answer for New England — it produces a wrong one, invisibly, because the ranking looks
+complete either way. The conclusion is determined by who was let into the list.
 
-Regional completeness, not national top-N, is the requirement. That points at every airport
-with real commercial service, which is roughly 400 — the number the previous position had
-dismissed as arbitrary. It is not arbitrary: the FAA's own primary commercial service
-definition (over 10,000 annual enplanements) is a published threshold, and everything below
-it is general aviation with no terminal to invest in.
+Regional completeness, not national top-N, is the requirement — every airport with real
+commercial service, roughly 400, using the FAA's own published threshold (over 10,000 annual
+enplanements; below it is general aviation with no terminal to invest in).
 
 ## What was measured before deciding
 
@@ -69,40 +64,32 @@ scoreable airports**, and that limit is set by what BTS reporting carriers actua
 ### Why region, not nation
 
 Min-max normalisation is relative by construction: the busiest and quietest members define
-the endpoints and everyone else lands in between. Across a national set those endpoints are
-extreme, so genuine differences between mid-sized airports compress toward zero and the
-ranking stops discriminating.
+the endpoints. Across a national set those endpoints are extreme, so genuine differences
+between mid-sized airports compress toward zero and the ranking stops discriminating.
+Switching the comparison set to the region fixes this without changing the formula — and is
+the better answer independently of the arithmetic: "is Providence congested relative to SFO"
+isn't a question an investor asks. The schema already carried `comparison_set_id` for this,
+previously pinned to `pilot-5`.
 
-Switching the comparison set to the region fixes this without changing the formula. It is
-also the better answer independently of the arithmetic: "is Providence congested relative to
-SFO" is not a question an investor asks, and SFO is not Providence's competitive peer. The
-schema already carried `comparison_set_id` for exactly this, previously pinned to `pilot-5`.
-
-The cost is a real constraint, stated rather than hidden: **scores from different regions
-are not comparable.** BOS at 0.9962 Capacity Pressure in New England and SFO at 0.8457 in
-the Pacific do not mean BOS is more congested than SFO — they mean each is near the top of a
-different scale. Cross-region comparison must use the underlying metrics (taxi-out minutes,
-NAS delay per departure, percent delayed), and both the agent prompt and the panel say so.
+The tradeoff, stated rather than hidden: **scores from different regions are not
+comparable.** BOS at 0.9962 Capacity Pressure in New England and SFO at 0.8457 in the
+Pacific don't mean BOS is more congested — each is near the top of a different scale.
+Cross-region comparison must use the underlying metrics (taxi-out, NAS delay, percent
+delayed), and both the agent prompt and the panel say so.
 
 ### Why a sample floor
 
-A small airport with 40 departures in a month has delay averages that one bad afternoon can
-dominate. Such an airport can outrank a genuinely congested hub on `avg_taxi_out_minutes`
-while carrying no information. Reporting these as "covered but not ranked, and here is why"
-is more useful than either a noisy score or a false "not covered".
+A small airport with 40 departures in a month has delay averages one bad afternoon can
+dominate, letting it outrank a genuinely congested hub while carrying no information. The
+first floor, 100 departures/month, was chosen by reasoning alone — and the data caught it:
+Redding (RDD) ranked **fourth out of 37** in the Pacific set on 134 departures, with NAS
+delay more than double Boston's across 100× the volume. That's a small sample with a bad
+month in it, not a congested airport.
 
-**The first floor was set too low, and the data caught it.** 100 departures/month was chosen
-by reasoning alone. With it in place, Redding (RDD) ranked **fourth out of 37** in the
-Pacific set on 134 departures — with 8.31 NAS delay minutes per departure, more than double
-Boston's 3.91 across 12,694 departures. That is not a congested airport; that is a small
-sample with a bad month in it.
-
-The floor was raised to **300 departures/month**, which is roughly 10 per day, so a single
-fully disrupted day is at most ~3% of the sample rather than the ~10% a 100/month floor
-allows. This drops national coverage from 228 scoreable airports to 168, and RDD and BLI
-fall out of the Pacific ranking. New England is unaffected — its smallest scored airport,
-Bangor, files 355. The floor is still a judgement call, but it is now a judgement call with
-a stated rationale and a documented failure it was set to prevent.
+The floor was raised to **300 departures/month** (~10/day, so one fully disrupted day is
+~3% of the sample instead of ~10%). This drops national coverage from 228 scoreable airports
+to 168; New England is unaffected (its smallest scored airport, Bangor, files 355). Still a
+judgement call, but now one with a stated rationale and a documented failure it prevents.
 
 ## What was built
 
@@ -154,22 +141,11 @@ origins between them, and a two-member min-max scale returns 0 and 1 by arithmet
 covered and are reported as unranked rather than being given scores that would look like a
 ranking.
 
-New England went from 1 covered airport to 12 covered and 7 scored. **The table below is
-the single-month result, kept because stage 15 overturned it — see the postscript:**
-
-| rank | airport | capacity pressure | growth gap (pp) | unmet demand | expansion score |
-|---|---|---|---|---|---|
-| 1 | MHT Manchester | 0.3378 | +6.805 | 1.0000 | **0.6235** |
-| 2 | BGR Bangor | 0.5402 | +0.168 | 0.0395 | 0.4278 |
-| 3 | BTV Burlington | 0.3530 | +1.712 | 0.2629 | 0.3706 |
-| 4 | BOS Boston | 0.9962 | −0.906 | 0.0000 | 0.2939 |
-| 5 | PVD Providence | 0.2419 | +1.173 | 0.1234 | 0.2146 |
-| 6 | PWM Portland | 0.1404 | −1.372 | 0.0000 | 0.1482 |
-| 7 | BDL Hartford | 0.1555 | +0.455 | 0.0308 | 0.0465 |
-
-This is the substantive change: the region's top candidate is **MHT, an airport the previous
-build could not see**, and Boston — the only airport it could see — ranks fourth. The earlier
-answer was not merely narrow; under this model it was wrong.
+New England went from 1 covered airport to 12 covered and 7 scored, with **MHT — an airport
+the previous build couldn't see — as the new top candidate**, and Boston (the only airport
+the old build could see) at #4. The earlier answer was not merely narrow; under this model
+it was wrong. (This was the single-month result; stage 15's postscript below overturns the
+specific ranking, though not the argument for expanding coverage.)
 
 Both documented scoring invariants survived the change, which is the regression check that
 mattered most:
@@ -192,17 +168,13 @@ Deployed and called through the public edge functions:
 - **"Compare LA and Santa Ana airport congestion levels."** — answered from underlying
   metrics rather than cross-region scores, as the revised prompt requires.
 
-The remaining two brief questions (Anchorage long-haul share, SFO unmet demand) could not be
-re-run live in this session: the agent's rate limiter returned `Too many requests. Try again
-in an hour.` Their data paths were verified directly against the deployed `airport-data`
-endpoint instead — SFO's Pacific-set score row and ANC's `long_haul_share_pct` of 29.73 are
-both present and correct — but the end-to-end conversational answer for those two was not
-re-observed after this change.
+The remaining two brief questions (Anchorage long-haul share, SFO unmet demand) hit the
+agent's rate limiter in this session; their data paths were verified directly against the
+deployed `airport-data` endpoint instead (SFO's Pacific-set score row and ANC's
+`long_haul_share_pct` of 29.73 both present and correct), but not re-observed end to end.
 
 ## What this does not fix
 
-- **Still one month of congestion data** (2026-05). Wider coverage is not deeper history,
-  and every seasonality caveat stands unchanged.
 - **Still not a profitability model.** No project cost, no revenue, no gate or terminal
   capacity in any public source. This screens candidates; it does not rank returns.
 - **Regional sets can be thin.** New England scores 7 airports. That is a real ranking, but
@@ -218,16 +190,9 @@ re-observed after this change.
 
 ## Postscript — stage 15: a full year of congestion data overturned the headline
 
-Stage 14 shipped on **one month** of BTS On-Time data (May 2026) and documented that as a
-limitation. Stage 15 backfilled eleven more months, giving **June 2025 – May 2026**, a
-complete annual cycle with no season counted twice.
-
-Cost, again measured rather than assumed: 11 downloads at ~31 MB, ~11 s of parsing each,
-about 25 minutes end to end. Peak disk stayed near 310 MB because the extraction step now
-deletes the 277 MB CSV and the zip once a month has been aggregated into its ~240 KB JSON
-(`KEEP_RAW=1` opts out). Ingest of all twelve months: 10.5 s.
-
-### The headline reversed
+Stage 14 shipped on one month of BTS On-Time data (May 2026), documented as a limitation.
+Stage 15 backfilled eleven more months to a complete annual cycle, **June 2025 – May 2026**
+(11 downloads, ~11 s parsing each, ~25 min end to end; ingest of all twelve months: 10.5 s).
 
 | | one month (May 2026) | twelve months |
 |---|---|---|
@@ -236,37 +201,23 @@ deletes the 277 MB CSV and the zip once a month has been aggregated into its ~24
 | BTV | #3 | #1 |
 | BOS | #4 | #3 |
 
-The monthly data shows exactly why. BTV's taxi-out runs 28–33 minutes from November through
-February and under 18 in summer. MHT is the calmest airport in the region in almost every
-month; May happened to be its worst relative showing. **One month could not tell a congested
-airport apart from an airport having a bad month, and stage 14's ranking read the second as
-the first.**
+BTV's taxi-out runs 28–33 minutes November–February and under 18 in summer; MHT is the
+calmest airport in the region most months, and May happened to be its worst relative
+showing — one month couldn't tell congestion apart from a bad day, and stage 14's ranking
+read the second as the first. The *argument* for expanding coverage still held completely;
+the specific airport it surfaced did not.
 
-This is worth stating plainly rather than quietly correcting: the finding stage 14 led with
-— "the top candidate is MHT, an airport the previous build could not see" — was an artifact
-of the sample window. The *argument* held completely: hand-picked coverage produced a wrong
-answer, and expanding it was right. The specific airport it produced did not.
+MHT is now the better illustration of the model's core idea: highest forecast growth gap in
+the region (+6.81 pp) but ranks last, because Capacity Pressure is 0.01 (calmest in the
+region) — the Unmet Demand gate correctly reads that as headroom, not unmet demand. BOS
+(congested, no growth) and MHT (growing, no congestion) now demonstrate the idea from both
+directions, and neither is a candidate.
 
-### MHT is now the better illustration anyway
-
-MHT has by far the highest forecast growth gap in New England, **+6.81 pp**, and ranks
-**last**. Its Capacity Pressure is 0.01 — the calmest airport in the region. The gate in the
-Unmet Demand formula does exactly what it was built to do: fast growth at an uncongested
-airport is headroom, not unmet demand. The model now demonstrates its central idea from both
-directions at once — BOS is congested without growth, MHT is growing without congestion, and
-neither is a candidate.
-
-### A new caveat the year created
-
-**Winter taxi-out includes de-icing.** BTV and BGR lead New England on congestion partly
-because northern airports spend winter mornings in de-icing queues. That is real delay and
-real cost, but it is weather rather than runway or gate saturation, and a terminal does not
-fix it. Separating the two needs a weather join this dataset does not have. It is now the
-most important caveat on the current numbers, and the agent prompt instructs the model to
-raise it whenever a northern airport ranks high on congestion.
-
-Adding a year of data did not only sharpen the answer — it exposed a weakness in the metric
-that a single spring month had hidden.
+**New caveat the year created:** winter taxi-out includes de-icing queues, which is part of
+why BTV and BGR lead New England on congestion. That's real delay and cost, but weather
+rather than runway/gate saturation — a terminal doesn't fix it, and separating the two needs
+a weather join this dataset doesn't have. The agent prompt raises this whenever a northern
+airport ranks high on congestion.
 
 ### Current figures
 

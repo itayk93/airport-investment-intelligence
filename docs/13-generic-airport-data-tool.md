@@ -127,8 +127,8 @@ the data is unavailable from prompt memory.
 - Per-IP and global rate limits run before the paid model call.
 - Web and WhatsApp use the same shared agent, prompt, catalog, and tools.
 - Shared answer contract defaults to ≤120 words (≤150 for comparisons), caps generation at
-  320 tokens, and appends only one compact score caveat. WhatsApp adds transport-level
-  splitting when the final text still exceeds one message.
+  2,000 completion tokens (`gpt-5-mini`), and appends only one compact score caveat. WhatsApp
+  adds transport-level splitting when the final text still exceeds one message.
 
 ## Verification
 

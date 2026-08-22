@@ -92,6 +92,20 @@
   .checks b { font-weight:600; }
   .checks span { color:var(--muted); }
 
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr)); gap:.9rem; }
+  .card { background:var(--card); border:1px solid var(--soft); border-radius:12px; padding:1.25rem; display:grid; gap:.65rem; }
+  .card p { font-size:.96rem; color:var(--muted); }
+
+  .flow { display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; align-items:stretch; }
+  .flow > div { background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:1rem; text-align:center; position:relative; }
+  .flow > div:not(:last-child)::after { content:'\2192'; position:absolute; right:-.72rem; top:50%; transform:translateY(-50%); color:var(--accent); font:500 1.25rem var(--mono); z-index:1; }
+  .flow b { display:block; margin-bottom:.35rem; }
+  .flow small { color:var(--faint); }
+  @media (max-width:640px) {
+    .flow { grid-template-columns:1fr; }
+    .flow > div:not(:last-child)::after { content:'\2193'; right:50%; top:auto; bottom:-1rem; transform:translateX(50%); }
+  }
+
   footer { margin-top:3.25rem; border-top:1px solid var(--rule); padding-top:1.05rem; color:var(--faint); font-size:.84rem; }
   :focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:3px; }
   @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
@@ -117,6 +131,7 @@
 </header>
 
 <nav aria-label="Contents">
+  <a href="#system">System shape</a>
   <a href="#questions">The four questions</a>
   <a href="#scoring">Scoring methodology</a>
   <a href="#ai">Where AI is used</a>
@@ -127,8 +142,25 @@
 
 <main>
 
+<section id="system">
+  <h2><span class="n">01</span>Four layers, one source of truth</h2>
+  <div class="flow" aria-label="System data flow">
+    <div><b>Public sources</b><small>BTS T-100 · BTS On-Time · FAA TAF</small></div>
+    <div><b>Ingest &amp; score</b><small>Node/Python · deterministic computation</small></div>
+    <div><b>Supabase</b><small>Postgres · Edge Functions · read-only role</small></div>
+    <div><b>Usage channels</b><small>React Web · WhatsApp</small></div>
+  </div>
+  <p>Both edge functions read through <strong>one shared query module</strong>, <code>supabase/functions/_shared/db.ts</code>. The analysis panel and the agent execute the same query, so they cannot show different definitions for the same score.</p>
+  <div class="grid">
+    <div class="card"><h3>Frontend</h3><p>Vite + React + TypeScript strict. Two-pane desktop UI, bottom analysis sheet on mobile.</p></div>
+    <div class="card"><h3>Backend</h3><p>Supabase Postgres + Deno Edge Functions. Three functions: data, chat, and WhatsApp.</p></div>
+    <div class="card"><h3>AI</h3><p>OpenAI <code>gpt-5-mini</code>, low reasoning effort, with two typed tools and a bounded loop.</p></div>
+    <div class="card"><h3>Pipeline</h3><p>Node and Python scripts for loading, cleaning, aggregation, and precomputed scoring.</p></div>
+  </div>
+</section>
+
 <section id="questions">
-  <h2><span class="n">01</span>The four questions, answered</h2>
+  <h2><span class="n">02</span>The four questions, answered</h2>
   <p>All four run end to end in the live app, with conversational follow-up. Figures below were read from the deployed API on 2026-08-22.</p>
   <div class="scroll">
     <table>
@@ -156,7 +188,7 @@
 </section>
 
 <section id="scoring">
-  <h2><span class="n">02</span>Scoring methodology</h2>
+  <h2><span class="n">03</span>Scoring methodology</h2>
   <p>Every metric traces to a real, keyless public source. Nothing is synthetic.</p>
   <div class="scroll">
     <table>
@@ -225,7 +257,7 @@ UnmetDemand    = norm(UnmetDemandRaw)</pre>
 </section>
 
 <section id="ai">
-  <h2><span class="n">03</span>Where and how AI is used</h2>
+  <h2><span class="n">04</span>Where and how AI is used</h2>
   <div class="scroll">
     <table>
       <thead><tr><th>Layer</th><th>Who does it</th><th>Why</th></tr></thead>
@@ -251,7 +283,7 @@ UnmetDemand    = norm(UnmetDemandRaw)</pre>
 </section>
 
 <section id="tradeoffs">
-  <h2><span class="n">04</span>Key tradeoffs</h2>
+  <h2><span class="n">05</span>Key tradeoffs</h2>
 
   <h3>Coverage from the source, not from a list</h3>
   <p>The build started with five hand-picked airports. That was wrong in a way worth naming: asked "which airport in New England is the strongest candidate", a one-airport region always returns that airport. <strong>The ranking looks complete and the conclusion was decided the moment someone chose the list.</strong> Coverage is now every airport BTS reports departures from. The real leader, Burlington, was invisible to the earlier version; Boston, the only airport it did see, places third.</p>
@@ -273,7 +305,7 @@ UnmetDemand    = norm(UnmetDemandRaw)</pre>
 </section>
 
 <section id="limits">
-  <h2><span class="n">05</span>Assumptions, uncertainty and scoping</h2>
+  <h2><span class="n">06</span>Assumptions, uncertainty and scoping</h2>
   <ul>
     <li><strong>This is not a profitability, ROI or payback model.</strong> Project cost, incremental revenue, financing, land constraints and terminal capacity are not inputs. It ranks where demand pressure is highest. Confidence is <strong>low-to-moderate for screening and insufficient for an investment decision</strong>.</li>
     <li><strong>No public dataset publishes runway, gate or terminal capacity.</strong> Capacity Pressure and Unmet Demand are modeled proxies from delay and forecast data — never presented as published capacity figures.</li>
@@ -287,7 +319,7 @@ UnmetDemand    = norm(UnmetDemandRaw)</pre>
 </section>
 
 <section id="requirements">
-  <h2><span class="n">06</span>Against the brief</h2>
+  <h2><span class="n">07</span>Against the brief</h2>
   <ul class="checks">
     <li><span class="ok">✓</span><span><b>Use public APIs</b> — BTS T-100, BTS On-Time Performance, FAA Terminal Area Forecast. No keys, no paid sources, nothing synthetic.</span></li>
     <li><span class="ok">✓</span><span><b>Rank or compare on a defined KPI</b> — two structurally distinct KPIs, one gating the other.</span></li>

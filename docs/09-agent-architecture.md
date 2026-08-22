@@ -44,7 +44,8 @@ problem. The shared prompt now enforces a decision-first response:
 4. One materially relevant caveat.
 
 Defaults: 120 words, 150 for comparisons, 80 for follow-ups, and 220 only when detail is
-explicitly requested. Generation is capped at 320 tokens. The fixed score disclosure is a
+explicitly requested. Generation is capped at 2,000 completion tokens (`gpt-5-mini`, which
+also spends part of that budget on internal reasoning). The fixed score disclosure is a
 single compact sentence rather than a second generic summary.
 
 This is distinct from WhatsApp's 1,400-character chunker: the shared contract improves
@@ -138,5 +139,6 @@ Unseen-question checks after the generic-tool refactor:
 - `comparison_set_id` is the airport's US Census region (stage 14). Scores are therefore
   not comparable across regions, and the prompt instructs the agent to compare underlying
   metrics instead. Arbitrary ad-hoc comparison sets would still mean re-running scoring.
-- Only one month of congestion data is ingested, so trend-over-time questions can't be
-  answered yet — the prompt instructs the agent to check coverage rather than imply more.
+- Congestion data now spans thirteen months (stage 14 backfill), but the prompt still
+  instructs the agent to check actual coverage before answering trend questions rather than
+  assume a fixed window.

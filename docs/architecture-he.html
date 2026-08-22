@@ -1,237 +1,341 @@
 <!doctype html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="ארכיטקטורת סוכן מודיעין להשקעות בשדות תעופה">
-  <title>ארכיטקטורת המערכת — סוכן מודיעין להשקעות בשדות תעופה</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --paper:#efece4; --surface:#f7f5f0; --card:#fff; --ink:#16202b;
-      --muted:rgba(22,32,43,.68); --faint:rgba(22,32,43,.5);
-      --rule:rgba(22,32,43,.14); --soft:rgba(22,32,43,.07);
-      --accent:#b45309; --accent-soft:rgba(180,83,9,.10); --good:#2f6b4f;
-      --display:'Frank Ruhl Libre',serif; --body:'Assistant',sans-serif;
-      --mono:'IBM Plex Mono',monospace;
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מודיעין השקעות בשדות תעופה — עיצוב וארכיטקטורה</title>
+<style>
+  /* Palette and type mirror docs/architecture.html; font swapped to Arial per request. */
+  :root {
+    --paper:#efece4; --surface:#f7f5f0; --card:#ffffff; --ink:#16202b;
+    --muted:rgba(22,32,43,.68); --faint:rgba(22,32,43,.50);
+    --rule:rgba(22,32,43,.14); --soft:rgba(22,32,43,.07);
+    --accent:#b45309; --accent-soft:rgba(180,83,9,.10);
+    --good:#2f6b4f;
+    --sans:Arial,'Instrument Sans',system-ui,-apple-system,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme:dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#12181f; --surface:#19212b; --card:#1e2732; --ink:#ece7de;
+      --muted:rgba(236,231,222,.72); --faint:rgba(236,231,222,.52);
+      --rule:rgba(236,231,222,.16); --soft:rgba(236,231,222,.08);
+      --accent:#e8a33d; --accent-soft:rgba(232,163,61,.13);
+      --good:#6fbf95;
     }
-    @media (prefers-color-scheme:dark) {
-      :root { --paper:#12181f; --surface:#19212b; --card:#1e2732; --ink:#ece7de;
-        --muted:rgba(236,231,222,.72); --faint:rgba(236,231,222,.52);
-        --rule:rgba(236,231,222,.16); --soft:rgba(236,231,222,.08);
-        --accent:#e8a33d; --accent-soft:rgba(232,163,61,.13); --good:#6fbf95; }
-    }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body { margin:0; background:var(--paper); color:var(--ink); font:300 17px/1.72 var(--body); }
-    a { color:var(--accent); text-underline-offset:.18em; }
-    code,.ltr,.num { font-family:var(--mono); direction:ltr; unicode-bidi:isolate; }
-    .page { width:min(72rem,100%); margin:auto; padding:clamp(2rem,5vw,5rem) clamp(1rem,4vw,3rem) 5rem; }
-    header { max-width:52rem; display:grid; gap:1.2rem; margin-bottom:3rem; }
-    h1,h2,h3,p { margin:0; }
-    h1 { font:700 clamp(2.25rem,6vw,4rem)/1.08 var(--display); text-wrap:balance; }
-    h2 { font:700 clamp(1.55rem,3vw,2rem)/1.25 var(--display); }
-    h3 { font:700 1.04rem/1.4 var(--body); }
-    p,li { max-width:48rem; }
-    .lede { color:var(--muted); font-size:clamp(1.08rem,2vw,1.3rem); max-width:46rem; }
-    .eyebrow { font:500 .72rem/1 var(--mono); letter-spacing:.08em; color:var(--faint); display:flex; align-items:center; gap:.7rem; }
-    .eyebrow::after { content:""; height:1px; flex:1; background:var(--rule); }
-    .meta { display:flex; flex-wrap:wrap; gap:.55rem 1.5rem; padding-top:1.2rem; border-top:1px solid var(--rule); color:var(--faint); font:400 .76rem/1.4 var(--mono); }
-    nav { position:sticky; top:0; z-index:2; margin:0 calc(clamp(1rem,4vw,3rem) * -1) 3rem; padding:.8rem clamp(1rem,4vw,3rem); display:flex; gap:1rem; overflow:auto; background:color-mix(in srgb,var(--paper) 90%,transparent); backdrop-filter:blur(12px); border-block:1px solid var(--soft); }
-    nav a { color:var(--muted); text-decoration:none; white-space:nowrap; font-size:.86rem; }
-    main { display:grid; gap:3.5rem; }
-    section { display:grid; gap:1.15rem; scroll-margin-top:5rem; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr)); gap:.9rem; }
-    .card { background:var(--card); border:1px solid var(--soft); border-radius:12px; padding:1.25rem; display:grid; gap:.65rem; }
-    .card p { font-size:.96rem; color:var(--muted); }
-    .callout { max-width:52rem; background:var(--accent-soft); border-inline-start:3px solid var(--accent); border-radius:8px; padding:1rem 1.2rem; display:grid; gap:.45rem; }
-    .flow { direction:ltr; display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; align-items:stretch; }
-    .flow > div { direction:rtl; background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:1rem; text-align:center; position:relative; }
-    .flow > div:not(:last-child)::after { content:'\2192'; direction:ltr; position:absolute; left:-.72rem; top:50%; transform:translateY(-50%); color:var(--accent); font:500 1.25rem var(--mono); z-index:1; }
-    .flow b { display:block; margin-bottom:.35rem; }
-    .flow small { color:var(--faint); }
-    pre { margin:0; direction:ltr; text-align:left; overflow:auto; background:var(--surface); border:1px solid var(--soft); border-radius:10px; padding:1rem; font:400 .79rem/1.75 var(--mono); color:var(--muted); }
-    ul,ol { margin:0; padding-inline-start:1.35rem; display:grid; gap:.65rem; }
-    li::marker { color:var(--accent); font-weight:700; }
-    .scroll { overflow:auto; border:1px solid var(--soft); border-radius:12px; background:var(--card); }
-    table { width:100%; min-width:42rem; border-collapse:collapse; font-size:.9rem; }
-    th,td { padding:.7rem .8rem; text-align:right; border-bottom:1px solid var(--soft); vertical-align:top; }
-    th { color:var(--faint); font:500 .7rem/1.4 var(--mono); letter-spacing:.04em; }
-    td.num { text-align:left; white-space:nowrap; }
-    tr:last-child td { border:0; }
-    .good { color:var(--good); font-weight:600; }
-    footer { margin-top:4rem; border-top:1px solid var(--rule); padding-top:1.2rem; color:var(--faint); font-size:.86rem; }
-    @media (max-width:720px) {
-      .flow { grid-template-columns:1fr; }
-      .flow > div:not(:last-child)::after { content:'\2193'; left:50%; top:auto; bottom:-1rem; transform:translateX(-50%); }
-      nav { margin-bottom:2.25rem; }
-    }
-    @media print {
-      nav { display:none; } body { background:#fff; color:#111; font-size:11pt; }
-      .page { width:auto; padding:0; } section { break-inside:avoid; }
-    }
-  </style>
+  }
+  :root[data-theme="dark"] {
+    --paper:#12181f; --surface:#19212b; --card:#1e2732; --ink:#ece7de;
+    --muted:rgba(236,231,222,.72); --faint:rgba(236,231,222,.52);
+    --rule:rgba(236,231,222,.16); --soft:rgba(236,231,222,.08);
+    --accent:#e8a33d; --accent-soft:rgba(232,163,61,.13);
+    --good:#6fbf95;
+  }
+
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:400 17px/1.65 var(--sans); -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,p,ul,ol,figure { margin:0; }
+  a { color:var(--accent); text-underline-offset:.18em; }
+  code { font:500 .87em var(--mono); background:var(--soft); padding:.1em .36em; border-radius:4px; direction:ltr; unicode-bidi:embed; }
+  .ltr { direction:ltr; unicode-bidi:embed; }
+
+  .page { width:min(60rem,100%); margin:auto; padding:clamp(2rem,5vw,4rem) clamp(1.1rem,4vw,2.5rem) 4rem; }
+
+  header { display:grid; gap:1rem; margin-bottom:2.25rem; }
+  .eyebrow { font:500 .71rem/1 var(--mono); letter-spacing:.02em; text-transform:uppercase; color:var(--faint); display:flex; align-items:center; gap:.7rem; }
+  .eyebrow::after { content:""; height:1px; flex:1; background:var(--rule); }
+  h1 { font:700 clamp(2rem,5vw,3rem)/1.15 var(--sans); letter-spacing:-.01em; text-wrap:balance; max-width:26ch; }
+  .lede { color:var(--muted); font-size:clamp(1.03rem,2vw,1.2rem); max-width:56ch; }
+  .stats { display:flex; flex-wrap:wrap; gap:.45rem 1.5rem; padding-top:1rem; border-top:1px solid var(--rule);
+           color:var(--faint); font:500 .74rem/1.5 var(--mono); font-variant-numeric:tabular-nums; }
+
+  nav { position:sticky; top:0; z-index:5; margin:0 calc(clamp(1.1rem,4vw,2.5rem) * -1) 2.5rem;
+        padding:.7rem clamp(1.1rem,4vw,2.5rem); display:flex; gap:1.1rem; overflow-x:auto;
+        background:color-mix(in srgb,var(--paper) 92%,transparent); backdrop-filter:blur(12px);
+        border-block:1px solid var(--soft); }
+  nav a { color:var(--muted); text-decoration:none; white-space:nowrap; font-size:.84rem; }
+  nav a:hover, nav a:focus-visible { color:var(--accent); }
+
+  main { display:grid; gap:3rem; }
+  section { display:grid; gap:1rem; scroll-margin-top:4.5rem; }
+  h2 { font:700 clamp(1.4rem,2.6vw,1.8rem)/1.3 var(--sans); letter-spacing:0; }
+  h2 .n { font:600 .74rem var(--mono); color:var(--accent); vertical-align:.6em; margin-left:.5rem; }
+  h3 { font:600 1.02rem/1.4 var(--sans); margin-top:.4rem; }
+  p, li { max-width:70ch; }
+  ul,ol { padding-right:1.25rem; padding-left:0; display:grid; gap:.55rem; }
+  li::marker { color:var(--accent); }
+
+  pre { margin:0; overflow-x:auto; background:var(--surface); border:1px solid var(--soft);
+        border-radius:10px; padding:.9rem 1.05rem; font:500 .82rem/1.75 var(--mono); color:var(--ink);
+        direction:ltr; text-align:left; }
+  .formula { border-right:3px solid var(--accent); border-left:none; }
+
+  .scroll { overflow-x:auto; border:1px solid var(--soft); border-radius:12px; background:var(--card); }
+  table { width:100%; min-width:32rem; border-collapse:collapse; font-size:.9rem; }
+  th,td { padding:.62rem .8rem; text-align:right; border-bottom:1px solid var(--soft); vertical-align:top; }
+  th { color:var(--faint); font:500 .68rem/1.4 var(--mono); letter-spacing:.03em; text-transform:uppercase; white-space:nowrap; }
+  td.num { text-align:left; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; direction:ltr; }
+  tbody tr:last-child td { border-bottom:0; }
+  tr.hi td { background:var(--accent-soft); }
+
+  .callout { background:var(--accent-soft); border-right:3px solid var(--accent); border-radius:10px 0 0 10px;
+             padding:.95rem 1.15rem; display:grid; gap:.4rem; max-width:70ch; }
+  .callout .tag { font:600 .65rem/1 var(--mono); letter-spacing:.05em; text-transform:uppercase; color:var(--accent); }
+  .note { border-right:2px solid var(--rule); padding-right:.95rem; color:var(--muted); font-size:.94rem; }
+
+  .checks { display:grid; gap:.5rem; padding:0; list-style:none; }
+  .checks li { display:grid; grid-template-columns:auto 1fr; gap:.6rem; align-items:baseline; max-width:70ch; }
+  .checks .ok { color:var(--good); font-weight:700; }
+  .checks b { font-weight:600; }
+  .checks span { color:var(--muted); }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr)); gap:.9rem; }
+  .card { background:var(--card); border:1px solid var(--soft); border-radius:12px; padding:1.25rem; display:grid; gap:.65rem; }
+  .card p { font-size:.96rem; color:var(--muted); }
+
+  .flow { direction:ltr; display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; align-items:stretch; }
+  .flow > div { direction:rtl; background:var(--card); border:1px solid var(--rule); border-radius:12px; padding:1rem; text-align:center; position:relative; }
+  .flow > div:not(:last-child)::after { content:'\2192'; direction:ltr; position:absolute; left:-.72rem; top:50%; transform:translateY(-50%); color:var(--accent); font:500 1.25rem var(--mono); z-index:1; }
+  .flow b { display:block; margin-bottom:.35rem; }
+  .flow small { color:var(--faint); }
+  @media (max-width:640px) {
+    .flow { grid-template-columns:1fr; }
+    .flow > div:not(:last-child)::after { content:'\2193'; left:50%; top:auto; bottom:-1rem; transform:translateX(-50%); }
+  }
+
+  footer { margin-top:3.25rem; border-top:1px solid var(--rule); padding-top:1.05rem; color:var(--faint); font-size:.84rem; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:3px; }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  @media print {
+    nav { display:none; } body { background:#fff; color:#111; font-size:10.5pt; }
+    .page { width:auto; padding:0; } section { break-inside:avoid; }
+  }
+</style>
 </head>
 <body>
 <div class="page">
-  <header>
-    <div class="eyebrow">מסמך ארכיטקטורה · אוגוסט 2026</div>
-    <h1>סוכן מודיעין להשקעות בשדות תעופה</h1>
-    <p class="lede">מערכת שמזהה שדות תעופה בארה״ב שבהם השקעת מודרניזציה עשויה להיות מוצדקת. הקוד מחשב ציונים דטרמיניסטיים מנתונים ציבוריים; מודל השפה שולף, משווה ומסביר — לעולם לא מחשב את הציון.</p>
-    <div class="meta"><span>356 שדות מכוסים</span><span>163 מדורגים</span><span>9 קבוצות השוואה</span><span>יוני 2025–מאי 2026</span></div>
-  </header>
 
-  <nav aria-label="תוכן עניינים">
-    <a href="#shape">מבנה</a><a href="#data">נתונים</a><a href="#score">דירוג</a><a href="#ai">שכבת AI</a><a href="#frontend">ממשק</a><a href="#security">אבטחה</a><a href="#tradeoffs">פשרות</a><a href="#limits">מגבלות</a><a href="#run">הרצה</a>
-  </nav>
+<header>
+  <div class="eyebrow">עיצוב וארכיטקטורה · אוגוסט 2026</div>
+  <h1>סוכן מודיעין להשקעות בשדות תעופה</h1>
+  <p class="lede">סורק שדות תעופה בארה"ב להזדמנויות מודרניזציה, על בסיס נתוני BTS ו-FAA ציבוריים בלבד. <strong>הדירוג הוא קוד דטרמיניסטי; מודל השפה מסביר ומשווה, הוא לעולם לא מחשב.</strong></p>
+  <div class="stats">
+    <span>358 שדות תעופה בכיסוי</span>
+    <span>163 מדורגים</span>
+    <span>9 קבוצות השוואה אזוריות</span>
+    <span>13 חודשי נתוני עומס</span>
+  </div>
+</header>
 
-  <main>
-    <section id="shape">
-      <div class="eyebrow">01 · תמונת מערכת</div>
-      <h2>ארבע שכבות, מקור אמת אחד</h2>
-      <div class="flow" aria-label="זרימת הנתונים במערכת">
-        <div><b>מקורות ציבוריים</b><small>BTS T-100 · BTS On-Time · FAA TAF</small></div>
-        <div><b>טעינה ודירוג</b><small>Node/Python · חישוב דטרמיניסטי</small></div>
-        <div><b>Supabase</b><small>Postgres · Edge Functions · הרשאת קריאה בלבד</small></div>
-        <div><b>ערוצי שימוש</b><small>React Web · WhatsApp</small></div>
-      </div>
-      <p>שתי פונקציות הקצה קוראות דרך מודול שאילתות משותף אחד, <code>supabase/functions/_shared/db.ts</code>. פאנל הניתוח והסוכן מבצעים אותה שאילתה ולכן אינם יכולים להציג הגדרות שונות לאותו ציון.</p>
-      <div class="grid">
-        <div class="card"><h3>Frontend</h3><p><span class="ltr">Vite + React + TypeScript strict</span>. ממשק דו־טורי במחשב וגיליון ניתוח תחתון במובייל.</p></div>
-        <div class="card"><h3>Backend</h3><p><span class="ltr">Supabase Postgres + Deno Edge Functions</span>. שלוש פונקציות: נתונים, צ׳אט ו־WhatsApp.</p></div>
-        <div class="card"><h3>AI</h3><p><span class="ltr">OpenAI gpt-4o-mini</span> בטמפרטורה <span class="num">0.2</span>, עם שני כלים מוקלדים ולולאה תחומה.</p></div>
-        <div class="card"><h3>Pipeline</h3><p>סקריפטים ב־Node וב־Python לטעינה, ניקוי, אגרגציה וחישוב ציונים מראש.</p></div>
-      </div>
-    </section>
+<nav aria-label="תוכן עניינים">
+  <a href="#system">מבנה המערכת</a>
+  <a href="#questions">ארבע השאלות</a>
+  <a href="#scoring">שיטת הניקוד</a>
+  <a href="#ai">היכן נעשה שימוש ב-AI</a>
+  <a href="#tradeoffs">פשרות מרכזיות</a>
+  <a href="#limits">הנחות ומגבלות</a>
+  <a href="#requirements">דרישות</a>
+</nav>
 
-    <section id="data">
-      <div class="eyebrow">02 · שכבת הנתונים</div>
-      <h2>שלושה מקורות ציבוריים, ללא נתונים סינתטיים</h2>
-      <div class="scroll"><table>
-        <thead><tr><th>מקור</th><th>מידע</th><th>רזולוציה</th><th>קליטה</th></tr></thead>
-        <tbody>
-          <tr><td><span class="ltr">BTS T-100</span></td><td>נוסעים, המראות, מושבים, פנים־ארצי/בינלאומי</td><td>חודשי לכל שדה</td><td><span class="ltr">Socrata API</span></td></tr>
-          <tr><td><span class="ltr">BTS On-Time</span></td><td>עיכובים, זמן הסעה, ביטולים, עיכוב NAS ומרחק</td><td>טיסה בודדת, נצברת לחודש</td><td><span class="ltr">TranStats ZIP</span></td></tr>
-          <tr><td><span class="ltr">FAA TAF 2025</span></td><td>תחזיות נוסעים ופעילות עד שנת הכספים 2055</td><td>שנתי לכל שדה</td><td><span class="ltr">ZIP</span></td></tr>
-        </tbody>
-      </table></div>
-      <p>הציונים נשמרים בטבלת <code>airport_scores</code> ולא מחושבים בזמן קריאה. כך תוצאת כל ריצה ניתנת לשחזור, ושאילתות המשתמש נשארות פשוטות ומהירות.</p>
-    </section>
+<main>
 
-    <section id="score">
-      <div class="eyebrow">03 · מתודולוגיית דירוג</div>
-      <h2>עומס נוכחי כפול פער צמיחה</h2>
-      <div class="card"><h3>לחץ קיבולת</h3><p>מדד לעומס הנוכחי, מנורמל בין שדות באותו אזור.</p><pre>CapacityPressure = 0.40 × norm(avg taxi-out minutes)
-                 + 0.35 × norm(NAS delay minutes / departure)
-                 + 0.25 × norm(% flights delayed over 15 min)</pre></div>
-      <div class="card"><h3>פער צמיחה</h3><p>התחזית של FAA מול המגמה שנמדדה ממקור עצמאי.</p><pre>GrowthGap(pp) = FAA TAF enplanement CAGR (FY2024→FY2035)
-              − BTS T-100 measured CAGR   (2014→2024)</pre></div>
-      <div class="card"><h3>ביקוש לא מסופק וציון הרחבה</h3><p>פער חיובי נספר רק כשהשדה כבר לחוץ. צמיחה בשדה פנוי אינה מסומנת כביקוש לא מסופק.</p><pre>UnmetDemandRaw = max(0, GrowthGap) × CapacityPressure
-UnmetDemand    = norm(UnmetDemandRaw)
+<section id="system">
+  <h2><span class="n">01</span>ארבע שכבות, מקור אמת אחד</h2>
+  <div class="flow" aria-label="זרימת הנתונים במערכת">
+    <div><b>מקורות ציבוריים</b><small>BTS T-100 · BTS On-Time · FAA TAF</small></div>
+    <div><b>טעינה ודירוג</b><small>Node/Python · חישוב דטרמיניסטי</small></div>
+    <div><b>Supabase</b><small>Postgres · Edge Functions · הרשאת קריאה בלבד</small></div>
+    <div><b>ערוצי שימוש</b><small>React Web · WhatsApp</small></div>
+  </div>
+  <p>שתי פונקציות הקצה קוראות דרך מודול שאילתות משותף אחד, <code>supabase/functions/_shared/db.ts</code>. פאנל הניתוח והסוכן מבצעים אותה שאילתה ולכן אינם יכולים להציג הגדרות שונות לאותו ציון.</p>
+  <div class="grid">
+    <div class="card"><h3>Frontend</h3><p><span class="ltr">Vite + React + TypeScript strict</span>. ממשק דו־טורי במחשב וגיליון ניתוח תחתון במובייל.</p></div>
+    <div class="card"><h3>Backend</h3><p><span class="ltr">Supabase Postgres + Deno Edge Functions</span>. שלוש פונקציות: נתונים, צ׳אט ו־WhatsApp.</p></div>
+    <div class="card"><h3>AI</h3><p><span class="ltr">OpenAI gpt-5-mini</span>, נימוק ברמה נמוכה, עם שני כלים מוקלדים ולולאה תחומה.</p></div>
+    <div class="card"><h3>Pipeline</h3><p>סקריפטים ב־Node וב־Python לטעינה, ניקוי, אגרגציה וחישוב ציונים מראש.</p></div>
+  </div>
+</section>
 
-ExpansionScore = 0.50 × UnmetDemand
-               + 0.30 × norm(TAF CAGR)
-               + 0.20 × CapacityPressure</pre></div>
-      <div class="callout"><h3>המשקלים הם היוריסטיקה</h3><p>הם אינם מכוילים מול אמת מידה אמפירית. אין מאגר ציבורי של פרויקטי הרחבה שסומנו כהצלחה או ככישלון. לכן הממשק מציג תמיד את רכיבי הציון לצד הציון המשוקלל.</p></div>
-    </section>
+<section id="questions">
+  <h2><span class="n">02</span>ארבע השאלות, עם תשובה</h2>
+  <p>כל ארבע השאלות רצות מקצה לקצה באפליקציה החיה, כולל שאלות המשך בשיחה. הנתונים למטה נקראו מה-API הפרוס בתאריך 2026-08-22.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>שאלה</th><th>איך המערכת עונה</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>מועמדים חזקים בניו אינגלנד</td>
+          <td>מדרגת את כל 7 שדות התעופה המדורגים בניו אינגלנד בקריאה אחת. <strong>BTV (ברלינגטון) מוביל עם 0.84</strong>, ואחריו BGR ו-BOS.</td>
+        </tr>
+        <tr>
+          <td>עומס LA מול סנטה אנה</td>
+          <td>משווה <strong>מדדים גולמיים</strong>, לא ציונים — לחץ קיבולת של LAX 0.62 מול SNA 0.60, על סמך דקות טקסי-אאוט ועיכובי NAS.</td>
+        </tr>
+        <tr>
+          <td>אחוז טיסות ארוכות טווח מאנקורג'</td>
+          <td><strong>28.77%</strong> מההמראות טסות 2,000+ מייל — עם ההסתייגות שסף ה-2,000 מייל הוא הגדרה שלנו, לא תקן של BTS.</td>
+        </tr>
+        <tr>
+          <td>ביקוש לא מסופק ב-SFO, ולמה</td>
+          <td><strong>1.00</strong> — לחץ קיבולת 0.85 בשילוב פער צמיחה חזוי של +2.07 נקודות אחוז. ההסבר הוא התוצר עצמו: צמיחה שמגיעה לשדה שכבר עמוס.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-    <section id="ai">
-      <div class="eyebrow">04 · שכבת הסוכן</div>
-      <h2>מודל השפה מסביר מספרים קבועים</h2>
-      <div class="grid">
-        <div class="card"><h3><code>list_airports</code></h3><p>פותר שמות מקומות ואזורים לקודי IATA ומדווח על הכיסוי בפועל.</p></div>
-        <div class="card"><h3><code>get_airport_data</code></h3><p>שולף מדדים מורשים, תקופות ותחומים ממילון נתונים קנוני. אין SQL חופשי.</p></div>
-      </div>
-      <ol>
-        <li>הבקשה עוברת אימות, נרמול והגבלת אורך.</li>
-        <li>בסיבוב הראשון המודל חייב לקרוא לכלי.</li>
-        <li>הכלי מחזיר ערכים יחד עם מקור, יחידה, תקופה ותחום.</li>
-        <li>המודל מסביר ומסכם. התהליך מוגבל לארבעה סבבי כלים בקוד.</li>
-      </ol>
-      <p>אותו מנוע משותף, <code>_shared/agent.ts</code>, משרת את צ׳אט ה־Web ואת WhatsApp. מתאמי הערוצים מטפלים רק באימות תעבורה, מגבלות קצב, נרמול קלט ועיצוב תשובה.</p>
-      <div class="callout"><h3>חוזה תשובה</h3><p>מסקנה תחילה, שניים עד ארבעה מספרים מכריעים, הסבר קצר והסתייגות אחת רלוונטית. ברירת המחדל: עד 120 מילים ותקרת יצירה של 320 טוקנים.</p></div>
-    </section>
+<section id="scoring">
+  <h2><span class="n">03</span>שיטת הניקוד</h2>
+  <p>כל מדד מתחקה למקור ציבורי אמיתי וללא צורך במפתח API. שום דבר אינו סינתטי.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>מקור</th><th>מספק</th><th>רזולוציה</th></tr></thead>
+      <tbody>
+        <tr><td>BTS T-100 (Socrata API)</td><td>נוסעים, המראות, מושבים, פיצול מקומי/בינלאומי</td><td>חודשי לכל שדה</td></tr>
+        <tr><td>BTS On-Time (TranStats ZIP)</td><td>עיכוב, טקסי-אאוט, ביטולים, עיכוב NAS, מרחק</td><td>לכל טיסה ← חודשי</td></tr>
+        <tr><td>FAA Terminal Area Forecast</td><td>תחזיות נוסעים ותנועה עד FY2055</td><td>שנתי לכל שדה</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-    <section id="frontend">
-      <div class="eyebrow">05 · ארכיטקטורת הממשק</div>
-      <h2>רכיבים אינם ניגשים ישירות לרשת</h2>
-      <pre>src/
-  config.ts               environment validation
-  api/                    typed contracts + fetch clients
-  hooks/                  chat, airport data, voice, media query
-  lib/                    theme + safe reply parser
-  components/
-    chat/                 messages + composer
-    panel/                shared analysis body + desktop/mobile shells</pre>
-      <ul>
-        <li>קריאות רשת מרוכזות ב־<code>api/client.ts</code>; המרת ערכי <span class="ltr">Postgres numeric</span> מתבצעת במקום יחיד.</li>
-        <li>בקשה קודמת מבוטלת בעת שליחה מחדש כדי למנוע תשובות שמגיעות בסדר שגוי.</li>
-        <li><code>PanelBody.tsx</code> משותף למחשב ולמובייל; רק מעטפת התצוגה משתנה.</li>
-        <li>תשובות מפוענחות בלי <code>dangerouslySetInnerHTML</code> ובלי ספריית Markdown כבדה.</li>
-        <li>קלט קולי בדפדפן משתמש ב־<span class="ltr">SpeechRecognition</span>; אין העלאת אודיו ואין מפתח נוסף.</li>
-      </ul>
-    </section>
+  <h3>שני מדדי KPI, שנשמרים נפרדים במבנה</h3>
+  <p>הסיכון המרכזי בעיצוב היה ש"לחץ קיבולת" ו"ביקוש לא מסופק" יתמזגו לאותו מספר בשני שמות. אחד מודד <em>מצב נוכחי</em>; השני מודד <em>פער בין תחזית למציאות</em>, <strong>מותנה</strong> על ידי הראשון.</p>
 
-    <section id="security">
-      <div class="eyebrow">06 · אבטחה</div>
-      <h2>הגנה בכמה שכבות</h2>
-      <ol>
-        <li><strong>תפקיד DB לקריאה בלבד.</strong> <code>agent_reader</code> מקבל <span class="ltr">SELECT</span> על ארבע טבלאות בלבד ו־<span class="num">5s</span> timeout.</li>
-        <li><strong>אין משטח SQL למודל.</strong> כלים מקבלים פרמטרים מוקלדים, קודי IATA נבדקים ומספר השדות בכל קריאה מוגבל.</li>
-        <li><strong>הודעות מערכת וכלי מהלקוח נזרקות.</strong> מתקבלים רק תורי <span class="ltr">user</span> ו־<span class="ltr">assistant</span>.</li>
-        <li><strong>סודות נשארים בשרת.</strong> מפתח OpenAI ומחרוזת החיבור נשמרים ב־Supabase Secrets.</li>
-        <li><strong>WhatsApp מאומת.</strong> חתימת HMAC של Twilio נבדקת מול כתובת ה־Webhook המדויקת; הגבלת הקצב שומרת hash מומלח בלבד.</li>
-        <li><strong>הודעות קוליות תחומות.</strong> הורדה רק מ־<code>api.twilio.com</code>, עד <span class="num">10 MB</span>, תמלול בזיכרון ומחיקה.</li>
-      </ol>
-    </section>
+  <p><strong>לחץ קיבולת</strong> — עד כמה שדה עמוס עכשיו, ביחס לאזורו. מנורמל min-max בתוך קבוצת ההשוואה:</p>
+<pre class="formula">CapacityPressure = 0.40 · norm(avg taxi-out minutes)
+                 + 0.35 · norm(NAS delay minutes per departure)
+                 + 0.25 · norm(% flights delayed &gt; 15 min)</pre>
+  <p class="note">טקסי-אאוט מקבל את המשקל הגבוה ביותר כאות הגודש הפיזי הישיר ביותר. עיכוב NAS שני, כי זה עיכוב המיוחס למערכת בקרת התעופה — הרכיב שקשור בפועל לתשתית, ולא לבעיות תפעוליות של חברת תעופה בודדת. עיכובי מזג אוויר ועיכובי חברת תעופה הוצאו במכוון: הם לא מתארים את השדה עצמו.</p>
 
-    <section id="tradeoffs">
-      <div class="eyebrow">07 · החלטות ופשרות</div>
-      <h2>בחירות מרכזיות</h2>
-      <div class="grid">
-        <div class="card"><h3>אזורי השוואה</h3><p>נרמול ארצי היה דוחס את ההבדלים. הדירוג מתבצע בתוך אזורי Census. המחיר: ציונים מאזורים שונים אינם ברי־השוואה.</p></div>
-        <div class="card"><h3>שנה מלאה</h3><p>12 חודשי עומס החליפו חודש מייצג. התוצאה בניו אינגלנד התהפכה, ונחשפה הטיית הסרת הקרח בחורף.</p></div>
-        <div class="card"><h3>כלים מוקלדים</h3><p>פחות גמישות מ־SQL כללי, אך משטח קטן, בטוח וניתן לביקורת.</p></div>
-        <div class="card"><h3>ציונים מחושבים מראש</h3><p>קריאות מהירות ודטרמיניזם. המחיר: צריך להריץ מחדש אחרי רענון נתונים.</p></div>
-        <div class="card"><h3>WhatsApp כמתאם</h3><p>אין סוכן שני. הערוצים חולקים הנחיות, כלים, מגבלות והסתייגויות.</p></div>
-        <div class="card"><h3>העיצוב מול האמת</h3><p>המערכת אימצה את השפה החזותית שסופקה, אך הסירה 44 שדות פיקטיביים ומודל משקל שונה.</p></div>
-      </div>
-    </section>
+  <p><strong>פער צמיחה</strong> — האם הביקוש עוקף את מה שהשדה סיפק היסטורית?</p>
+<pre class="formula">GrowthGap (pp) = FAA TAF enplanement CAGR (FY2024→FY2035)
+               − BTS T-100 measured CAGR   (2014→2024)</pre>
+  <p class="note">הצמיחה ההיסטורית נמדדת מ-<strong>BTS</strong>, לא מהאומדן ההיסטורי של ה-FAA עצמו, כך שההשוואה היא בין תחזית ה-FAA לבין נתוני אמת ממקור בלתי תלוי, ולא FAA מול עצמו.</p>
 
-    <section id="limits">
-      <div class="eyebrow">08 · תחום ואי־ודאות</div>
-      <h2>מה המערכת אינה יודעת</h2>
-      <ul>
-        <li>אין מקור ציבורי לקיבולת מסלולים, שערים או טרמינלים ברזולוציה הדרושה. לחץ קיבולת וביקוש לא מסופק הם מדדים עקיפים.</li>
-        <li><strong>163 מתוך 356</strong> שדות מכוסים מקבלים ציון. היתר מתחת לסף המדגם, חסרי תחזית או חסרי קבוצת עמיתים מספקת.</li>
-        <li>נתוני העיכוב כוללים טיסות פנים־ארציות של חברות מדווחות בלבד. נתוני נפח T-100 כוללים גם תנועה בינלאומית.</li>
-        <li>שנה אחת קובעת רמת עומס, לא מגמה. זמן הסעה בחורף כולל הסרת קרח שאינה מופרדת מרוויה תשתיתית.</li>
-        <li>סף טיסה ארוכה של <span class="num">2,000</span> מייל הוא הגדרת המערכת, לא תקן BTS או FAA.</li>
-        <li>זה אינו מודל רווחיות, ROI או החזר השקעה. עלות פרויקט, הכנסה, מימון ומגבלות קרקע אינן קלט.</li>
-        <li>רמת הביטחון מתאימה למיון ראשוני בלבד: נמוכה עד בינונית, לא מספיקה להחלטת השקעה.</li>
-      </ul>
-    </section>
+  <p><strong>ביקוש לא מסופק</strong> — הכפלה של השניים, ואז נורמליזציה:</p>
+<pre class="formula">UnmetDemandRaw = max(0, GrowthGap) × CapacityPressure
+UnmetDemand    = norm(UnmetDemandRaw)</pre>
 
-    <section id="run">
-      <div class="eyebrow">09 · הפעלה</div>
-      <h2>הרצה מקומית ובנייה מחדש</h2>
-      <pre>npm install
-npm run dev          # http://localhost:5173</pre>
-      <p>נדרש קובץ <code>.env</code> עם <code>VITE_SUPABASE_URL</code> ו־<code>VITE_SUPABASE_PUBLISHABLE_KEY</code>.</p>
-      <pre>node scripts/test-bts-ontime.mjs 2026 5
-python3 scripts/parse-faa-taf-full.py
-node scripts/ingest.mjs 2025
-node scripts/score.mjs</pre>
-      <div class="callout"><h3>מצב אימות</h3><p class="good">הבנייה עוברת ב־TypeScript strict. צ׳אט, דירוג, פירוט וכיסוי נבדקו מקצה לקצה מול פונקציות הקצה.</p></div>
-    </section>
-  </main>
+  <div class="callout">
+    <div class="tag">למה להכפיל ולא לחבר</div>
+    <p>צמיחה חזויה גבוהה בשדה <em>לא עמוס</em> היא צמיחה בריאה עם מקום פנוי, לא ביקוש לא מסופק. רק צמיחה שמגיעה לשדה שכבר לחוץ נספרת. אם שני המדדים היו מחושבים בנפרד וממוצעים, הם היו רק שתי גרסאות מתואמות של אותו דבר.</p>
+  </div>
 
-  <footer>
-    מקור: <code>ARCHITECTURE.md</code>. הרחבות: <code>docs/03-scoring-methodology.md</code>, <code>docs/09-agent-architecture.md</code>, <code>docs/10-frontend-architecture.md</code>, <code>docs/14-coverage-expansion.md</code>.
-  </footer>
+  <p><strong>ציון הרחבה</strong> — מדד ה-KPI לדירוג:</p>
+<pre class="formula">ExpansionScore = 0.50 · UnmetDemand
+               + 0.30 · norm(TAF CAGR)
+               + 0.20 · CapacityPressure</pre>
+
+  <h3>תוצאות, ושתי השורות שמוכיחות שה-gating עובד</h3>
+  <p><strong>הציונים מנורמלים בתוך כל אזור, כך שציון ההרחבה ניתן להשוואה לאורך אזור אחד בלבד, לעולם לא בין אזורים</strong> — SFO ו-BTV כל אחד מוביל בסקאלה של עצמו.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>שדה</th><th>אזור</th><th>לחץ קיבולת</th><th>פער צמיחה</th><th>ביקוש לא מסופק</th><th>ציון הרחבה</th></tr></thead>
+      <tbody>
+        <tr><td>SFO</td><td>Pacific</td><td class="num">0.85</td><td class="num">+2.07</td><td class="num">1.00</td><td class="num"><strong>0.89</strong></td></tr>
+        <tr><td>BTV</td><td>New England</td><td class="num">0.86</td><td class="num">+1.71</td><td class="num">1.00</td><td class="num"><strong>0.84</strong></td></tr>
+        <tr><td>LAX</td><td>Pacific</td><td class="num">0.62</td><td class="num">+1.15</td><td class="num">0.41</td><td class="num"><strong>0.46</strong></td></tr>
+        <tr><td>SNA</td><td>Pacific</td><td class="num">0.60</td><td class="num">+0.12</td><td class="num">0.04</td><td class="num"><strong>0.24</strong></td></tr>
+        <tr class="hi"><td>BOS</td><td>New England</td><td class="num">0.66</td><td class="num">−0.91</td><td class="num">0.00</td><td class="num"><strong>0.23</strong></td></tr>
+        <tr class="hi"><td>MHT</td><td>New England</td><td class="num">0.01</td><td class="num">+6.80</td><td class="num">0.03</td><td class="num"><strong>0.07</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul>
+    <li><strong>BOS — גודש בלי צמיחה.</strong> לחץ בינוני (0.66), ובכל זאת ביקוש לא מסופק הוא בדיוק אפס: ה-FAA צופה צמיחה איטית יותר מהמגמה שנמדדה בפועל, כך ש-<code>max(0, …)</code> קוצץ אותו לאפס. עמוס, אבל לא צומח.</li>
+    <li><strong>MHT — צמיחה בלי גודש.</strong> פער הצמיחה הגדול ביותר בניו אינגלנד (+6.80 נקודות אחוז), ועדיין לפני אחרון מתוך שבעה, כי לחץ הקיבולת שלו הוא 0.01. צמיחה מהירה לתוך שדה ריק היא מקום פנוי, לא ביקוש לא מסופק.</li>
+  </ul>
+  <p class="note">אף אחת מהתוצאות הללו לא הייתה יוצאת ממודל שפשוט ממצע גודש וצמיחה. זה כל הטיעון בעד ה-gating.</p>
+
+  <div class="callout">
+    <div class="tag">למשקלים אין בסיס אמפירי, וזה נאמר במפורש</div>
+    <p>הם היוריסטיקה מנומקת, לא מכוילים מול נתונים. אין אמת מידה לכייל מולה — אין מאגר ציבורי שמסמן פרויקטי הרחבה כהצלחה או ככישלון — ואין תקן להשאיל: חוזר ה-FAA Advisory Circular 150/5060-5 משתמש בקריטריונים נפרדים של תפוסה, ביקוש ועיכוב, ולא בציון משוקלל אחד. התגובה לא הייתה להסתיר את זה מאחורי מספר אטום אחד: פירוט הרכיבים תמיד מוצג לצד הציון, והממשק נושא את ההסתייגויות הקבועות.</p>
+  </div>
+</section>
+
+<section id="ai">
+  <h2><span class="n">04</span>היכן וכיצד נעשה שימוש ב-AI</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>שכבה</th><th>מי מבצע</th><th>למה</th></tr></thead>
+      <tbody>
+        <tr><td>ניקוד, דירוג, נורמליזציה</td><td><strong>קוד דטרמיניסטי</strong> (<code>scripts/score.mjs</code>)</td><td>ניתן לביקורת, זהה בכל הרצה, בלי שונות מודל</td></tr>
+        <tr><td>שליפת נתונים</td><td><strong>כלים מוקלדים</strong> מעל תפקיד קריאה בלבד</td><td>אין SQL חופשי שהמודל יכול לכתוב</td></tr>
+        <tr><td>פרשנות, השוואה, המשך שיחה</td><td><strong>LLM</strong> (<code>gpt-5-mini</code>)</td><td>עבודה שהיא באמת עבודת שפה</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>המודל הוא <strong>מסביר מעל מספרים קבועים</strong>. ההנחיות שלו קובעות שהוא לא מחשב ציונים ולעולם לא רשאי להציג מספר שלא שלף מכלי.</p>
+
+  <h3>שלוש שכבות שאוכפות את זה, במקום לסמוך על ה-prompt</h3>
+  <ol>
+    <li><strong>הסבב הראשון של המודל מחויב לקרוא לכלי</strong> — בקוד, לא בהנחיה. ציות ל-prompt מגובה בבקרת ריצה.</li>
+    <li><strong>כלים מוקלדים ומוגבלים ברשימה מעל תפקיד SELECT בלבד.</strong> <code>list_airports</code> פותר כיסוי <strong>ומדרג אזור שלם</strong> — כל שורה נושאת את הציונים של אותו שדה, כך שדירוג אזורי הוא קריאה אחת על הקבוצה המלאה, ולא ריכוז שהמודל בונה בעצמו. <code>get_airport_data</code> שולף כל מדד מורשה דרך שאילתות קבועות ומפורמטות. אין מחרוזת SQL שמטען הזרקה יכול להגיע אליה.</li>
+    <li><strong>הצהרת הסינון מתווספת בקוד</strong> בכל פעם שעקבות הכלים מראות שנעשה שימוש בנתוני ציון — פעם אחת לשיחה, וניסוח חוזר שהמודל כותב לבד נמחק בקוד. הצהרה שתלויה בזיכרון המודל נעלמת ברגע שהוא מסכם; והצהרה שחוזרת מתחת לכל הודעה הופכת לרעש רקע.</li>
+  </ol>
+
+  <h3>תשובות מסבירות, לא מפרטות</h3>
+  <p>דירוג של ציונים חשופים אינו תשובה: קורא לא יכול לפעול לפי "0.72" בלי לדעת מה הסקאלה אומרת. הסוכן חייב לעגן ציון בפעם הראשונה שהוא משתמש בו, להסביר למה שדה הגיע למקומו במקום לצטט ממה מורכב המדד, ולציין בקול את התוצאה הבלתי אינטואיטיבית כשמגרש קטן עוקף האב תעופה גדול. <strong>הציונים מעוגלים לשתי ספרות עשרוניות בשכבת הכלי</strong>, כך שהדיוק המדומה של פרוקסי מבוסס-מודל אף פעם לא זמין לציטוט.</p>
+  <p class="note"><strong>לולאה תחומה, לא ReAct.</strong> מרחב השאלות צר — דירוג, השוואה והסבר מעל ארבע טבלאות קטנות — כך שלולאת תכנון או רפלקציה תוסיף השהיה ועלות בלי לשנות תשובות. הלולאה תחומה בארבעה סבבי כלים לכל היותר, בקוד, ומודה בכך בכנות בתום המכסה. כל שאלה במטלה נפתרה בסבב אחד עד שניים.</p>
+</section>
+
+<section id="tradeoffs">
+  <h2><span class="n">05</span>פשרות מרכזיות</h2>
+
+  <h3>כיסוי מהמקור, לא מרשימה</h3>
+  <p>הבנייה התחילה מחמישה שדות תעופה נבחרים ידנית. זה היה שגוי בדרך ששווה לנקוב בשמה: כששואלים "איזה שדה בניו אינגלנד הוא המועמד החזק ביותר", אזור עם שדה אחד תמיד יחזיר את אותו שדה. <strong>הדירוג נראה שלם, וההחלטה כבר התקבלה ברגע שמישהו בחר את הרשימה.</strong> הכיסוי כעת הוא כל שדה שממנו BTS מדווח על המראות. המנהיג האמיתי, ברלינגטון, היה בלתי נראה בגרסה הקודמת; בוסטון, השדה היחיד שהיא כן ראתה, מדורג שלישי.</p>
+
+  <h3>מחזור שנתי מלא, לא חודש מייצג</h3>
+  <p>הגרסה הראשונה דירגה חודש אחד ותיעדה זאת כמגבלה. השלמת שאר הנתונים הפכה את התוצאה המובילה: המועמד המוביל בניו אינגלנד השתנה מ-MHT ל-BTV, ו-MHT צנח לתחתית. חודש אחד לא יכול להבחין בין שדה עמוס לבין שדה שעבר יום גרוע. זה גם חשף חולשה שהחודש הבודד הסתיר, שהיא כעת ההסתייגות החשובה ביותר של המודל: <strong>טקסי-אאוט בחורף כולל הפשרת קרח</strong>.</p>
+
+  <h3>קבוצות השוואה אזוריות, לא דירוג לאומי אחד</h3>
+  <p>נורמליזציית min-max היא יחסית מעצם בנייתה, כך שקבוצה לאומית הייתה נותנת לשדה העמוס והשקט ביותר בארה"ב להגדיר את הקצוות ולכווץ כל הבדל אזורי לכיוון אפס. דירוג בתוך אזור מפקד גם תואם את השאלה שנשאלת בפועל. <strong>העלות: הציונים אינם ניתנים להשוואה בין אזורים</strong> — נאמר במפורש ב-prompt, בפאנל, ובהסתייגויות.</p>
+
+  <h3>רף מדגם שעולה בכיסוי</h3>
+  <p>רף קודם של 100 המראות בחודש איפשר לשדה עם 134 המראות לדרג רביעי מתוך 37 שדות באזור, על סמך יום גרוע בודד. ברף של 300 בחודש (כ-10 ליום) יום מופרע בודד הוא לכל היותר כ-3% מהמדגם. הכיסוי המדורג ירד מ-221 ל-163: <strong>פחות שדות, דירוג טוב יותר</strong>.</p>
+
+  <h3>כלים מוקלדים במקום כלי SQL כללי</h3>
+  <p>כלי שאילתה כללי היה עונה על יותר שאלות. הוא גם היה מוסר למודל שפה SQL חופשי. נבחרה השטח הקטן והבטוח יותר; חוזה השליפה מוכלל דרך מילון מדדים במקום, כך ששאלות חדשות לא דורשות פונקציה חדשה.</p>
+
+  <h3>ציונים ממוחשבים מראש, לא בזמן קריאה</h3>
+  <p>הניקוד רץ כשלב batch וכותב לטבלה; הסוכן רק קורא. זה שומר את הדטרמיניזם מחוץ ללולאת ה-LLM. העלות: הציונים מתיישנים עד להרצה מחדש — ולכן משימה מתוזמנת בודקת כעת מדי יום נתוני BTS חדשים ומחשבת מחדש כשהם מגיעים.</p>
+</section>
+
+<section id="limits">
+  <h2><span class="n">06</span>הנחות, אי-ודאות והיקף</h2>
+  <ul>
+    <li><strong>זה אינו מודל רווחיות, ROI או החזר השקעה.</strong> עלות פרויקט, הכנסה נוספת, מימון ומגבלות קרקע אינם קלט. המערכת מדרגת לפי היכן לחץ הביקוש הגבוה ביותר. רמת הביטחון היא <strong>נמוכה-בינונית לסינון ראשוני, ולא מספיקה להחלטת השקעה</strong>.</li>
+    <li><strong>שום מאגר ציבורי לא מפרסם קיבולת מסלול, שער או טרמינל.</strong> לחץ קיבולת וביקוש לא מסופק הם פרוקסי מדומה מנתוני עיכוב ותחזית — לעולם לא מוצגים כנתוני קיבולת רשמיים.</li>
+    <li><strong>הציונים יחסיים לאזור של השדה עצמו</strong>, לעולם לא לאומיים ולא מוחלטים. 1.00 פירושו "הכי לחוץ באזור הזה". השוואה בין אזורים חייבת להשתמש במדדים הבסיסיים.</li>
+    <li><strong>163 מתוך 358 שדות בכיסוי מדורגים.</strong> 191 נופלים מתחת לרף המדגם, ל-2 אין תחזית FAA, ו-2 יושבים באזור עם מעט מדי עמיתים ניתנים לדירוג. כל אחד מדווח ככלול אך לא מדורג <em>עם הסיבה שלו</em>, במקום לקבל ציון ממדגם קטן מכדי להיות משמעותי.</li>
+    <li><strong>טקסי-אאוט בחורף כולל הפשרת קרח, והמודל לא יכול להפריד ביניהם.</strong> ב-BTV הממוצע הוא מעל 30 דקות טקסי-אאוט בדצמבר ופחות מ-18 בקיץ, מה שמרים שדות צפוניים מסיבה שהיא מזג אוויר ולא רוויה — וטרמינל לא מתקן מזג אוויר. זו ההסתייגות החשובה ביותר על המספרים הנוכחיים, והסוכן מעלה אותה בכל פעם ששדה צפוני מדורג גבוה.</li>
+    <li><strong>נתוני הגודש הם מקומיים בארה"ב בלבד</strong> (מובילות מדווחות ל-BTS). המראות בינלאומיות מ-SFO ו-LAX נעדרות מנתוני העיכוב.</li>
+    <li><strong>13 חודשי נתוני גודש</strong> (יוני 2025 – יוני 2026). יותר ממחזור שנתי מלא, כך שאין עונה חסרה — אבל זה עדיין קובע רמה, לא מגמה.</li>
+    <li><strong>סף ה-2,000 מייל לטיסה ארוכת טווח הוא הגדרה שלנו</strong>, לא תקן של BTS או FAA. טווחי פער הצמיחה שונים באורכם (10 שנות עבר מול 11 שנות תחזית) כי T-100 מגיע רק עד 2014.</li>
+  </ul>
+</section>
+
+<section id="requirements">
+  <h2><span class="n">07</span>מול הדרישות</h2>
+  <ul class="checks">
+    <li><span class="ok">✓</span><span><b>שימוש ב-API ציבוריים</b> — BTS T-100, BTS On-Time Performance, FAA Terminal Area Forecast. בלי מפתחות, בלי מקורות בתשלום, שום דבר סינתטי.</span></li>
+    <li><span class="ok">✓</span><span><b>דירוג או השוואה על פי KPI מוגדר</b> — שני מדדי KPI נבדלים מבנית, אחד מתנה את השני.</span></li>
+    <li><span class="ok">✓</span><span><b>ניקוד דטרמיניסטי, לא רק פלט LLM</b> — <code>scripts/score.mjs</code> מחשב; הסוכן רק קורא. זו הדרישה המרכזית וההחלטה המרכזית בעיצוב.</span></li>
+    <li><span class="ok">✓</span><span><b>הסבר ההיגיון</b> — פאנל הניתוח מציג את רכיבי כל ציון, משקלי המודל וההנחות הקבועות, מאותה שאילתה שהסוכן משתמש בה.</span></li>
+    <li><span class="ok">✓</span><span><b>המשך שיחה</b> — הסוכן מקבל היסטוריה מלאה ופותר הפניות לתורות קודמים.</span></li>
+    <li><span class="ok">✓</span><span><b>ממשק צ'אט</b> — אפליקציית ווב דו-טורית: שיחה בצד אחד, ניתוח דטרמיניסטי בצד השני.</span></li>
+    <li><span class="ok">✓</span><span><b>קול (בונוס)</b> — זיהוי דיבור בדפדפן באפליקציית הווב, והודעות קוליות דרך ערוץ WhatsApp שחולק אותו מנוע סוכן, כך ש-prompt, כלים והסתייגויות לא יכולים לסטות בין הערוצים.</span></li>
+    <li><span class="ok">✓</span><span><b>תקשור הנחה, אי-ודאות והיקף</b> — הצהרה שמתווספת בקוד, הסתייגויות קבועות בפאנל, וסיבה מפורשת המצורפת לכל שדה שכלול אך לא מדורג.</span></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  הנתונים נקראו מה-API הפרוס בתאריך 2026-08-22. הכיסוי משתנה ככל שרענון מתוזמן טוען חודשי BTS חדשים; האפליקציה שולפת את המספרים הנוכחיים מהמסד במקום לצטט קבוע. פירוט מלא ב-<code>ARCHITECTURE.md</code> וב-<code>docs/architecture.html</code> (אנגלית).
+</footer>
+
 </div>
 </body>
 </html>

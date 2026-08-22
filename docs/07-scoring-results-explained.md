@@ -66,19 +66,12 @@ not one list — see [`docs/14-coverage-expansion.md`](14-coverage-expansion.md)
   does not convert into an expansion thesis.
 - **ANC (Anchorage)** — low congestion, moderate growth. Nothing to relieve.
 
-### One month would have said something different
-
-An earlier run used May 2026 alone and ranked MHT first and BTV third. A full year reverses
-them. BTV's taxi-out runs 28–33 minutes November through February and under 18 in summer;
-MHT is calm in almost every month. **A single month cannot tell a congested airport apart
-from an airport having a bad month.**
-
-### The caveat the year created
-
-**Winter taxi-out includes de-icing.** BTV and BGR top the New England congestion ranking
-partly because northern airports spend winter mornings in de-icing queues. That is real
-delay and real cost, but it is weather rather than runway or gate saturation, and a new
-terminal does not fix it. The agent raises this whenever a northern airport ranks high.
+**Why a full year matters, and the caveat it created:** a single-month run had ranked MHT
+first and BTV third; twelve months reversed that (BTV's taxi-out spikes in winter, MHT stays
+calm year-round) — one month can't tell congestion apart from a bad day. That winter
+taxi-out, though, includes de-icing queues, not just runway/gate saturation — real delay and
+cost, but weather rather than structural congestion, so a terminal doesn't fix it. Full
+derivation in `docs/03-scoring-methodology.md` and `docs/14-coverage-expansion.md`.
 
 ## The takeaway
 

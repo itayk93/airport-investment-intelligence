@@ -44,28 +44,17 @@ invariants and both survived every change to coverage, comparison set, and time 
 
 ### What a full year changed, and why it matters
 
-An earlier run used a single month (May 2026) and produced a materially different New
-England ranking: MHT first at 0.62, BTV third, BOS fourth. With twelve months the order is
-almost reversed — **BTV first at 0.84, MHT last at 0.09.**
+A single-month run (May 2026) had ranked MHT first in New England; twelve months reverses
+that to **BTV first, MHT last** — BTV's taxi-out spikes 28–33 min in winter and MHT stays
+calm nearly year-round, which one month couldn't distinguish from a bad day. MHT itself now
+illustrates the model's core idea from the other side: highest forecast growth gap in the
+region (+6.81 pp) but lowest score, because Capacity Pressure is 0.01 — fast growth at an
+uncongested airport is headroom, not unmet demand. Full derivation in `docs/14`.
 
-The cause is visible in the monthly data. BTV's taxi-out runs 28–33 minutes from November
-through February and under 18 in summer; MHT is the calmest airport in the region across
-almost every month. One month cannot distinguish a congested airport from an airport having
-a bad month, and the earlier ranking was reading the second as the first.
-
-MHT is now the model's own illustration of its central idea, from the other direction: it
-has by far the **highest** forecast growth gap in New England (+6.81 pp) and still scores
-last, because its Capacity Pressure is 0.01. Fast growth at an uncongested airport is
-headroom, not unmet demand — the gate does exactly what it was designed to do.
-
-### A caveat this created
-
-**Winter taxi-out includes de-icing.** BTV and BGR rank top of New England on congestion
-partly because northern airports spend winter mornings in de-icing queues. That is real
-delay and it is real cost, but it is weather, not runway or gate saturation, and building a
-terminal does not fix it. Separating de-icing from structural congestion needs a weather
-join this dataset does not have. The agent is instructed to raise this whenever a northern
-airport ranks high on congestion.
+**Caveat:** winter taxi-out includes de-icing queues, not just runway/gate saturation, which
+partly explains why BTV and BGR top New England's congestion ranking. That's real delay and
+cost, but a terminal doesn't fix weather. The agent is instructed to raise this whenever a
+northern airport ranks high on congestion.
 
 ### Eligibility
 
