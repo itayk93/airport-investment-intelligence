@@ -15,16 +15,17 @@ Verified output, `comparison_set_id='pilot-5'`, run 2026-08-22:
 | airport | capacity pressure | forecast growth gap (pp) | unmet demand score | expansion score |
 |---|---|---|---|---|
 | SFO | **1.00** | **+2.07** | **1.00** | **1.00** |
-| LAX | 0.46 | +1.15 | 0.42 | 0.38 |
+| LAX | 0.46 | +1.15 | 0.26 | 0.30 |
 | BOS | 0.63 | −0.91 | 0.00 | 0.26 |
-| SNA | 0.52 | +0.12 | 0.24 | 0.22 |
-| ANC | 0.00 | +0.52 | 0.22 | 0.15 |
+| SNA | 0.52 | +0.12 | 0.03 | 0.12 |
+| ANC | 0.00 | +0.52 | 0.00 | 0.05 |
 
 SFO ranks #1 on every axis — matches the qualitative read from stage 1 (highest forecast
 growth *and* worst current congestion of the five). BOS shows a *negative* growth gap
 (FAA forecasts slower growth than BTS's measured 2014-2024 actual trend), which correctly
-drives its Unmet Demand Score to the floor (0) regardless of its mid-range congestion —
-exactly the gating behavior section 3 was designed to produce.
+drives its Unmet Demand Score to the floor (0) regardless of its mid-range congestion.
+ANC also scores 0 because its Capacity Pressure is 0. Both are explicit invariants covered
+by regression tests.
 
 ## Design constraint: two KPIs, not one KPI twice
 
@@ -37,7 +38,8 @@ gap*, and the second is explicitly gated by the first rather than computed indep
 
 Answers: "how strained is this airport's operation right now, relative to peers?"
 
-Inputs, all from `airport_metrics_monthly` (BTS On-Time), trailing 12 months:
+Inputs, all from the currently ingested `airport_metrics_monthly` BTS On-Time months
+(one month in the pilot):
 
 | Signal | Field | Why |
 |---|---|---|
@@ -82,7 +84,8 @@ absorbing high forecast growth is a good investment case, not unmet demand.
 ## 3. Unmet Demand Score (the two combined, deliberately not independent)
 
 ```
-UnmetDemandScore(airport) = ForecastGrowthGapPct(airport) × CapacityPressure(airport)
+UnmetDemandRaw(airport) = max(0, ForecastGrowthGapPct(airport)) × CapacityPressure(airport)
+UnmetDemandScore(airport) = norm(UnmetDemandRaw across the comparison set)
 ```
 
 This is the whole point of keeping them separate: multiplying means high forecast growth
@@ -90,7 +93,9 @@ with *low* current congestion scores low (healthy growth headroom, not "unmet"),
 forecast growth with *high* current congestion scores high (real investment case — demand
 is coming and the airport is already straining). If Capacity Pressure and Unmet Demand were
 computed independently from the same inputs, they'd just be correlated restatements of each
-other; gating growth-gap by pressure is what makes them two different questions.
+other; gating growth-gap by pressure is what makes them two different questions. Clamping
+negative growth gaps before normalization preserves the invariant that zero pressure or
+non-positive forecast growth always produces zero unmet demand.
 
 ## 4. Long-Haul Share (ANC-style questions)
 
@@ -128,3 +133,6 @@ the other two terms are included un-gated so a high-growth-but-not-yet-strained 
   assumptions, kept as named constants in the scoring module, not hidden in prose.
 - Normalization is relative to the comparison set, not an absolute industry scale — scores
   will shift if the comparison set changes (e.g., 5 pilot airports vs. all US airports).
+- The score screens opportunities. It does not estimate profitability, ROI, or payback;
+  those require project-cost, revenue, financing, and physical-capacity inputs not present
+  here. Confidence is low-to-moderate for screening, not sufficient for investment approval.

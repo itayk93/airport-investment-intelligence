@@ -23,10 +23,10 @@ explained the way it would be explained to a non-technical stakeholder.
 | airport | capacity pressure | forecast gap (pp) | unmet demand | expansion score |
 |---|---|---|---|---|
 | SFO | 1.00 | +2.07 | 1.00 | **1.00** |
-| LAX | 0.46 | +1.15 | 0.42 | 0.38 |
+| LAX | 0.46 | +1.15 | 0.26 | 0.30 |
 | BOS | 0.63 | −0.91 | 0.00 | 0.26 |
-| SNA | 0.52 | +0.12 | 0.24 | 0.22 |
-| ANC | 0.00 | +0.52 | 0.22 | 0.15 |
+| SNA | 0.52 | +0.12 | 0.03 | 0.12 |
+| ANC | 0.00 | +0.52 | 0.00 | 0.05 |
 
 - **SFO (1.00 across the board)** — the most congested airport in the set, and also
   expected to grow the most. This is the textbook "invest here" case: both future demand
@@ -47,3 +47,8 @@ explained the way it would be explained to a non-technical stakeholder.
 SFO is the leading expansion candidate — not just because it's the biggest airport, but
 because it's the only one where both signals (current congestion + forecast growth)
 point the same way at the same time.
+
+This is an opportunity-screening result, not a profitability or payback forecast. With a
+five-airport comparison set and one month of congestion evidence, confidence is
+low-to-moderate for prioritizing further diligence and insufficient for an investment
+decision.

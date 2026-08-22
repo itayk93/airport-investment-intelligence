@@ -39,7 +39,7 @@ export function AnalysisPanel({
       >
         <div style={labelStyle}>ANALYSIS</div>
         <div style={{ font: `600 15px/1.25 ${t.sans}`, marginTop: 5, letterSpacing: '-.01em' }}>
-          {detail ? `${detail.iata_code} · ${detail.city ?? detail.name}` : 'Modernization payback index'}
+          {detail ? `${detail.iata_code} · ${detail.city ?? detail.name}` : 'Modernization opportunity index'}
         </div>
         <div style={{ font: `400 11.5px/1.45 ${t.mono}`, color: t.ink50, marginTop: 3 }}>
           {detail

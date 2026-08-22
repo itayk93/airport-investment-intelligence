@@ -1,13 +1,17 @@
 # Airport Investment Intelligence Agent
 
-An AI agent for identifying US airports where modernization investment is most likely to
-pay back, built on public BTS and FAA data. Ranking is deterministic code; the LLM explains
-and compares, it never computes the numbers.
+An AI agent for screening US airports for modernization opportunities using public BTS and
+FAA data. Ranking is deterministic code; the LLM explains and compares, it never computes
+the numbers. This is not a profitability, ROI, or payback model because project-cost and
+revenue inputs are outside the dataset.
 
 **[Open the live app](https://airport-investment-intelligence.vercel.app)**
 
 **→ [ARCHITECTURE.md](ARCHITECTURE.md)** — scoring methodology, key tradeoffs, and where AI
 is used. Start there.
+
+**→ [docs/11-review-remediation.md](docs/11-review-remediation.md)** — review findings,
+fixes, corrected scores, and verification record.
 
 The interface is two panes: conversational chat on the left, and a deterministic analysis
 panel on the right showing the ranked candidates, each score's components, the model

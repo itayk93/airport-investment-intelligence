@@ -37,7 +37,7 @@ export function App() {
       return {
         headerNote: 'loading coverage…',
         welcomeNote:
-          'I rank US airports on current congestion and forecast growth, using only public BTS and FAA data — and I show the arithmetic behind every number.',
+          'I screen US airports for modernization opportunities using public BTS and FAA congestion and growth data — and I show the arithmetic behind every number.',
       };
     }
 
@@ -48,7 +48,7 @@ export function App() {
 
     return {
       headerNote: `${count} airports · congestion ${congestionPeriod} · BTS + FAA`,
-      welcomeNote: `I rank ${count} US airports on current congestion and forecast growth, using only public BTS and FAA data — and I show the arithmetic. Congestion figures cover ${congestionPeriod}; traffic volume covers ${formatPeriod(volume.first_period)}–${formatPeriod(volume.last_period)}.`,
+      welcomeNote: `I screen ${count} US airports for modernization opportunities using public BTS and FAA congestion and growth data — and I show the arithmetic. This is not an ROI model. Congestion figures cover ${congestionPeriod}; traffic volume covers ${formatPeriod(volume.first_period)}–${formatPeriod(volume.last_period)}.`,
     };
   }, [data]);
 

@@ -35,17 +35,22 @@ export function listAirports() {
 
 /** Scores joined to airport names — the shape both the ranking panel and the agent want. */
 export function getScores(codes: string[] = []) {
-  const base = sql`
-    select s.iata_code, a.name, a.city, a.state, a.region,
+  // airport_scores retains scoring history. Select one newest row per airport before
+  // ranking so rerunning scripts/score.mjs cannot expose stale and current scores together.
+  const latest = sql`
+    select distinct on (s.iata_code)
+           s.iata_code, a.name, a.city, a.state, a.region,
            s.capacity_pressure, s.forecast_growth_gap_pct, s.unmet_demand_score,
-           s.long_haul_share_pct, s.expansion_score, s.inputs_json
+           s.long_haul_share_pct, s.expansion_score, s.inputs_json, s.computed_at
     from airport_scores s
     join airports a on a.iata_code = s.iata_code
     where s.comparison_set_id = ${COMPARISON_SET}
+    order by s.iata_code, s.computed_at desc
   `;
   return codes.length
-    ? sql`${base} and s.iata_code in ${sql(codes)} order by s.expansion_score desc nulls last`
-    : sql`${base} order by s.expansion_score desc nulls last`;
+    ? sql`select * from (${latest}) latest
+          where iata_code in ${sql(codes)} order by expansion_score desc nulls last`
+    : sql`select * from (${latest}) latest order by expansion_score desc nulls last`;
 }
 
 export function getMetrics(codes: string[], scope: 'domestic_ontime' | 't100_all') {

@@ -6,6 +6,7 @@
 // Run: node scripts/score.mjs
 import { loadEnv } from './lib/env.mjs';
 import { makeDb } from './lib/db.mjs';
+import { normalize, rawUnmetDemand } from './lib/scoring.mjs';
 
 loadEnv('.env');
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
@@ -30,12 +31,6 @@ const TAF_HORIZON_YEAR = 2035;
 
 function cagr(start, end, years) {
   return start && end && years > 0 ? +(((end / start) ** (1 / years) - 1) * 100).toFixed(3) : null;
-}
-
-function normalize(values) {
-  const nums = values.filter((v) => v != null);
-  const min = Math.min(...nums), max = Math.max(...nums);
-  return (v) => (v == null ? null : max === min ? 0.5 : +((v - min) / (max - min)).toFixed(4));
 }
 
 async function fetchT100AnnualPassengers(year) {
@@ -111,7 +106,10 @@ async function main() {
   //    high forecast growth with LOW current congestion is healthy growth, not unmet demand.
   for (const a of AIRPORTS) {
     raw[a].forecastGrowthGapPct = +(raw[a].tafForecastCagrPct - raw[a].t100HistoricalCagrPct).toFixed(3);
-    raw[a].unmetDemandScoreRaw = +(raw[a].forecastGrowthGapPct * raw[a].capacityPressure).toFixed(4);
+    raw[a].unmetDemandScoreRaw = rawUnmetDemand(
+      raw[a].forecastGrowthGapPct,
+      raw[a].capacityPressure,
+    );
   }
 
   // 6. Expansion Score — composite ranking KPI (docs/03, section 5).

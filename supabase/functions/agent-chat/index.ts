@@ -12,6 +12,8 @@ const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 const MODEL = 'gpt-4o-mini';
 const MAX_TOOL_ROUNDS = 4;
 const MAX_MESSAGES = 40;
+const SCORE_DISCLOSURE =
+  'Screening caveat: these are modeled proxies, not published terminal capacity or ROI. Scores are relative to the five-airport pilot; weights are heuristic, and congestion evidence currently covers one month. Treat this as low-to-moderate-confidence screening, not an investment decision.';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -30,6 +32,11 @@ interface ChatMessage {
   content: string | null;
   tool_calls?: unknown;
   tool_call_id?: string;
+}
+
+function addScoreDisclosure(reply: string, toolTrace: { tool: string; args: unknown }[]) {
+  if (!toolTrace.some((call) => call.tool === 'get_airport_scores')) return reply;
+  return `${reply.trim()}\n\n${SCORE_DISCLOSURE}`;
 }
 
 async function callOpenAI(messages: ChatMessage[]) {
@@ -87,7 +94,10 @@ Deno.serve(async (req) => {
 
       const calls = msg.tool_calls ?? [];
       if (!calls.length) {
-        return json({ reply: msg.content ?? '', tool_trace: toolTrace });
+        return json({
+          reply: addScoreDisclosure(msg.content ?? '', toolTrace),
+          tool_trace: toolTrace,
+        });
       }
 
       for (const call of calls) {

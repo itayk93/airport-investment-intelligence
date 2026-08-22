@@ -25,7 +25,7 @@ export function AnalysisSheet({
 
   const title = detail
     ? `${detail.iata_code} · ${detail.city ?? detail.name}`
-    : 'Modernization payback index';
+    : 'Modernization opportunity index';
 
   const subtitle = detail
     ? 'tap the row again to return to the full ranking'

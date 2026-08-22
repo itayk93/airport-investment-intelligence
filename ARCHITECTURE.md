@@ -76,7 +76,8 @@ comparison is FAA-forecast vs. an independent source's actuals rather than FAA v
 **Unmet Demand** — the two multiplied, then normalised:
 
 ```
-UnmetDemand = GrowthGap × CapacityPressure
+UnmetDemandRaw = max(0, GrowthGap) × CapacityPressure
+UnmetDemand    = norm(UnmetDemandRaw)
 ```
 
 This gating is the whole point. High forecast growth at an *uncongested* airport is healthy
@@ -95,15 +96,16 @@ ExpansionScore = 0.50·UnmetDemand + 0.30·norm(TAF CAGR) + 0.20·CapacityPressu
 | Airport | Capacity pressure | Growth gap (pp) | Unmet demand | **Expansion score** |
 |---|---|---|---|---|
 | SFO | 1.00 | +2.07 | 1.00 | **1.00** |
-| LAX | 0.46 | +1.15 | 0.42 | **0.38** |
+| LAX | 0.46 | +1.15 | 0.26 | **0.30** |
 | BOS | 0.63 | −0.91 | 0.00 | **0.26** |
-| SNA | 0.52 | +0.12 | 0.24 | **0.22** |
-| ANC | 0.00 | +0.52 | 0.22 | **0.15** |
+| SNA | 0.52 | +0.12 | 0.03 | **0.12** |
+| ANC | 0.00 | +0.52 | 0.00 | **0.05** |
 
 SFO leads on every axis — the only airport where current strain and forecast growth point
 the same way at once. BOS is the clearest demonstration that the gating works: the FAA
 forecasts it growing *slower* than its own measured trend, so despite mid-range congestion
-its unmet demand floors at zero.
+its unmet demand floors at zero. ANC also floors at zero because its capacity pressure is
+zero; healthy forecast growth with current headroom is not labeled unmet demand.
 
 ### The weights have no empirical basis, and that is stated
 
@@ -116,8 +118,9 @@ against.
 
 The response was **not** to hide this behind a single opaque number. A composite score is
 kept because the assignment asks the agent to *rank*, but the component breakdown is always
-shown beside it — in the UI panel, and in the agent's own answers, which volunteer the
-"these weights are a chosen heuristic" caveat unprompted.
+shown beside it. The UI panel displays the standing caveats, and the API appends a fixed
+screening disclosure to every answer that uses score data instead of relying on model
+compliance alone.
 
 ---
 
@@ -218,6 +221,10 @@ reviewer should ask:
 - **The 2,000-mile long-haul threshold is our definition**, not a BTS or FAA standard.
 - **Growth-gap spans differ in length** (10y historical vs 11y forecast) because T-100 only
   reaches back to 2014.
+- **This is not a profitability, ROI, or payback model.** Project cost, incremental
+  revenue, financing, land constraints, and terminal/gate capacity are not inputs. The
+  defensible confidence level is low-to-moderate for screening and insufficient for an
+  investment decision.
 - **Nothing is automated.** Ingestion and scoring were run by hand. Refresh cadence and a
   proposed schedule are in `docs/06`; no cron exists.
 
