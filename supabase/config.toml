@@ -1,0 +1,7 @@
+project_id = "hfwremsegdtqaghuqrdv"
+
+[functions.agent-chat]
+verify_jwt = false
+
+[functions.airport-data]
+verify_jwt = false

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.vercel/
+*.tsbuildinfo
+supabase/.temp/
+
+.env
+.env.*
+!.env.example
+
+*.log
+.DS_Store
+
+# Large source downloads are reproducible through the scripts in scripts/.
+data/raw/

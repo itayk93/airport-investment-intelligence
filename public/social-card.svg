@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f4f1e9"/>
+  <rect width="1200" height="18" fill="#7bc6a4"/>
+  <circle cx="1020" cy="315" r="174" fill="#13251f"/>
+  <circle cx="1020" cy="315" r="132" fill="none" stroke="#7bc6a4" stroke-width="8"/>
+  <path d="m917 330 79-23 49-86c6-10 21-10 26 1 2 5 1 10-1 15l-30 70 73 24c8 3 11 10 9 17-2 7-9 11-16 9l-76-14-26 61-20-6 7-67-64 20Z" fill="#f1d276"/>
+  <text x="92" y="214" fill="#13251f" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="4">AIRPORT INTELLIGENCE</text>
+  <text x="92" y="305" fill="#13251f" font-family="Arial, sans-serif" font-size="64" font-weight="700">Modernization</text>
+  <text x="92" y="378" fill="#13251f" font-family="Arial, sans-serif" font-size="64" font-weight="700">investment, ranked.</text>
+  <text x="92" y="456" fill="#557068" font-family="Arial, sans-serif" font-size="27">Public BTS + FAA data · deterministic scoring · AI analysis</text>
+</svg>

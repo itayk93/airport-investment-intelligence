@@ -1,0 +1,67 @@
+[
+  {
+    "airport": "SFO",
+    "source": "FAA TAF (APO100_TAF_Final_2025)",
+    "baseYear": 2024,
+    "horizonYear": 2035,
+    "enplanementsBase": 24765642,
+    "enplanementsForecast": 34567470,
+    "enplanementsCagrPct": 3.08,
+    "operationsBase": 381304,
+    "operationsForecast": 526419,
+    "operationsCagrPct": 2.98,
+    "forecastGrowthPct": 39.6
+  },
+  {
+    "airport": "LAX",
+    "source": "FAA TAF (APO100_TAF_Final_2025)",
+    "baseYear": 2024,
+    "horizonYear": 2035,
+    "enplanementsBase": 37806366,
+    "enplanementsForecast": 47248042,
+    "enplanementsCagrPct": 2.05,
+    "operationsBase": 580514,
+    "operationsForecast": 728142,
+    "operationsCagrPct": 2.08,
+    "forecastGrowthPct": 25.0
+  },
+  {
+    "airport": "SNA",
+    "source": "FAA TAF (APO100_TAF_Final_2025)",
+    "baseYear": 2024,
+    "horizonYear": 2035,
+    "enplanementsBase": 5424464,
+    "enplanementsForecast": 6511870,
+    "enplanementsCagrPct": 1.67,
+    "operationsBase": 330417,
+    "operationsForecast": 411079,
+    "operationsCagrPct": 2.01,
+    "forecastGrowthPct": 20.0
+  },
+  {
+    "airport": "ANC",
+    "source": "FAA TAF (APO100_TAF_Final_2025)",
+    "baseYear": 2024,
+    "horizonYear": 2035,
+    "enplanementsBase": 2729138,
+    "enplanementsForecast": 3352574,
+    "enplanementsCagrPct": 1.89,
+    "operationsBase": 289509,
+    "operationsForecast": 341978,
+    "operationsCagrPct": 1.53,
+    "forecastGrowthPct": 22.8
+  },
+  {
+    "airport": "BOS",
+    "source": "FAA TAF (APO100_TAF_Final_2025)",
+    "baseYear": 2024,
+    "horizonYear": 2035,
+    "enplanementsBase": 20871588,
+    "enplanementsForecast": 26812236,
+    "enplanementsCagrPct": 2.3,
+    "operationsBase": 410503,
+    "operationsForecast": 523225,
+    "operationsCagrPct": 2.23,
+    "forecastGrowthPct": 28.5
+  }
+]

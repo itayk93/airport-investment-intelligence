@@ -1,0 +1,2802 @@
+[
+  {
+    "airport": "ANC",
+    "year": 1976,
+    "scenario": 0,
+    "enplanements": 1081367,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1977,
+    "scenario": 0,
+    "enplanements": 1135641,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1978,
+    "scenario": 0,
+    "enplanements": 1100801,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1979,
+    "scenario": 0,
+    "enplanements": 1060833,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1980,
+    "scenario": 0,
+    "enplanements": 1007535,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1981,
+    "scenario": 0,
+    "enplanements": 1401251,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1982,
+    "scenario": 0,
+    "enplanements": 1378998,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1983,
+    "scenario": 0,
+    "enplanements": 1354398,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1984,
+    "scenario": 0,
+    "enplanements": 1307494,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1985,
+    "scenario": 0,
+    "enplanements": 1614737,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1986,
+    "scenario": 0,
+    "enplanements": 1436966,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1987,
+    "scenario": 0,
+    "enplanements": 1356036,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1988,
+    "scenario": 0,
+    "enplanements": 1422627,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1989,
+    "scenario": 0,
+    "enplanements": 1588216,
+    "operations": null
+  },
+  {
+    "airport": "ANC",
+    "year": 1990,
+    "scenario": 0,
+    "enplanements": 1599909,
+    "operations": 218657
+  },
+  {
+    "airport": "ANC",
+    "year": 1991,
+    "scenario": 0,
+    "enplanements": 1510380,
+    "operations": 228432
+  },
+  {
+    "airport": "ANC",
+    "year": 1992,
+    "scenario": 0,
+    "enplanements": 1638302,
+    "operations": 236719
+  },
+  {
+    "airport": "ANC",
+    "year": 1993,
+    "scenario": 0,
+    "enplanements": 1637564,
+    "operations": 218279
+  },
+  {
+    "airport": "ANC",
+    "year": 1994,
+    "scenario": 0,
+    "enplanements": 1810684,
+    "operations": 215641
+  },
+  {
+    "airport": "ANC",
+    "year": 1995,
+    "scenario": 0,
+    "enplanements": 1876073,
+    "operations": 217768
+  },
+  {
+    "airport": "ANC",
+    "year": 1996,
+    "scenario": 0,
+    "enplanements": 1911785,
+    "operations": 283611
+  },
+  {
+    "airport": "ANC",
+    "year": 1997,
+    "scenario": 0,
+    "enplanements": 1978035,
+    "operations": 314139
+  },
+  {
+    "airport": "ANC",
+    "year": 1998,
+    "scenario": 0,
+    "enplanements": 1914673,
+    "operations": 310475
+  },
+  {
+    "airport": "ANC",
+    "year": 1999,
+    "scenario": 0,
+    "enplanements": 1981793,
+    "operations": 308138
+  },
+  {
+    "airport": "ANC",
+    "year": 2000,
+    "scenario": 0,
+    "enplanements": 1988453,
+    "operations": 319235
+  },
+  {
+    "airport": "ANC",
+    "year": 2001,
+    "scenario": 0,
+    "enplanements": 2029737,
+    "operations": 304988
+  },
+  {
+    "airport": "ANC",
+    "year": 2002,
+    "scenario": 0,
+    "enplanements": 1955037,
+    "operations": 304608
+  },
+  {
+    "airport": "ANC",
+    "year": 2003,
+    "scenario": 0,
+    "enplanements": 1971356,
+    "operations": 295549
+  },
+  {
+    "airport": "ANC",
+    "year": 2004,
+    "scenario": 0,
+    "enplanements": 2123727,
+    "operations": 306465
+  },
+  {
+    "airport": "ANC",
+    "year": 2005,
+    "scenario": 0,
+    "enplanements": 2216309,
+    "operations": 313714
+  },
+  {
+    "airport": "ANC",
+    "year": 2006,
+    "scenario": 0,
+    "enplanements": 2222553,
+    "operations": 304608
+  },
+  {
+    "airport": "ANC",
+    "year": 2007,
+    "scenario": 0,
+    "enplanements": 2269588,
+    "operations": 300476
+  },
+  {
+    "airport": "ANC",
+    "year": 2008,
+    "scenario": 0,
+    "enplanements": 2382506,
+    "operations": 290196
+  },
+  {
+    "airport": "ANC",
+    "year": 2009,
+    "scenario": 0,
+    "enplanements": 2146832,
+    "operations": 256001
+  },
+  {
+    "airport": "ANC",
+    "year": 2010,
+    "scenario": 0,
+    "enplanements": 2165230,
+    "operations": 272036
+  },
+  {
+    "airport": "ANC",
+    "year": 2011,
+    "scenario": 0,
+    "enplanements": 2243153,
+    "operations": 276131
+  },
+  {
+    "airport": "ANC",
+    "year": 2012,
+    "scenario": 0,
+    "enplanements": 2238896,
+    "operations": 271534
+  },
+  {
+    "airport": "ANC",
+    "year": 2013,
+    "scenario": 0,
+    "enplanements": 2293317,
+    "operations": 264896
+  },
+  {
+    "airport": "ANC",
+    "year": 2014,
+    "scenario": 0,
+    "enplanements": 2331152,
+    "operations": 272380
+  },
+  {
+    "airport": "ANC",
+    "year": 2015,
+    "scenario": 0,
+    "enplanements": 2498780,
+    "operations": 280944
+  },
+  {
+    "airport": "ANC",
+    "year": 2016,
+    "scenario": 0,
+    "enplanements": 2555044,
+    "operations": 278990
+  },
+  {
+    "airport": "ANC",
+    "year": 2017,
+    "scenario": 0,
+    "enplanements": 2536695,
+    "operations": 278693
+  },
+  {
+    "airport": "ANC",
+    "year": 2018,
+    "scenario": 0,
+    "enplanements": 2603509,
+    "operations": 275154
+  },
+  {
+    "airport": "ANC",
+    "year": 2019,
+    "scenario": 0,
+    "enplanements": 2665124,
+    "operations": 270975
+  },
+  {
+    "airport": "ANC",
+    "year": 2020,
+    "scenario": 0,
+    "enplanements": 1449407,
+    "operations": 243719
+  },
+  {
+    "airport": "ANC",
+    "year": 2021,
+    "scenario": 0,
+    "enplanements": 1915212,
+    "operations": 282587
+  },
+  {
+    "airport": "ANC",
+    "year": 2022,
+    "scenario": 0,
+    "enplanements": 2512275,
+    "operations": 280304
+  },
+  {
+    "airport": "ANC",
+    "year": 2023,
+    "scenario": 0,
+    "enplanements": 2656148,
+    "operations": 274627
+  },
+  {
+    "airport": "ANC",
+    "year": 2024,
+    "scenario": 0,
+    "enplanements": 2729138,
+    "operations": 289509
+  },
+  {
+    "airport": "ANC",
+    "year": 2025,
+    "scenario": 1,
+    "enplanements": 2691637,
+    "operations": 297559
+  },
+  {
+    "airport": "ANC",
+    "year": 2026,
+    "scenario": 1,
+    "enplanements": 2700653,
+    "operations": 299492
+  },
+  {
+    "airport": "ANC",
+    "year": 2027,
+    "scenario": 1,
+    "enplanements": 2773390,
+    "operations": 305938
+  },
+  {
+    "airport": "ANC",
+    "year": 2028,
+    "scenario": 1,
+    "enplanements": 2858823,
+    "operations": 313161
+  },
+  {
+    "airport": "ANC",
+    "year": 2029,
+    "scenario": 1,
+    "enplanements": 2932026,
+    "operations": 318659
+  },
+  {
+    "airport": "ANC",
+    "year": 2030,
+    "scenario": 1,
+    "enplanements": 2997722,
+    "operations": 322360
+  },
+  {
+    "airport": "ANC",
+    "year": 2031,
+    "scenario": 1,
+    "enplanements": 3060685,
+    "operations": 326031
+  },
+  {
+    "airport": "ANC",
+    "year": 2032,
+    "scenario": 1,
+    "enplanements": 3126791,
+    "operations": 329811
+  },
+  {
+    "airport": "ANC",
+    "year": 2033,
+    "scenario": 1,
+    "enplanements": 3198926,
+    "operations": 333764
+  },
+  {
+    "airport": "ANC",
+    "year": 2034,
+    "scenario": 1,
+    "enplanements": 3274821,
+    "operations": 337835
+  },
+  {
+    "airport": "ANC",
+    "year": 2035,
+    "scenario": 1,
+    "enplanements": 3352574,
+    "operations": 341978
+  },
+  {
+    "airport": "ANC",
+    "year": 2036,
+    "scenario": 1,
+    "enplanements": 3429298,
+    "operations": 346127
+  },
+  {
+    "airport": "ANC",
+    "year": 2037,
+    "scenario": 1,
+    "enplanements": 3505696,
+    "operations": 350303
+  },
+  {
+    "airport": "ANC",
+    "year": 2038,
+    "scenario": 1,
+    "enplanements": 3584422,
+    "operations": 354569
+  },
+  {
+    "airport": "ANC",
+    "year": 2039,
+    "scenario": 1,
+    "enplanements": 3666985,
+    "operations": 358961
+  },
+  {
+    "airport": "ANC",
+    "year": 2040,
+    "scenario": 1,
+    "enplanements": 3751684,
+    "operations": 363441
+  },
+  {
+    "airport": "ANC",
+    "year": 2041,
+    "scenario": 1,
+    "enplanements": 3835050,
+    "operations": 367924
+  },
+  {
+    "airport": "ANC",
+    "year": 2042,
+    "scenario": 1,
+    "enplanements": 3923643,
+    "operations": 372568
+  },
+  {
+    "airport": "ANC",
+    "year": 2043,
+    "scenario": 1,
+    "enplanements": 4012528,
+    "operations": 377254
+  },
+  {
+    "airport": "ANC",
+    "year": 2044,
+    "scenario": 1,
+    "enplanements": 4102903,
+    "operations": 382012
+  },
+  {
+    "airport": "ANC",
+    "year": 2045,
+    "scenario": 1,
+    "enplanements": 4191050,
+    "operations": 386766
+  },
+  {
+    "airport": "ANC",
+    "year": 2046,
+    "scenario": 1,
+    "enplanements": 4278167,
+    "operations": 391532
+  },
+  {
+    "airport": "ANC",
+    "year": 2047,
+    "scenario": 1,
+    "enplanements": 4371135,
+    "operations": 396472
+  },
+  {
+    "airport": "ANC",
+    "year": 2048,
+    "scenario": 1,
+    "enplanements": 4465683,
+    "operations": 401491
+  },
+  {
+    "airport": "ANC",
+    "year": 2049,
+    "scenario": 1,
+    "enplanements": 4562930,
+    "operations": 406611
+  },
+  {
+    "airport": "ANC",
+    "year": 2050,
+    "scenario": 1,
+    "enplanements": 4663783,
+    "operations": 411858
+  },
+  {
+    "airport": "ANC",
+    "year": 2051,
+    "scenario": 1,
+    "enplanements": 4762538,
+    "operations": 417102
+  },
+  {
+    "airport": "ANC",
+    "year": 2052,
+    "scenario": 1,
+    "enplanements": 4869993,
+    "operations": 422582
+  },
+  {
+    "airport": "ANC",
+    "year": 2053,
+    "scenario": 1,
+    "enplanements": 4982404,
+    "operations": 428221
+  },
+  {
+    "airport": "ANC",
+    "year": 2054,
+    "scenario": 1,
+    "enplanements": 5098484,
+    "operations": 433985
+  },
+  {
+    "airport": "ANC",
+    "year": 2055,
+    "scenario": 1,
+    "enplanements": 5217978,
+    "operations": 439870
+  },
+  {
+    "airport": "BOS",
+    "year": 1976,
+    "scenario": 0,
+    "enplanements": 5694813,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1977,
+    "scenario": 0,
+    "enplanements": 6027571,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1978,
+    "scenario": 0,
+    "enplanements": 6689515,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1979,
+    "scenario": 0,
+    "enplanements": 7557076,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1980,
+    "scenario": 0,
+    "enplanements": 7651019,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1981,
+    "scenario": 0,
+    "enplanements": 7390832,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1982,
+    "scenario": 0,
+    "enplanements": 7934881,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1983,
+    "scenario": 0,
+    "enplanements": 8617389,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1984,
+    "scenario": 0,
+    "enplanements": 9304986,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1985,
+    "scenario": 0,
+    "enplanements": 10167216,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1986,
+    "scenario": 0,
+    "enplanements": 10825571,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1987,
+    "scenario": 0,
+    "enplanements": 11831559,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1988,
+    "scenario": 0,
+    "enplanements": 11831598,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1989,
+    "scenario": 0,
+    "enplanements": 11087740,
+    "operations": null
+  },
+  {
+    "airport": "BOS",
+    "year": 1990,
+    "scenario": 0,
+    "enplanements": 11084568,
+    "operations": 448490
+  },
+  {
+    "airport": "BOS",
+    "year": 1991,
+    "scenario": 0,
+    "enplanements": 10609110,
+    "operations": 440715
+  },
+  {
+    "airport": "BOS",
+    "year": 1992,
+    "scenario": 0,
+    "enplanements": 10936382,
+    "operations": 482582
+  },
+  {
+    "airport": "BOS",
+    "year": 1993,
+    "scenario": 0,
+    "enplanements": 11477663,
+    "operations": 495347
+  },
+  {
+    "airport": "BOS",
+    "year": 1994,
+    "scenario": 0,
+    "enplanements": 12071084,
+    "operations": 478660
+  },
+  {
+    "airport": "BOS",
+    "year": 1995,
+    "scenario": 0,
+    "enplanements": 11954770,
+    "operations": 478253
+  },
+  {
+    "airport": "BOS",
+    "year": 1996,
+    "scenario": 0,
+    "enplanements": 12177711,
+    "operations": 462507
+  },
+  {
+    "airport": "BOS",
+    "year": 1997,
+    "scenario": 0,
+    "enplanements": 12249347,
+    "operations": 494321
+  },
+  {
+    "airport": "BOS",
+    "year": 1998,
+    "scenario": 0,
+    "enplanements": 12661728,
+    "operations": 511903
+  },
+  {
+    "airport": "BOS",
+    "year": 1999,
+    "scenario": 0,
+    "enplanements": 13087705,
+    "operations": 505483
+  },
+  {
+    "airport": "BOS",
+    "year": 2000,
+    "scenario": 0,
+    "enplanements": 13777260,
+    "operations": 510113
+  },
+  {
+    "airport": "BOS",
+    "year": 2001,
+    "scenario": 0,
+    "enplanements": 12939485,
+    "operations": 499474
+  },
+  {
+    "airport": "BOS",
+    "year": 2002,
+    "scenario": 0,
+    "enplanements": 10679285,
+    "operations": 405370
+  },
+  {
+    "airport": "BOS",
+    "year": 2003,
+    "scenario": 0,
+    "enplanements": 10984640,
+    "operations": 381855
+  },
+  {
+    "airport": "BOS",
+    "year": 2004,
+    "scenario": 0,
+    "enplanements": 12488563,
+    "operations": 409307
+  },
+  {
+    "airport": "BOS",
+    "year": 2005,
+    "scenario": 0,
+    "enplanements": 13193030,
+    "operations": 428877
+  },
+  {
+    "airport": "BOS",
+    "year": 2006,
+    "scenario": 0,
+    "enplanements": 13411139,
+    "operations": 412358
+  },
+  {
+    "airport": "BOS",
+    "year": 2007,
+    "scenario": 0,
+    "enplanements": 13847728,
+    "operations": 410295
+  },
+  {
+    "airport": "BOS",
+    "year": 2008,
+    "scenario": 0,
+    "enplanements": 13158605,
+    "operations": 384640
+  },
+  {
+    "airport": "BOS",
+    "year": 2009,
+    "scenario": 0,
+    "enplanements": 12372230,
+    "operations": 359578
+  },
+  {
+    "airport": "BOS",
+    "year": 2010,
+    "scenario": 0,
+    "enplanements": 13240544,
+    "operations": 366275
+  },
+  {
+    "airport": "BOS",
+    "year": 2011,
+    "scenario": 0,
+    "enplanements": 14128170,
+    "operations": 373890
+  },
+  {
+    "airport": "BOS",
+    "year": 2012,
+    "scenario": 0,
+    "enplanements": 14326417,
+    "operations": 364193
+  },
+  {
+    "airport": "BOS",
+    "year": 2013,
+    "scenario": 0,
+    "enplanements": 14600571,
+    "operations": 361343
+  },
+  {
+    "airport": "BOS",
+    "year": 2014,
+    "scenario": 0,
+    "enplanements": 15301858,
+    "operations": 368526
+  },
+  {
+    "airport": "BOS",
+    "year": 2015,
+    "scenario": 0,
+    "enplanements": 16079501,
+    "operations": 372019
+  },
+  {
+    "airport": "BOS",
+    "year": 2016,
+    "scenario": 0,
+    "enplanements": 17397129,
+    "operations": 394817
+  },
+  {
+    "airport": "BOS",
+    "year": 2017,
+    "scenario": 0,
+    "enplanements": 18508724,
+    "operations": 400740
+  },
+  {
+    "airport": "BOS",
+    "year": 2018,
+    "scenario": 0,
+    "enplanements": 19691859,
+    "operations": 422997
+  },
+  {
+    "airport": "BOS",
+    "year": 2019,
+    "scenario": 0,
+    "enplanements": 20564417,
+    "operations": 432722
+  },
+  {
+    "airport": "BOS",
+    "year": 2020,
+    "scenario": 0,
+    "enplanements": 10024284,
+    "operations": 273560
+  },
+  {
+    "airport": "BOS",
+    "year": 2021,
+    "scenario": 0,
+    "enplanements": 8429403,
+    "operations": 227621
+  },
+  {
+    "airport": "BOS",
+    "year": 2022,
+    "scenario": 0,
+    "enplanements": 16436645,
+    "operations": 371622
+  },
+  {
+    "airport": "BOS",
+    "year": 2023,
+    "scenario": 0,
+    "enplanements": 19575374,
+    "operations": 399843
+  },
+  {
+    "airport": "BOS",
+    "year": 2024,
+    "scenario": 0,
+    "enplanements": 20871588,
+    "operations": 410503
+  },
+  {
+    "airport": "BOS",
+    "year": 2025,
+    "scenario": 1,
+    "enplanements": 21200148,
+    "operations": 423459
+  },
+  {
+    "airport": "BOS",
+    "year": 2026,
+    "scenario": 1,
+    "enplanements": 21429836,
+    "operations": 428493
+  },
+  {
+    "airport": "BOS",
+    "year": 2027,
+    "scenario": 1,
+    "enplanements": 22073061,
+    "operations": 439541
+  },
+  {
+    "airport": "BOS",
+    "year": 2028,
+    "scenario": 1,
+    "enplanements": 22716567,
+    "operations": 451143
+  },
+  {
+    "airport": "BOS",
+    "year": 2029,
+    "scenario": 1,
+    "enplanements": 23326665,
+    "operations": 462308
+  },
+  {
+    "airport": "BOS",
+    "year": 2030,
+    "scenario": 1,
+    "enplanements": 23896939,
+    "operations": 472311
+  },
+  {
+    "airport": "BOS",
+    "year": 2031,
+    "scenario": 1,
+    "enplanements": 24447910,
+    "operations": 481900
+  },
+  {
+    "airport": "BOS",
+    "year": 2032,
+    "scenario": 1,
+    "enplanements": 25007179,
+    "operations": 491635
+  },
+  {
+    "airport": "BOS",
+    "year": 2033,
+    "scenario": 1,
+    "enplanements": 25587080,
+    "operations": 501757
+  },
+  {
+    "airport": "BOS",
+    "year": 2034,
+    "scenario": 1,
+    "enplanements": 26189799,
+    "operations": 512310
+  },
+  {
+    "airport": "BOS",
+    "year": 2035,
+    "scenario": 1,
+    "enplanements": 26812236,
+    "operations": 523225
+  },
+  {
+    "airport": "BOS",
+    "year": 2036,
+    "scenario": 1,
+    "enplanements": 27452628,
+    "operations": 534461
+  },
+  {
+    "airport": "BOS",
+    "year": 2037,
+    "scenario": 1,
+    "enplanements": 28090443,
+    "operations": 545625
+  },
+  {
+    "airport": "BOS",
+    "year": 2038,
+    "scenario": 1,
+    "enplanements": 28738447,
+    "operations": 556967
+  },
+  {
+    "airport": "BOS",
+    "year": 2039,
+    "scenario": 1,
+    "enplanements": 29397804,
+    "operations": 568509
+  },
+  {
+    "airport": "BOS",
+    "year": 2040,
+    "scenario": 1,
+    "enplanements": 30068319,
+    "operations": 580249
+  },
+  {
+    "airport": "BOS",
+    "year": 2041,
+    "scenario": 1,
+    "enplanements": 30728781,
+    "operations": 591764
+  },
+  {
+    "airport": "BOS",
+    "year": 2042,
+    "scenario": 1,
+    "enplanements": 31408325,
+    "operations": 603633
+  },
+  {
+    "airport": "BOS",
+    "year": 2043,
+    "scenario": 1,
+    "enplanements": 32104112,
+    "operations": 615797
+  },
+  {
+    "airport": "BOS",
+    "year": 2044,
+    "scenario": 1,
+    "enplanements": 32805508,
+    "operations": 628052
+  },
+  {
+    "airport": "BOS",
+    "year": 2045,
+    "scenario": 1,
+    "enplanements": 33509579,
+    "operations": 640335
+  },
+  {
+    "airport": "BOS",
+    "year": 2046,
+    "scenario": 1,
+    "enplanements": 34225273,
+    "operations": 652815
+  },
+  {
+    "airport": "BOS",
+    "year": 2047,
+    "scenario": 1,
+    "enplanements": 34956328,
+    "operations": 665560
+  },
+  {
+    "airport": "BOS",
+    "year": 2048,
+    "scenario": 1,
+    "enplanements": 35694165,
+    "operations": 678409
+  },
+  {
+    "airport": "BOS",
+    "year": 2049,
+    "scenario": 1,
+    "enplanements": 36447490,
+    "operations": 691529
+  },
+  {
+    "airport": "BOS",
+    "year": 2050,
+    "scenario": 1,
+    "enplanements": 37220744,
+    "operations": 705017
+  },
+  {
+    "airport": "BOS",
+    "year": 2051,
+    "scenario": 1,
+    "enplanements": 37990249,
+    "operations": 718400
+  },
+  {
+    "airport": "BOS",
+    "year": 2052,
+    "scenario": 1,
+    "enplanements": 38799182,
+    "operations": 732512
+  },
+  {
+    "airport": "BOS",
+    "year": 2053,
+    "scenario": 1,
+    "enplanements": 39628354,
+    "operations": 746983
+  },
+  {
+    "airport": "BOS",
+    "year": 2054,
+    "scenario": 1,
+    "enplanements": 40474935,
+    "operations": 761759
+  },
+  {
+    "airport": "BOS",
+    "year": 2055,
+    "scenario": 1,
+    "enplanements": 41342766,
+    "operations": 776910
+  },
+  {
+    "airport": "LAX",
+    "year": 1976,
+    "scenario": 0,
+    "enplanements": 12639516,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1977,
+    "scenario": 0,
+    "enplanements": 13490293,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1978,
+    "scenario": 0,
+    "enplanements": 15658256,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1979,
+    "scenario": 0,
+    "enplanements": 18241210,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1980,
+    "scenario": 0,
+    "enplanements": 15957495,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1981,
+    "scenario": 0,
+    "enplanements": 15812338,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1982,
+    "scenario": 0,
+    "enplanements": 15703710,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1983,
+    "scenario": 0,
+    "enplanements": 15990515,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1984,
+    "scenario": 0,
+    "enplanements": 16355669,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1985,
+    "scenario": 0,
+    "enplanements": 18836416,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1986,
+    "scenario": 0,
+    "enplanements": 20430075,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1987,
+    "scenario": 0,
+    "enplanements": 22400454,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1988,
+    "scenario": 0,
+    "enplanements": 22342579,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1989,
+    "scenario": 0,
+    "enplanements": 22751639,
+    "operations": null
+  },
+  {
+    "airport": "LAX",
+    "year": 1990,
+    "scenario": 0,
+    "enplanements": 22276958,
+    "operations": 669589
+  },
+  {
+    "airport": "LAX",
+    "year": 1991,
+    "scenario": 0,
+    "enplanements": 22575066,
+    "operations": 660680
+  },
+  {
+    "airport": "LAX",
+    "year": 1992,
+    "scenario": 0,
+    "enplanements": 23335150,
+    "operations": 678398
+  },
+  {
+    "airport": "LAX",
+    "year": 1993,
+    "scenario": 0,
+    "enplanements": 23465822,
+    "operations": 681845
+  },
+  {
+    "airport": "LAX",
+    "year": 1994,
+    "scenario": 0,
+    "enplanements": 24932412,
+    "operations": 687627
+  },
+  {
+    "airport": "LAX",
+    "year": 1995,
+    "scenario": 0,
+    "enplanements": 26146802,
+    "operations": 716293
+  },
+  {
+    "airport": "LAX",
+    "year": 1996,
+    "scenario": 0,
+    "enplanements": 28397023,
+    "operations": 764002
+  },
+  {
+    "airport": "LAX",
+    "year": 1997,
+    "scenario": 0,
+    "enplanements": 29335761,
+    "operations": 767352
+  },
+  {
+    "airport": "LAX",
+    "year": 1998,
+    "scenario": 0,
+    "enplanements": 29124323,
+    "operations": 786364
+  },
+  {
+    "airport": "LAX",
+    "year": 1999,
+    "scenario": 0,
+    "enplanements": 30455587,
+    "operations": 771337
+  },
+  {
+    "airport": "LAX",
+    "year": 2000,
+    "scenario": 0,
+    "enplanements": 32154384,
+    "operations": 781418
+  },
+  {
+    "airport": "LAX",
+    "year": 2001,
+    "scenario": 0,
+    "enplanements": 31519140,
+    "operations": 783160
+  },
+  {
+    "airport": "LAX",
+    "year": 2002,
+    "scenario": 0,
+    "enplanements": 26104296,
+    "operations": 637588
+  },
+  {
+    "airport": "LAX",
+    "year": 2003,
+    "scenario": 0,
+    "enplanements": 26206648,
+    "operations": 630755
+  },
+  {
+    "airport": "LAX",
+    "year": 2004,
+    "scenario": 0,
+    "enplanements": 28317923,
+    "operations": 646919
+  },
+  {
+    "airport": "LAX",
+    "year": 2005,
+    "scenario": 0,
+    "enplanements": 29350149,
+    "operations": 653534
+  },
+  {
+    "airport": "LAX",
+    "year": 2006,
+    "scenario": 0,
+    "enplanements": 29294359,
+    "operations": 653181
+  },
+  {
+    "airport": "LAX",
+    "year": 2007,
+    "scenario": 0,
+    "enplanements": 29938822,
+    "operations": 672245
+  },
+  {
+    "airport": "LAX",
+    "year": 2008,
+    "scenario": 0,
+    "enplanements": 29452882,
+    "operations": 659221
+  },
+  {
+    "airport": "LAX",
+    "year": 2009,
+    "scenario": 0,
+    "enplanements": 27238243,
+    "operations": 544614
+  },
+  {
+    "airport": "LAX",
+    "year": 2010,
+    "scenario": 0,
+    "enplanements": 28530681,
+    "operations": 570983
+  },
+  {
+    "airport": "LAX",
+    "year": 2011,
+    "scenario": 0,
+    "enplanements": 30167342,
+    "operations": 596194
+  },
+  {
+    "airport": "LAX",
+    "year": 2012,
+    "scenario": 0,
+    "enplanements": 31297687,
+    "operations": 608846
+  },
+  {
+    "airport": "LAX",
+    "year": 2013,
+    "scenario": 0,
+    "enplanements": 31969499,
+    "operations": 606348
+  },
+  {
+    "airport": "LAX",
+    "year": 2014,
+    "scenario": 0,
+    "enplanements": 33918491,
+    "operations": 633367
+  },
+  {
+    "airport": "LAX",
+    "year": 2015,
+    "scenario": 0,
+    "enplanements": 35713783,
+    "operations": 648458
+  },
+  {
+    "airport": "LAX",
+    "year": 2016,
+    "scenario": 0,
+    "enplanements": 38861410,
+    "operations": 685889
+  },
+  {
+    "airport": "LAX",
+    "year": 2017,
+    "scenario": 0,
+    "enplanements": 40908053,
+    "operations": 702912
+  },
+  {
+    "airport": "LAX",
+    "year": 2018,
+    "scenario": 0,
+    "enplanements": 42383424,
+    "operations": 706513
+  },
+  {
+    "airport": "LAX",
+    "year": 2019,
+    "scenario": 0,
+    "enplanements": 42843858,
+    "operations": 694975
+  },
+  {
+    "airport": "LAX",
+    "year": 2020,
+    "scenario": 0,
+    "enplanements": 20823814,
+    "operations": 457397
+  },
+  {
+    "airport": "LAX",
+    "year": 2021,
+    "scenario": 0,
+    "enplanements": 19226488,
+    "operations": 456013
+  },
+  {
+    "airport": "LAX",
+    "year": 2022,
+    "scenario": 0,
+    "enplanements": 31259160,
+    "operations": 564083
+  },
+  {
+    "airport": "LAX",
+    "year": 2023,
+    "scenario": 0,
+    "enplanements": 35838685,
+    "operations": 565995
+  },
+  {
+    "airport": "LAX",
+    "year": 2024,
+    "scenario": 0,
+    "enplanements": 37806366,
+    "operations": 580514
+  },
+  {
+    "airport": "LAX",
+    "year": 2025,
+    "scenario": 1,
+    "enplanements": 36855152,
+    "operations": 582638
+  },
+  {
+    "airport": "LAX",
+    "year": 2026,
+    "scenario": 1,
+    "enplanements": 36279538,
+    "operations": 581966
+  },
+  {
+    "airport": "LAX",
+    "year": 2027,
+    "scenario": 1,
+    "enplanements": 38278017,
+    "operations": 610723
+  },
+  {
+    "airport": "LAX",
+    "year": 2028,
+    "scenario": 1,
+    "enplanements": 39813609,
+    "operations": 632438
+  },
+  {
+    "airport": "LAX",
+    "year": 2029,
+    "scenario": 1,
+    "enplanements": 41017660,
+    "operations": 649003
+  },
+  {
+    "airport": "LAX",
+    "year": 2030,
+    "scenario": 1,
+    "enplanements": 42032013,
+    "operations": 662069
+  },
+  {
+    "airport": "LAX",
+    "year": 2031,
+    "scenario": 1,
+    "enplanements": 43023249,
+    "operations": 674680
+  },
+  {
+    "airport": "LAX",
+    "year": 2032,
+    "scenario": 1,
+    "enplanements": 44031499,
+    "operations": 687460
+  },
+  {
+    "airport": "LAX",
+    "year": 2033,
+    "scenario": 1,
+    "enplanements": 45069751,
+    "operations": 700604
+  },
+  {
+    "airport": "LAX",
+    "year": 2034,
+    "scenario": 1,
+    "enplanements": 46141849,
+    "operations": 714157
+  },
+  {
+    "airport": "LAX",
+    "year": 2035,
+    "scenario": 1,
+    "enplanements": 47248042,
+    "operations": 728142
+  },
+  {
+    "airport": "LAX",
+    "year": 2036,
+    "scenario": 1,
+    "enplanements": 48394105,
+    "operations": 742641
+  },
+  {
+    "airport": "LAX",
+    "year": 2037,
+    "scenario": 1,
+    "enplanements": 49549724,
+    "operations": 757174
+  },
+  {
+    "airport": "LAX",
+    "year": 2038,
+    "scenario": 1,
+    "enplanements": 50717524,
+    "operations": 771781
+  },
+  {
+    "airport": "LAX",
+    "year": 2039,
+    "scenario": 1,
+    "enplanements": 51906655,
+    "operations": 786606
+  },
+  {
+    "airport": "LAX",
+    "year": 2040,
+    "scenario": 1,
+    "enplanements": 53119304,
+    "operations": 801680
+  },
+  {
+    "airport": "LAX",
+    "year": 2041,
+    "scenario": 1,
+    "enplanements": 54331614,
+    "operations": 816651
+  },
+  {
+    "airport": "LAX",
+    "year": 2042,
+    "scenario": 1,
+    "enplanements": 55569352,
+    "operations": 831893
+  },
+  {
+    "airport": "LAX",
+    "year": 2043,
+    "scenario": 1,
+    "enplanements": 56837670,
+    "operations": 847486
+  },
+  {
+    "airport": "LAX",
+    "year": 2044,
+    "scenario": 1,
+    "enplanements": 58118257,
+    "operations": 863155
+  },
+  {
+    "airport": "LAX",
+    "year": 2045,
+    "scenario": 1,
+    "enplanements": 59407166,
+    "operations": 878841
+  },
+  {
+    "airport": "LAX",
+    "year": 2046,
+    "scenario": 1,
+    "enplanements": 60717322,
+    "operations": 894734
+  },
+  {
+    "airport": "LAX",
+    "year": 2047,
+    "scenario": 1,
+    "enplanements": 62054599,
+    "operations": 910930
+  },
+  {
+    "airport": "LAX",
+    "year": 2048,
+    "scenario": 1,
+    "enplanements": 63404765,
+    "operations": 927204
+  },
+  {
+    "airport": "LAX",
+    "year": 2049,
+    "scenario": 1,
+    "enplanements": 64781056,
+    "operations": 943755
+  },
+  {
+    "airport": "LAX",
+    "year": 2050,
+    "scenario": 1,
+    "enplanements": 66186660,
+    "operations": 960628
+  },
+  {
+    "airport": "LAX",
+    "year": 2051,
+    "scenario": 1,
+    "enplanements": 67597476,
+    "operations": 977473
+  },
+  {
+    "airport": "LAX",
+    "year": 2052,
+    "scenario": 1,
+    "enplanements": 69061376,
+    "operations": 994996
+  },
+  {
+    "airport": "LAX",
+    "year": 2053,
+    "scenario": 1,
+    "enplanements": 70555897,
+    "operations": 1012865
+  },
+  {
+    "airport": "LAX",
+    "year": 2054,
+    "scenario": 1,
+    "enplanements": 72076508,
+    "operations": 1031002
+  },
+  {
+    "airport": "LAX",
+    "year": 2055,
+    "scenario": 1,
+    "enplanements": 73628035,
+    "operations": 1049486
+  },
+  {
+    "airport": "SFO",
+    "year": 1976,
+    "scenario": 0,
+    "enplanements": 8230240,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1977,
+    "scenario": 0,
+    "enplanements": 8681520,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1978,
+    "scenario": 0,
+    "enplanements": 11436880,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1979,
+    "scenario": 0,
+    "enplanements": 12185480,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1980,
+    "scenario": 0,
+    "enplanements": 10595450,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1981,
+    "scenario": 0,
+    "enplanements": 9162326,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1982,
+    "scenario": 0,
+    "enplanements": 9709548,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1983,
+    "scenario": 0,
+    "enplanements": 11272971,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1984,
+    "scenario": 0,
+    "enplanements": 11489747,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1985,
+    "scenario": 0,
+    "enplanements": 12166322,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1986,
+    "scenario": 0,
+    "enplanements": 13485222,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1987,
+    "scenario": 0,
+    "enplanements": 14647268,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1988,
+    "scenario": 0,
+    "enplanements": 14892258,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1989,
+    "scenario": 0,
+    "enplanements": 14781975,
+    "operations": null
+  },
+  {
+    "airport": "SFO",
+    "year": 1990,
+    "scenario": 0,
+    "enplanements": 14693579,
+    "operations": 437130
+  },
+  {
+    "airport": "SFO",
+    "year": 1991,
+    "scenario": 0,
+    "enplanements": 15749195,
+    "operations": 435309
+  },
+  {
+    "airport": "SFO",
+    "year": 1992,
+    "scenario": 0,
+    "enplanements": 15935663,
+    "operations": 424829
+  },
+  {
+    "airport": "SFO",
+    "year": 1993,
+    "scenario": 0,
+    "enplanements": 15638623,
+    "operations": 423404
+  },
+  {
+    "airport": "SFO",
+    "year": 1994,
+    "scenario": 0,
+    "enplanements": 16396063,
+    "operations": 430380
+  },
+  {
+    "airport": "SFO",
+    "year": 1995,
+    "scenario": 0,
+    "enplanements": 16887394,
+    "operations": 436907
+  },
+  {
+    "airport": "SFO",
+    "year": 1996,
+    "scenario": 0,
+    "enplanements": 18347296,
+    "operations": 442281
+  },
+  {
+    "airport": "SFO",
+    "year": 1997,
+    "scenario": 0,
+    "enplanements": 19004761,
+    "operations": 447117
+  },
+  {
+    "airport": "SFO",
+    "year": 1998,
+    "scenario": 0,
+    "enplanements": 19205448,
+    "operations": 435008
+  },
+  {
+    "airport": "SFO",
+    "year": 1999,
+    "scenario": 0,
+    "enplanements": 19226786,
+    "operations": 436659
+  },
+  {
+    "airport": "SFO",
+    "year": 2000,
+    "scenario": 0,
+    "enplanements": 19649328,
+    "operations": 437763
+  },
+  {
+    "airport": "SFO",
+    "year": 2001,
+    "scenario": 0,
+    "enplanements": 17877557,
+    "operations": 407040
+  },
+  {
+    "airport": "SFO",
+    "year": 2002,
+    "scenario": 0,
+    "enplanements": 14646287,
+    "operations": 350133
+  },
+  {
+    "airport": "SFO",
+    "year": 2003,
+    "scenario": 0,
+    "enplanements": 14002729,
+    "operations": 335785
+  },
+  {
+    "airport": "SFO",
+    "year": 2004,
+    "scenario": 0,
+    "enplanements": 15389800,
+    "operations": 352617
+  },
+  {
+    "airport": "SFO",
+    "year": 2005,
+    "scenario": 0,
+    "enplanements": 15940165,
+    "operations": 350508
+  },
+  {
+    "airport": "SFO",
+    "year": 2006,
+    "scenario": 0,
+    "enplanements": 16192310,
+    "operations": 357957
+  },
+  {
+    "airport": "SFO",
+    "year": 2007,
+    "scenario": 0,
+    "enplanements": 16917829,
+    "operations": 371291
+  },
+  {
+    "airport": "SFO",
+    "year": 2008,
+    "scenario": 0,
+    "enplanements": 18116148,
+    "operations": 393714
+  },
+  {
+    "airport": "SFO",
+    "year": 2009,
+    "scenario": 0,
+    "enplanements": 18173640,
+    "operations": 378205
+  },
+  {
+    "airport": "SFO",
+    "year": 2010,
+    "scenario": 0,
+    "enplanements": 19042127,
+    "operations": 386064
+  },
+  {
+    "airport": "SFO",
+    "year": 2011,
+    "scenario": 0,
+    "enplanements": 19867668,
+    "operations": 398372
+  },
+  {
+    "airport": "SFO",
+    "year": 2012,
+    "scenario": 0,
+    "enplanements": 21164425,
+    "operations": 422725
+  },
+  {
+    "airport": "SFO",
+    "year": 2013,
+    "scenario": 0,
+    "enplanements": 21462848,
+    "operations": 417218
+  },
+  {
+    "airport": "SFO",
+    "year": 2014,
+    "scenario": 0,
+    "enplanements": 22570576,
+    "operations": 431870
+  },
+  {
+    "airport": "SFO",
+    "year": 2015,
+    "scenario": 0,
+    "enplanements": 23731752,
+    "operations": 429203
+  },
+  {
+    "airport": "SFO",
+    "year": 2016,
+    "scenario": 0,
+    "enplanements": 25394187,
+    "operations": 447252
+  },
+  {
+    "airport": "SFO",
+    "year": 2017,
+    "scenario": 0,
+    "enplanements": 26482993,
+    "operations": 453397
+  },
+  {
+    "airport": "SFO",
+    "year": 2018,
+    "scenario": 0,
+    "enplanements": 27835550,
+    "operations": 473148
+  },
+  {
+    "airport": "SFO",
+    "year": 2019,
+    "scenario": 0,
+    "enplanements": 27654594,
+    "operations": 460720
+  },
+  {
+    "airport": "SFO",
+    "year": 2020,
+    "scenario": 0,
+    "enplanements": 13061970,
+    "operations": 292390
+  },
+  {
+    "airport": "SFO",
+    "year": 2021,
+    "scenario": 0,
+    "enplanements": 9102428,
+    "operations": 236631
+  },
+  {
+    "airport": "SFO",
+    "year": 2022,
+    "scenario": 0,
+    "enplanements": 18966512,
+    "operations": 346585
+  },
+  {
+    "airport": "SFO",
+    "year": 2023,
+    "scenario": 0,
+    "enplanements": 23544633,
+    "operations": 376900
+  },
+  {
+    "airport": "SFO",
+    "year": 2024,
+    "scenario": 0,
+    "enplanements": 24765642,
+    "operations": 381304
+  },
+  {
+    "airport": "SFO",
+    "year": 2025,
+    "scenario": 1,
+    "enplanements": 26106891,
+    "operations": 415726
+  },
+  {
+    "airport": "SFO",
+    "year": 2026,
+    "scenario": 1,
+    "enplanements": 26684355,
+    "operations": 425358
+  },
+  {
+    "airport": "SFO",
+    "year": 2027,
+    "scenario": 1,
+    "enplanements": 27856321,
+    "operations": 439766
+  },
+  {
+    "airport": "SFO",
+    "year": 2028,
+    "scenario": 1,
+    "enplanements": 28858751,
+    "operations": 452794
+  },
+  {
+    "airport": "SFO",
+    "year": 2029,
+    "scenario": 1,
+    "enplanements": 29721133,
+    "operations": 464678
+  },
+  {
+    "airport": "SFO",
+    "year": 2030,
+    "scenario": 1,
+    "enplanements": 30516426,
+    "operations": 474924
+  },
+  {
+    "airport": "SFO",
+    "year": 2031,
+    "scenario": 1,
+    "enplanements": 31288299,
+    "operations": 484759
+  },
+  {
+    "airport": "SFO",
+    "year": 2032,
+    "scenario": 1,
+    "enplanements": 32072943,
+    "operations": 494731
+  },
+  {
+    "airport": "SFO",
+    "year": 2033,
+    "scenario": 1,
+    "enplanements": 32879312,
+    "operations": 504971
+  },
+  {
+    "airport": "SFO",
+    "year": 2034,
+    "scenario": 1,
+    "enplanements": 33708217,
+    "operations": 515492
+  },
+  {
+    "airport": "SFO",
+    "year": 2035,
+    "scenario": 1,
+    "enplanements": 34567470,
+    "operations": 526419
+  },
+  {
+    "airport": "SFO",
+    "year": 2036,
+    "scenario": 1,
+    "enplanements": 35465295,
+    "operations": 537872
+  },
+  {
+    "airport": "SFO",
+    "year": 2037,
+    "scenario": 1,
+    "enplanements": 36364947,
+    "operations": 549293
+  },
+  {
+    "airport": "SFO",
+    "year": 2038,
+    "scenario": 1,
+    "enplanements": 37269207,
+    "operations": 560723
+  },
+  {
+    "airport": "SFO",
+    "year": 2039,
+    "scenario": 1,
+    "enplanements": 38186113,
+    "operations": 572286
+  },
+  {
+    "airport": "SFO",
+    "year": 2040,
+    "scenario": 1,
+    "enplanements": 39121362,
+    "operations": 584059
+  },
+  {
+    "airport": "SFO",
+    "year": 2041,
+    "scenario": 1,
+    "enplanements": 40055201,
+    "operations": 595767
+  },
+  {
+    "airport": "SFO",
+    "year": 2042,
+    "scenario": 1,
+    "enplanements": 41001396,
+    "operations": 607594
+  },
+  {
+    "airport": "SFO",
+    "year": 2043,
+    "scenario": 1,
+    "enplanements": 41964134,
+    "operations": 619609
+  },
+  {
+    "airport": "SFO",
+    "year": 2044,
+    "scenario": 1,
+    "enplanements": 42930579,
+    "operations": 631618
+  },
+  {
+    "airport": "SFO",
+    "year": 2045,
+    "scenario": 1,
+    "enplanements": 43902796,
+    "operations": 643655
+  },
+  {
+    "airport": "SFO",
+    "year": 2046,
+    "scenario": 1,
+    "enplanements": 44892734,
+    "operations": 655892
+  },
+  {
+    "airport": "SFO",
+    "year": 2047,
+    "scenario": 1,
+    "enplanements": 45897774,
+    "operations": 668305
+  },
+  {
+    "airport": "SFO",
+    "year": 2048,
+    "scenario": 1,
+    "enplanements": 46905292,
+    "operations": 680693
+  },
+  {
+    "airport": "SFO",
+    "year": 2049,
+    "scenario": 1,
+    "enplanements": 47933072,
+    "operations": 693319
+  },
+  {
+    "airport": "SFO",
+    "year": 2050,
+    "scenario": 1,
+    "enplanements": 48985962,
+    "operations": 706246
+  },
+  {
+    "airport": "SFO",
+    "year": 2051,
+    "scenario": 1,
+    "enplanements": 50039999,
+    "operations": 719138
+  },
+  {
+    "airport": "SFO",
+    "year": 2052,
+    "scenario": 1,
+    "enplanements": 51126745,
+    "operations": 732449
+  },
+  {
+    "airport": "SFO",
+    "year": 2053,
+    "scenario": 1,
+    "enplanements": 52232583,
+    "operations": 745983
+  },
+  {
+    "airport": "SFO",
+    "year": 2054,
+    "scenario": 1,
+    "enplanements": 53357537,
+    "operations": 759728
+  },
+  {
+    "airport": "SFO",
+    "year": 2055,
+    "scenario": 1,
+    "enplanements": 54505267,
+    "operations": 773743
+  },
+  {
+    "airport": "SNA",
+    "year": 1976,
+    "scenario": 0,
+    "enplanements": 871048,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1977,
+    "scenario": 0,
+    "enplanements": 977437,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1978,
+    "scenario": 0,
+    "enplanements": 1131295,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1979,
+    "scenario": 0,
+    "enplanements": 1828363,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1980,
+    "scenario": 0,
+    "enplanements": 1195916,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1981,
+    "scenario": 0,
+    "enplanements": 1157377,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1982,
+    "scenario": 0,
+    "enplanements": 1229445,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1983,
+    "scenario": 0,
+    "enplanements": 1317909,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1984,
+    "scenario": 0,
+    "enplanements": 1388990,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1985,
+    "scenario": 0,
+    "enplanements": 1538191,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1986,
+    "scenario": 0,
+    "enplanements": 1911411,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1987,
+    "scenario": 0,
+    "enplanements": 2189531,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1988,
+    "scenario": 0,
+    "enplanements": 2201420,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1989,
+    "scenario": 0,
+    "enplanements": 2231872,
+    "operations": null
+  },
+  {
+    "airport": "SNA",
+    "year": 1990,
+    "scenario": 0,
+    "enplanements": 2290797,
+    "operations": 402295
+  },
+  {
+    "airport": "SNA",
+    "year": 1991,
+    "scenario": 0,
+    "enplanements": 2759497,
+    "operations": 550602
+  },
+  {
+    "airport": "SNA",
+    "year": 1992,
+    "scenario": 0,
+    "enplanements": 2860522,
+    "operations": 557442
+  },
+  {
+    "airport": "SNA",
+    "year": 1993,
+    "scenario": 0,
+    "enplanements": 2992900,
+    "operations": 494378
+  },
+  {
+    "airport": "SNA",
+    "year": 1994,
+    "scenario": 0,
+    "enplanements": 3252526,
+    "operations": 509220
+  },
+  {
+    "airport": "SNA",
+    "year": 1995,
+    "scenario": 0,
+    "enplanements": 3521407,
+    "operations": 493391
+  },
+  {
+    "airport": "SNA",
+    "year": 1996,
+    "scenario": 0,
+    "enplanements": 3577114,
+    "operations": 474976
+  },
+  {
+    "airport": "SNA",
+    "year": 1997,
+    "scenario": 0,
+    "enplanements": 3838100,
+    "operations": 459489
+  },
+  {
+    "airport": "SNA",
+    "year": 1998,
+    "scenario": 0,
+    "enplanements": 3711015,
+    "operations": 431144
+  },
+  {
+    "airport": "SNA",
+    "year": 1999,
+    "scenario": 0,
+    "enplanements": 3708166,
+    "operations": 448232
+  },
+  {
+    "airport": "SNA",
+    "year": 2000,
+    "scenario": 0,
+    "enplanements": 3917214,
+    "operations": 412048
+  },
+  {
+    "airport": "SNA",
+    "year": 2001,
+    "scenario": 0,
+    "enplanements": 3787332,
+    "operations": 385742
+  },
+  {
+    "airport": "SNA",
+    "year": 2002,
+    "scenario": 0,
+    "enplanements": 3833993,
+    "operations": 377073
+  },
+  {
+    "airport": "SNA",
+    "year": 2003,
+    "scenario": 0,
+    "enplanements": 4149984,
+    "operations": 360026
+  },
+  {
+    "airport": "SNA",
+    "year": 2004,
+    "scenario": 0,
+    "enplanements": 4560180,
+    "operations": 365155
+  },
+  {
+    "airport": "SNA",
+    "year": 2005,
+    "scenario": 0,
+    "enplanements": 4789639,
+    "operations": 376399
+  },
+  {
+    "airport": "SNA",
+    "year": 2006,
+    "scenario": 0,
+    "enplanements": 4751446,
+    "operations": 362044
+  },
+  {
+    "airport": "SNA",
+    "year": 2007,
+    "scenario": 0,
+    "enplanements": 4979315,
+    "operations": 349512
+  },
+  {
+    "airport": "SNA",
+    "year": 2008,
+    "scenario": 0,
+    "enplanements": 4600798,
+    "operations": 328954
+  },
+  {
+    "airport": "SNA",
+    "year": 2009,
+    "scenario": 0,
+    "enplanements": 4250713,
+    "operations": 288234
+  },
+  {
+    "airport": "SNA",
+    "year": 2010,
+    "scenario": 0,
+    "enplanements": 4311628,
+    "operations": 286688
+  },
+  {
+    "airport": "SNA",
+    "year": 2011,
+    "scenario": 0,
+    "enplanements": 4252897,
+    "operations": 265059
+  },
+  {
+    "airport": "SNA",
+    "year": 2012,
+    "scenario": 0,
+    "enplanements": 4311143,
+    "operations": 260513
+  },
+  {
+    "airport": "SNA",
+    "year": 2013,
+    "scenario": 0,
+    "enplanements": 4523415,
+    "operations": 261418
+  },
+  {
+    "airport": "SNA",
+    "year": 2014,
+    "scenario": 0,
+    "enplanements": 4556824,
+    "operations": 274457
+  },
+  {
+    "airport": "SNA",
+    "year": 2015,
+    "scenario": 0,
+    "enplanements": 4806882,
+    "operations": 273575
+  },
+  {
+    "airport": "SNA",
+    "year": 2016,
+    "scenario": 0,
+    "enplanements": 5198212,
+    "operations": 300928
+  },
+  {
+    "airport": "SNA",
+    "year": 2017,
+    "scenario": 0,
+    "enplanements": 5078129,
+    "operations": 302922
+  },
+  {
+    "airport": "SNA",
+    "year": 2018,
+    "scenario": 0,
+    "enplanements": 5267111,
+    "operations": 330643
+  },
+  {
+    "airport": "SNA",
+    "year": 2019,
+    "scenario": 0,
+    "enplanements": 5153073,
+    "operations": 328013
+  },
+  {
+    "airport": "SNA",
+    "year": 2020,
+    "scenario": 0,
+    "enplanements": 2657806,
+    "operations": 261864
+  },
+  {
+    "airport": "SNA",
+    "year": 2021,
+    "scenario": 0,
+    "enplanements": 2928871,
+    "operations": 319493
+  },
+  {
+    "airport": "SNA",
+    "year": 2022,
+    "scenario": 0,
+    "enplanements": 5344335,
+    "operations": 328889
+  },
+  {
+    "airport": "SNA",
+    "year": 2023,
+    "scenario": 0,
+    "enplanements": 5785034,
+    "operations": 298232
+  },
+  {
+    "airport": "SNA",
+    "year": 2024,
+    "scenario": 0,
+    "enplanements": 5424464,
+    "operations": 330417
+  },
+  {
+    "airport": "SNA",
+    "year": 2025,
+    "scenario": 1,
+    "enplanements": 5452720,
+    "operations": 366336
+  },
+  {
+    "airport": "SNA",
+    "year": 2026,
+    "scenario": 1,
+    "enplanements": 5504319,
+    "operations": 380963
+  },
+  {
+    "airport": "SNA",
+    "year": 2027,
+    "scenario": 1,
+    "enplanements": 5632472,
+    "operations": 387575
+  },
+  {
+    "airport": "SNA",
+    "year": 2028,
+    "scenario": 1,
+    "enplanements": 5758282,
+    "operations": 393233
+  },
+  {
+    "airport": "SNA",
+    "year": 2029,
+    "scenario": 1,
+    "enplanements": 5877246,
+    "operations": 395993
+  },
+  {
+    "airport": "SNA",
+    "year": 2030,
+    "scenario": 1,
+    "enplanements": 5984146,
+    "operations": 398540
+  },
+  {
+    "airport": "SNA",
+    "year": 2031,
+    "scenario": 1,
+    "enplanements": 6084614,
+    "operations": 400970
+  },
+  {
+    "airport": "SNA",
+    "year": 2032,
+    "scenario": 1,
+    "enplanements": 6186186,
+    "operations": 403413
+  },
+  {
+    "airport": "SNA",
+    "year": 2033,
+    "scenario": 1,
+    "enplanements": 6290889,
+    "operations": 405907
+  },
+  {
+    "airport": "SNA",
+    "year": 2034,
+    "scenario": 1,
+    "enplanements": 6398972,
+    "operations": 408453
+  },
+  {
+    "airport": "SNA",
+    "year": 2035,
+    "scenario": 1,
+    "enplanements": 6511870,
+    "operations": 411079
+  },
+  {
+    "airport": "SNA",
+    "year": 2036,
+    "scenario": 1,
+    "enplanements": 6630735,
+    "operations": 413806
+  },
+  {
+    "airport": "SNA",
+    "year": 2037,
+    "scenario": 1,
+    "enplanements": 6748894,
+    "operations": 416517
+  },
+  {
+    "airport": "SNA",
+    "year": 2038,
+    "scenario": 1,
+    "enplanements": 6866708,
+    "operations": 419217
+  },
+  {
+    "airport": "SNA",
+    "year": 2039,
+    "scenario": 1,
+    "enplanements": 6986240,
+    "operations": 421940
+  },
+  {
+    "airport": "SNA",
+    "year": 2040,
+    "scenario": 1,
+    "enplanements": 7107811,
+    "operations": 424695
+  },
+  {
+    "airport": "SNA",
+    "year": 2041,
+    "scenario": 1,
+    "enplanements": 7227809,
+    "operations": 427423
+  },
+  {
+    "airport": "SNA",
+    "year": 2042,
+    "scenario": 1,
+    "enplanements": 7349412,
+    "operations": 430171
+  },
+  {
+    "airport": "SNA",
+    "year": 2043,
+    "scenario": 1,
+    "enplanements": 7473992,
+    "operations": 432966
+  },
+  {
+    "airport": "SNA",
+    "year": 2044,
+    "scenario": 1,
+    "enplanements": 7598508,
+    "operations": 435759
+  },
+  {
+    "airport": "SNA",
+    "year": 2045,
+    "scenario": 1,
+    "enplanements": 7722161,
+    "operations": 438537
+  },
+  {
+    "airport": "SNA",
+    "year": 2046,
+    "scenario": 1,
+    "enplanements": 7847290,
+    "operations": 441340
+  },
+  {
+    "airport": "SNA",
+    "year": 2047,
+    "scenario": 1,
+    "enplanements": 7975283,
+    "operations": 444192
+  },
+  {
+    "airport": "SNA",
+    "year": 2048,
+    "scenario": 1,
+    "enplanements": 8102960,
+    "operations": 447034
+  },
+  {
+    "airport": "SNA",
+    "year": 2049,
+    "scenario": 1,
+    "enplanements": 8232888,
+    "operations": 449914
+  },
+  {
+    "airport": "SNA",
+    "year": 2050,
+    "scenario": 1,
+    "enplanements": 8365427,
+    "operations": 452833
+  },
+  {
+    "airport": "SNA",
+    "year": 2051,
+    "scenario": 1,
+    "enplanements": 8496962,
+    "operations": 455740
+  },
+  {
+    "airport": "SNA",
+    "year": 2052,
+    "scenario": 1,
+    "enplanements": 8635342,
+    "operations": 458761
+  },
+  {
+    "airport": "SNA",
+    "year": 2053,
+    "scenario": 1,
+    "enplanements": 8776702,
+    "operations": 461831
+  },
+  {
+    "airport": "SNA",
+    "year": 2054,
+    "scenario": 1,
+    "enplanements": 8920078,
+    "operations": 464937
+  },
+  {
+    "airport": "SNA",
+    "year": 2055,
+    "scenario": 1,
+    "enplanements": 9066485,
+    "operations": 468096
+  }
+]

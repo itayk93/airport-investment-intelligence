@@ -1,0 +1,51 @@
+// Read-only data endpoint for the UI's analysis panel.
+//
+// Separate from agent-chat on purpose: the panel needs deterministic scores rendered
+// exactly as computed, with no LLM in the path. Sharing _shared/db.ts means the panel and
+// the agent can never disagree about a number — same query, one definition.
+import { getCoverage, getScores, listAirports } from '../_shared/db.ts';
+import { json, preflight } from '../_shared/http.ts';
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return preflight();
+  if (req.method !== 'GET') return json({ error: 'GET only' }, 405);
+
+  try {
+    const [scores, airports, coverage] = await Promise.all([
+      getScores(),
+      listAirports(),
+      getCoverage(),
+    ]);
+
+    return json({
+      scores,
+      airports,
+      coverage,
+      // The scoring model, served from the backend so the UI never hardcodes weights that
+      // could drift from scripts/score.mjs.
+      model: {
+        comparison_set: 'pilot-5',
+        capacity_pressure_weights: [
+          { key: 'taxiOut', label: 'Average taxi-out time', source: 'BTS On-Time · minutes per departure', weight: 0.4 },
+          { key: 'nasDelay', label: 'NAS delay per departure', source: 'BTS On-Time · air-traffic-system minutes', weight: 0.35 },
+          { key: 'pctDelayed15', label: 'Flights delayed >15 min', source: 'BTS On-Time · share of departures', weight: 0.25 },
+        ],
+        expansion_weights: [
+          { key: 'unmetDemand', label: 'Unmet demand', source: 'growth gap × capacity pressure', weight: 0.5 },
+          { key: 'forecastCagr', label: 'Forecast enplanement CAGR', source: 'FAA TAF · FY2024→FY2035', weight: 0.3 },
+          { key: 'capacityPressure', label: 'Capacity pressure', source: 'current congestion index', weight: 0.2 },
+        ],
+        caveats: [
+          { tag: '01', text: 'Weights are a chosen heuristic, not an industry standard. The FAA itself uses separate throughput, demand, and delay criteria rather than one weighted composite.' },
+          { tag: '02', text: 'No public dataset publishes runway, gate, or terminal capacity. Capacity pressure and unmet demand are modeled proxies built from delay and forecast data.' },
+          { tag: '03', text: 'Scores are relative to this 5-airport comparison set. 1.00 means "most pressured of these five", not "at absolute capacity".' },
+          { tag: '04', text: 'Congestion data covers US domestic flights by BTS reporting carriers only. International departures at SFO and LAX are not in the delay figures.' },
+          { tag: '05', text: 'The 2,000-mile long-haul threshold is our own definition, not a BTS or FAA standard.' },
+        ],
+      },
+    });
+  } catch (err) {
+    console.error('airport-data error:', err);
+    return json({ error: err instanceof Error ? err.message : 'Unknown error' }, 500);
+  }
+});

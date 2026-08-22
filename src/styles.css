@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #EFECE4;
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+  color: #16202B;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: #B45309; text-decoration: none; }
+a:hover { color: #8A3F07; }
+
+::selection { background: #16202B; color: #F6F4EF; }
+
+input, button, textarea { font: inherit; color: inherit; }
+
+.sb::-webkit-scrollbar { width: 9px; }
+.sb::-webkit-scrollbar-thumb { background: rgba(22,32,43,.18); border-radius: 9px; }
+.sb::-webkit-scrollbar-track { background: transparent; }
+
+@keyframes bl { 0%, 100% { opacity: .25 } 50% { opacity: 1 } }
+
+/* The design is a fixed two-pane desktop layout; below 900px the analysis panel stacks
+   under the chat instead of squeezing both into an unusable width. */
+@media (max-width: 900px) {
+  .app-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr auto !important;
+    overflow-y: auto !important;
+  }
+}

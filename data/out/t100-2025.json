@@ -1,0 +1,57 @@
+[
+  {
+    "airport": "ANC",
+    "year": "2025",
+    "monthsCovered": 12,
+    "departures": 87988,
+    "passengers": 2714359,
+    "seats": 3690391,
+    "loadFactorPct": 73.6,
+    "paxPerDeparture": 30.8,
+    "internationalDeparturesShare": 16
+  },
+  {
+    "airport": "BOS",
+    "year": "2025",
+    "monthsCovered": 12,
+    "departures": 191546,
+    "passengers": 21105980,
+    "seats": 25867349,
+    "loadFactorPct": 81.6,
+    "paxPerDeparture": 110.2,
+    "internationalDeparturesShare": 14.4
+  },
+  {
+    "airport": "LAX",
+    "year": "2025",
+    "monthsCovered": 12,
+    "departures": 273911,
+    "passengers": 36766912,
+    "seats": 45067356,
+    "loadFactorPct": 81.6,
+    "paxPerDeparture": 134.2,
+    "internationalDeparturesShare": 23.7
+  },
+  {
+    "airport": "SFO",
+    "year": "2025",
+    "monthsCovered": 12,
+    "departures": 190086,
+    "passengers": 26482764,
+    "seats": 32195461,
+    "loadFactorPct": 82.3,
+    "paxPerDeparture": 139.3,
+    "internationalDeparturesShare": 20.9
+  },
+  {
+    "airport": "SNA",
+    "year": "2025",
+    "monthsCovered": 12,
+    "departures": 51256,
+    "passengers": 5532646,
+    "seats": 6939970,
+    "loadFactorPct": 79.7,
+    "paxPerDeparture": 107.9,
+    "internationalDeparturesShare": 2.5
+  }
+]
