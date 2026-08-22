@@ -52,7 +52,9 @@ Follow-up questions work — the agent resolves references to earlier turns.
 ## WhatsApp demo
 
 The header's **WhatsApp** button opens a QR code and deep link for the Twilio WhatsApp
-Sandbox. Send the prepared join message, then ask the same airport questions in WhatsApp.
+Sandbox. Send the prepared join message, then ask the same airport questions by text or
+voice note in WhatsApp. Voice audio is downloaded server-side from Twilio, capped at 10 MB,
+transcribed without being stored, and passed to the same agent as ordinary text.
 Both channels use the same agent engine, prompt, deterministic tools, limits, and caveats.
 
 The Sandbox is a reviewer demo, not a production WhatsApp sender. Twilio may expire the

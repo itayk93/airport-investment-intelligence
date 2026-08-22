@@ -21,7 +21,13 @@ function WhatsAppIcon({ size = 17 }: { size?: number }) {
   );
 }
 
-export function WhatsAppLauncher({ compact = false }: { compact?: boolean }) {
+export function WhatsAppLauncher({
+  compact = false,
+  prominent = false,
+}: {
+  compact?: boolean;
+  prominent?: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -41,26 +47,26 @@ export function WhatsAppLauncher({ compact = false }: { compact?: boolean }) {
         aria-haspopup="dialog"
         aria-expanded={open}
         title="Continue in WhatsApp"
-        className={compact ? 'press' : undefined}
+        className="press"
         style={{
           flex: 'none',
           minWidth: 44,
-          minHeight: 44,
-          padding: compact ? 0 : '0 13px',
-          borderRadius: 10,
-          border: '1px solid rgba(246,244,239,.28)',
-          color: t.inkOn,
-          background: 'rgba(246,244,239,.08)',
+          minHeight: prominent ? 52 : 44,
+          padding: prominent ? '0 20px' : compact ? 0 : '0 13px',
+          borderRadius: prominent ? 12 : 10,
+          border: prominent ? '1px solid rgba(31,122,77,.35)' : '1px solid rgba(246,244,239,.28)',
+          color: prominent ? '#155D3A' : t.inkOn,
+          background: prominent ? 'rgba(31,122,77,.08)' : 'rgba(246,244,239,.08)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 7,
           cursor: 'pointer',
-          font: `500 12px/1 ${t.sans}`,
+          font: `${prominent ? 600 : 500} ${prominent ? 15 : 12}px/1 ${t.sans}`,
         }}
       >
-        <WhatsAppIcon />
-        {!compact && 'WhatsApp'}
+        <WhatsAppIcon size={prominent ? 19 : 17} />
+        {prominent ? 'Chat on WhatsApp' : !compact && 'WhatsApp'}
       </button>
 
       {open && (
@@ -124,7 +130,7 @@ export function WhatsAppLauncher({ compact = false }: { compact?: boolean }) {
             </div>
 
             <p style={{ margin: '12px 0 18px', color: t.ink60, font: `400 13.5px/1.55 ${t.sans}` }}>
-              Scan the QR code or open WhatsApp. Send the prepared join message once, then ask an airport question.
+              Scan the QR code or open WhatsApp. Send the prepared join message once, then ask by text or voice note.
             </p>
 
             <div

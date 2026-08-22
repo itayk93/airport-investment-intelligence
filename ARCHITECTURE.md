@@ -163,6 +163,9 @@ question resolved in 1–2 rounds.
 5. **WhatsApp requests are authenticated.** The channel adapter validates Twilio's HMAC
    signature over the exact webhook URL and form fields before invoking the agent. Sender
    numbers are never logged or sent to the model; rate limiting stores only a salted hash.
+6. **Voice media stays server-side.** Only signed WhatsApp requests can trigger a download;
+   media URLs must be HTTPS on `api.twilio.com` under the signed account path. Audio is
+   streamed into a 10 MB bounded buffer, transcribed, and discarded rather than persisted.
 
 ---
 
