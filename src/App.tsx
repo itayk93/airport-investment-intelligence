@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Header } from './components/Header';
+import { HomeScreen } from './components/HomeScreen';
 import { ChatPane } from './components/chat/ChatPane';
 import { Composer } from './components/chat/Composer';
 import { AnalysisPanel } from './components/panel/AnalysisPanel';
@@ -22,8 +23,9 @@ function formatPeriod(period: number): string {
 
 export function App() {
   const { data, loading, error } = useAirportData();
-  const { messages, pending, ask } = useChat();
+  const { messages, pending, ask, reset } = useChat();
   const isMobile = useIsMobile();
+  const [showHome, setShowHome] = useState(true);
 
   // Coverage is stated up front rather than discovered mid-conversation — the assignment
   // asks for scoping to be communicated clearly, and only one month of congestion data has
@@ -60,13 +62,33 @@ export function App() {
     background: t.bg,
   };
 
+  if (showHome) {
+    return (
+      <HomeScreen
+        data={data}
+        subtitle={headerNote}
+        compact={isMobile}
+        onStart={() => setShowHome(false)}
+      />
+    );
+  }
+
+  const goHome = () => {
+    reset();
+    setShowHome(true);
+  };
+
   // Mobile: one column — chat, then a collapsible analysis sheet, then the composer. The
   // sheet sits between them because it is reference material the composer must stay
   // reachable above.
   if (isMobile) {
     return (
       <div style={{ ...shell, maxWidth: 520, margin: '0 auto' }}>
-        <Header subtitle={headerNote} compact />
+        <Header
+          subtitle={headerNote}
+          compact
+          onHome={goHome}
+        />
         <ChatPane
           messages={messages}
           pending={pending}
@@ -76,7 +98,12 @@ export function App() {
           footer={
             <>
               <AnalysisSheet data={data} loading={loading} error={error} />
-              <Composer onSend={ask} disabled={pending} compact />
+              <Composer
+                onSend={ask}
+                disabled={pending}
+                compact
+                hasConversation={messages.length > 0}
+              />
             </>
           }
         />
@@ -86,7 +113,10 @@ export function App() {
 
   return (
     <div style={shell}>
-      <Header subtitle={headerNote} />
+      <Header
+        subtitle={headerNote}
+        onHome={goHome}
+      />
       <div
         style={{
           flex: 1,
@@ -101,7 +131,13 @@ export function App() {
           pending={pending}
           onSend={ask}
           coverageNote={welcomeNote}
-          footer={<Composer onSend={ask} disabled={pending} />}
+          footer={
+            <Composer
+              onSend={ask}
+              disabled={pending}
+              hasConversation={messages.length > 0}
+            />
+          }
         />
         <AnalysisPanel data={data} loading={loading} error={error} />
       </div>

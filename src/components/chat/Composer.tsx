@@ -6,10 +6,12 @@ export function Composer({
   onSend,
   disabled,
   compact = false,
+  hasConversation = false,
 }: {
   onSend: (text: string) => void;
   disabled: boolean;
   compact?: boolean;
+  hasConversation?: boolean;
 }) {
   const [value, setValue] = useState('');
   const [hovered, setHovered] = useState<'mic' | 'ask' | null>(null);
@@ -87,7 +89,13 @@ export function Composer({
               submit();
             }
           }}
-          placeholder={compact ? 'Ask about capacity or demand…' : 'Ask about capacity, congestion, unmet demand…'}
+          placeholder={
+            hasConversation
+              ? 'Ask a follow up question'
+              : compact
+                ? 'Ask about capacity or demand…'
+                : 'Ask about capacity, congestion, unmet demand…'
+          }
           aria-label="Ask the airport investment agent a question"
           style={{
             flex: 1,

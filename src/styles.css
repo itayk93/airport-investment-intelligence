@@ -39,6 +39,14 @@ input, button, textarea { font: inherit; color: inherit; }
 .press { transition: transform .16s, border-color .16s; }
 .press:active { transform: scale(.985); border-color: #B45309; }
 
+button:focus-visible, a:focus-visible, textarea:focus-visible {
+  outline: 3px solid #E8A33D;
+  outline-offset: 3px;
+}
+
+.home-primary { transition: transform .16s, background .16s; }
+.home-primary:hover { background: #263748 !important; transform: translateY(-1px); }
+
 @media (max-width: 720px) {
   /* Native-feeling scroll: no visible scrollbar track on a phone. */
   .sb::-webkit-scrollbar { width: 0; height: 0; }
