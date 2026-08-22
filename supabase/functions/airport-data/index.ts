@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
           { tag: '01', text: 'Weights are a chosen heuristic, not an industry standard. The FAA itself uses separate throughput, demand, and delay criteria rather than one weighted composite.' },
           { tag: '02', text: 'No public dataset publishes runway, gate, or terminal capacity. Capacity pressure and unmet demand are modeled proxies built from delay and forecast data.' },
           { tag: '03', text: 'Scores are relative to an airport\'s own US Census region, not national and not absolute. 1.00 means "most pressured in that region". Scores from different regions are not comparable — compare the underlying metrics instead.' },
-          { tag: '06', text: 'Airports below 100 departures per month are covered but not scored: at that sample size one bad day moves the delay averages more than genuine congestion does.' },
+          { tag: '06', text: 'Airports below 300 departures per month are covered but not scored: at that sample size a few disrupted days can move delay averages more than genuine congestion does.' },
           { tag: '04', text: 'Congestion data covers US domestic flights by BTS reporting carriers only. International departures at SFO and LAX are not in the delay figures.' },
           { tag: '05', text: 'The 2,000-mile long-haul threshold is our own definition, not a BTS or FAA standard.' },
         ],

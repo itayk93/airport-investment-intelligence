@@ -7,6 +7,7 @@
 // answers. MAX_TOOL_ROUNDS caps the loop in code, not in the prompt.
 import { runAgent } from '../_shared/agent.ts';
 import { checkRateLimit } from '../_shared/db.ts';
+import { parseChatInput } from './chatInput.ts';
 
 // Per-caller hourly cap. Sized for a full evaluation session (nine prepared questions plus
 // follow-ups), not for load: the 500/day global cap is what bounds actual spend.
@@ -28,15 +29,8 @@ import { isAllowedOrigin, json, preflight } from '../_shared/http.ts';
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 const RATE_LIMIT_SALT = Deno.env.get('RATE_LIMIT_SALT');
-const MAX_MESSAGES = 20;
-const MAX_MESSAGE_CHARS = 2_000;
 const MAX_BODY_BYTES = 32 * 1024;
 const encoder = new TextEncoder();
-
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string | null;
-}
 
 async function sha256(value: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', encoder.encode(value));
@@ -64,7 +58,7 @@ Deno.serve(async (req) => {
   const declaredLength = Number(req.headers.get('content-length') || 0);
   if (declaredLength > MAX_BODY_BYTES) return json({ error: 'Request body exceeds 32 KB.' }, 413, req);
 
-  let body: { messages?: ChatMessage[] };
+  let body: unknown;
   try {
     const raw = new Uint8Array(await req.arrayBuffer());
     if (raw.byteLength > MAX_BODY_BYTES) return json({ error: 'Request body exceeds 32 KB.' }, 413, req);
@@ -73,8 +67,8 @@ Deno.serve(async (req) => {
     return json({ error: 'Invalid JSON body' }, 400, req);
   }
 
-  const incoming = Array.isArray(body.messages) ? body.messages : [];
-  if (!incoming.length) return json({ error: 'messages[] required' }, 400, req);
+  const parsed = parseChatInput(body);
+  if (!parsed.ok) return json({ error: parsed.error }, 400, req);
 
   try {
     const ipHash = await sha256(`${clientIp(req)}:${RATE_LIMIT_SALT}`);
@@ -108,16 +102,8 @@ Deno.serve(async (req) => {
     return json({ error: 'Service temporarily unavailable.' }, 503, req);
   }
 
-  // Only user/assistant turns are accepted from the client — a client-supplied "system"
-  // or "tool" message would let the caller rewrite the agent's instructions or fake
-  // tool results, so those roles are dropped rather than trusted.
-  const history = incoming
-    .filter((m) => m.role === 'user' || m.role === 'assistant')
-    .slice(-MAX_MESSAGES)
-    .map((m) => ({ role: m.role, content: String(m.content ?? '').slice(0, MAX_MESSAGE_CHARS) }));
-
   try {
-    return json(await runAgent(history), 200, req);
+    return json(await runAgent(parsed.messages), 200, req);
   } catch (err) {
     const correlationId = crypto.randomUUID();
     console.error(`agent-chat error [${correlationId}]:`, err);

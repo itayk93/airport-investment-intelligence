@@ -11,7 +11,7 @@ export interface MetricDefinition {
 
 export const METRIC_CATALOG = {
   capacity_pressure: { source: 'scores', field: 'capacity_pressure', unit: 'score_0_to_1', description: 'Relative congestion proxy.' },
-  forecast_growth_gap_pct: { source: 'scores', field: 'forecast_growth_gap_pct', unit: 'percentage_points', description: 'FAA forecast CAGR minus historical T-100 CAGR.' },
+  forecast_growth_gap_pct: { source: 'scores', field: 'forecast_growth_gap_pct', unit: 'percentage_points', description: 'FAA forecast CAGR minus historical T-100 CAGR. Positive means the FAA expects growth FASTER than the airport\'s own measured 2014-2024 trend; negative means the FAA expects it to SLOW DOWN relative to that trend. Never describe a negative value as growth outpacing the forecast.' },
   unmet_demand_score: { source: 'scores', field: 'unmet_demand_score', unit: 'score_0_to_1', description: 'Pressure-gated forecast growth gap.' },
   expansion_score: { source: 'scores', field: 'expansion_score', unit: 'score_0_to_1', description: 'Composite modernization screening score.' },
   long_haul_share_pct: { source: 'monthly', field: 'long_haul_share_pct', unit: 'percent', description: 'Share of sampled departures flying at least 2,000 miles.', scopes: ['domestic_ontime'] },
