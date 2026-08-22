@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { parseReply, segments } from '../../lib/parseReply';
 import { t } from '../../lib/theme';
-import type { ToolCall } from '../../api/types';
 
 function Rich({ text }: { text: string }) {
   return (
@@ -21,12 +20,10 @@ function Rich({ text }: { text: string }) {
 
 export function AgentMessage({
   content,
-  toolTrace,
   isError,
   compact = false,
 }: {
   content: string;
-  toolTrace?: ToolCall[];
   isError?: boolean;
   compact?: boolean;
 }) {
@@ -105,34 +102,6 @@ export function AgentMessage({
           </p>
         );
       })}
-
-      {toolTrace && toolTrace.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 6,
-            marginTop: 2,
-            font: `400 10px/1 ${t.mono}`,
-            color: t.ink42,
-          }}
-        >
-          <span>queried</span>
-          {toolTrace.map((call, i) => (
-            <span
-              key={i}
-              style={{
-                border: `1px solid ${t.ink14}`,
-                borderRadius: 4,
-                padding: '3px 6px',
-                color: t.ink50,
-              }}
-            >
-              {call.tool}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 

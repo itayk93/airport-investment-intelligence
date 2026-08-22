@@ -170,7 +170,6 @@ export function ChatPane({
             ) : (
               <AgentMessage
                 content={m.content}
-                toolTrace={m.toolTrace}
                 isError={m.isError}
                 compact={compact}
               />
