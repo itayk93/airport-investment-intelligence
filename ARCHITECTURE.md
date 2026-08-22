@@ -262,7 +262,16 @@ reviewer should ask:
   international.
 - **One month of congestion data (May 2026) is ingested.** Trend questions cannot be
   answered yet. The app computes and displays this coverage from the database rather than
-  claiming more.
+  claiming more. May is a deliberate choice of month, not just the one that was available:
+  it sits outside both the summer peak and the winter-holiday peak, so it is closer to a
+  neutral operating month than a June or a December would be. Two consequences worth
+  stating plainly. Seasonal bias partly cancels within a comparison set, because every
+  airport in a region is measured in the same month — a bad-weather month hurts all of
+  them, and the ranking is relative. It does not cancel for airports whose demand is
+  itself seasonal: BGR, BTV and MHT serve ski and summer traffic, and May falls between
+  their seasons, so their congestion may be measured at a favourable point. The forecast
+  side of the model is unaffected — it rests on ten years of T-100 actuals and the FAA
+  TAF, not on this month.
 - **FAA TAF is annual**, 2025 vintage, historical actuals only through FY2024.
 - **The 2,000-mile long-haul threshold is our definition**, not a BTS or FAA standard.
 - **Growth-gap spans differ in length** (10y historical vs 11y forecast) because T-100 only
