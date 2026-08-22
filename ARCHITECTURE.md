@@ -259,7 +259,9 @@ npm run dev          # http://localhost:5173
 ```
 
 Requires `.env` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. The database
-is already populated and both edge functions are deployed.
+is already populated and all three edge functions are deployed. The optional WhatsApp
+channel additionally requires `TWILIO_AUTH_TOKEN` in Supabase secrets and the Sandbox
+inbound webhook pointed at `/functions/v1/twilio-whatsapp`.
 
 To rebuild the data from source:
 

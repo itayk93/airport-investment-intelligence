@@ -1,18 +1,18 @@
 # Airport Investment Intelligence Agent — Submission
 
 **Live app:** https://airport-investment-intelligence.vercel.app
-**Source:** this archive (`git archive` of the repo — no secrets, no `node_modules`)
+**Source:** https://github.com/itayk93/airport-investment-intelligence
 
 ## Where to look
 
 | Deliverable | File |
 |---|---|
-| Design / architecture doc | [`ARCHITECTURE.md`](ARCHITECTURE.md) — scoring methodology, tradeoffs, where AI is used |
-| Entry point / how to run | [`README.md`](README.md) |
-| Deterministic scoring | [`scripts/score.mjs`](scripts/score.mjs), [`scripts/lib/scoring.mjs`](scripts/lib/scoring.mjs), tests in [`tests/scoring.test.mjs`](tests/scoring.test.mjs) |
-| Agent (LLM + typed tools) | [`supabase/functions/_shared/agent.ts`](supabase/functions/_shared/agent.ts), [`supabase/functions/agent-chat/`](supabase/functions/agent-chat) |
-| Data source map | [`DATA_PLAN.md`](DATA_PLAN.md) |
-| Build log, stage by stage | [`docs/00-overview.md`](docs/00-overview.md) → `docs/13-*` |
+| Design / architecture doc | [`ARCHITECTURE.md`](../ARCHITECTURE.md) — scoring methodology, tradeoffs, where AI is used |
+| Entry point / how to run | [`README.md`](../README.md) |
+| Deterministic scoring | [`scripts/score.mjs`](../scripts/score.mjs), [`scripts/lib/scoring.mjs`](../scripts/lib/scoring.mjs), tests in [`tests/scoring.test.mjs`](../tests/scoring.test.mjs) |
+| Agent (LLM + typed tools) | [`supabase/functions/_shared/agent.ts`](../supabase/functions/_shared/agent.ts), [`supabase/functions/agent-chat/`](../supabase/functions/agent-chat) |
+| Data source map | [`DATA_PLAN.md`](../DATA_PLAN.md) |
+| Build log, stage by stage | [`docs/00-overview.md`](00-overview.md) → `docs/13-*` |
 
 ## What it is
 

@@ -18,9 +18,9 @@ The primary risk is denial of wallet. The browser contains a Supabase publishabl
 design. Database access uses the `agent_reader` role, which can read only the public
 BTS/FAA dataset. OpenAI and database credentials remain server-side.
 
-The public `agent-chat` endpoint can create paid OpenAI requests. Controls therefore bound
-request frequency and request cost, reduce browser-based abuse, and expose useful events
-for operations.
+The public `agent-chat` endpoint and signed `twilio-whatsapp` endpoint can create paid
+OpenAI requests. Controls therefore bound request frequency and request cost, reduce abuse,
+protect media, and expose useful events for operations.
 
 ## Implemented controls
 
@@ -30,6 +30,9 @@ for operations.
 
 - 15 accepted requests per IP-derived bucket per rolling hour.
 - 500 accepted requests globally per rolling day.
+
+`twilio-whatsapp` separately allows 20 accepted requests per salted sender hash per rolling
+hour. Raw phone numbers are neither stored nor logged by application code.
 
 Client IP addresses are never stored. The function stores
 `SHA-256(client IP + RATE_LIMIT_SALT)`. `RATE_LIMIT_SALT` is a Supabase secret generated
@@ -57,7 +60,7 @@ The function enforces:
 - 2,000 characters per accepted message.
 - 32 KiB request bodies, checked against `Content-Length` and actual bytes before JSON
   parsing.
-- 900 completion tokens per OpenAI call.
+- 320 completion tokens per OpenAI call.
 - 12 KiB serialized tool results before results enter later tool rounds.
 - Four tool rounds, unchanged from the existing bounded loop.
 
@@ -79,6 +82,19 @@ authentication mechanism and cannot stop direct HTTP clients.
 Both Edge Functions now use the shared origin policy. Unexpected `agent-chat` failures are
 logged with a correlation ID. Clients receive a generic error and that ID, not upstream
 error text. `airport-data` also returns a generic error on unexpected failures.
+
+### WhatsApp webhook and media controls
+
+- `X-Twilio-Signature` is verified with HMAC-SHA1 against the exact canonical public
+  webhook URL and every signed form field. Supabase's internal request URL is not used.
+- Only one `audio/*` attachment is accepted for voice input. The initial media URL must be
+  HTTPS on `api.twilio.com` and inside the signed Account SID path.
+- Twilio's authenticated redirect to its media store is followed only after that initial
+  allowlist check. The response is streamed into a bounded 10 MB buffer.
+- Audio is sent server-to-server to `gpt-4o-mini-transcribe`, then discarded. It is never
+  returned to the browser or written to the database.
+- Long agent replies are split on natural text boundaries into TwiML messages below 1,400
+  characters, leaving margin under Twilio's general 1,600-character body limit.
 
 ### Monitoring
 
@@ -126,11 +142,13 @@ Configured Supabase secrets:
 
 - `RATE_LIMIT_SALT`
 - `ALLOWED_ORIGINS`
+- `TWILIO_AUTH_TOKEN`
 
 Deployed functions:
 
 - `agent-chat`
 - `airport-data`
+- `twilio-whatsapp`
 
 Live verification completed after deployment:
 
@@ -139,7 +157,9 @@ Live verification completed after deployment:
 - Disallowed browser origin: `403` with `Origin not allowed`.
 - Request body over 32 KiB: `413` with `Request body exceeds 32 KB.`
 - Local Node tests: 4/4 passed.
-- Deno checks for both Edge Functions: passed.
+- Live WhatsApp voice note: signed request accepted, Twilio media redirect followed,
+  OpenAI transcription completed, agent answer produced, and split TwiML reply delivered.
+- Deno checks for all three Edge Functions: passed.
 - Production TypeScript/Vite build: passed.
 
 ## Layer 0 owner checklist

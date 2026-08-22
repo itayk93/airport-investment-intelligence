@@ -10,6 +10,9 @@ revenue inputs are outside the dataset.
 **→ [ARCHITECTURE.md](ARCHITECTURE.md)** — scoring methodology, key tradeoffs, and where AI
 is used. Start there.
 
+**→ [docs/SUBMISSION.md](docs/SUBMISSION.md)** — one-page submission summary: deliverable map,
+KPIs, interfaces, and stated limits.
+
 **→ [docs/11-review-remediation.md](docs/11-review-remediation.md)** — review findings,
 fixes, corrected scores, and verification record.
 
@@ -74,7 +77,9 @@ supabase/
   schema.sql             4-table schema
   functions/
     _shared/db.ts        every database read, one definition
+    _shared/agent.ts     shared LLM/tool loop for every conversation channel
     agent-chat/          LLM + 2 typed tools and metric catalog
+    twilio-whatsapp/     signed text + voice-note WhatsApp adapter
     airport-data/        deterministic scores for the UI panel (no LLM)
 scripts/
   test-*                 stage-1 source verification probes

@@ -1,7 +1,12 @@
-# Secrets Management — Why the OpenAI Key Lives in Supabase, Not `.env`
+# Secrets Management — OpenAI and Twilio Credentials
 
 Decision: the OpenAI API key is stored as a **Supabase secret** (Edge Function secret /
 Vault), not added to the local `.env` file like the Supabase keys were.
+
+The same rule applies to `TWILIO_AUTH_TOKEN`. It authenticates media downloads and verifies
+inbound webhook signatures, so it is server-only and stored as a Supabase Edge Function
+secret. The public Account SID, Sandbox number, join phrase, QR payload, and webhook URL
+are configuration identifiers, not authentication credentials.
 
 ## Why not just add it to `.env` like everything else
 
@@ -37,6 +42,14 @@ Supabase-managed environment rather than a checked-in file). It is **not** dupli
 into `.env` or `.env.supabase.local` — those two files stay scoped to Supabase's own
 connection details only.
 
+Configured server secrets used by the runtime:
+
+- `OPENAI_API_KEY` — chat completion and voice-note transcription.
+- `TWILIO_AUTH_TOKEN` — webhook HMAC validation and authenticated media download.
+- `AGENT_READER_DSN` — SELECT-only database connection.
+- `RATE_LIMIT_SALT` — one-way hashing for anonymous rate-limit buckets.
+- `ALLOWED_ORIGINS` — optional web-channel CORS allowlist.
+
 ## What this means practically
 
 - The local dev machine never needs the OpenAI key on disk in plaintext for longer than
@@ -44,3 +57,5 @@ connection details only.
 - Nothing in this repo's git history, `.gitignore`'d or not, can ever contain it.
 - If the submission is a zipped copy of this folder, the OpenAI key cannot be in it —
   by construction, not by remembering to scrub it before zipping.
+- Voice media is fetched directly from Twilio inside the Edge Function, transcribed, and
+  discarded. Neither the audio nor the sender's raw phone number is stored by this app.

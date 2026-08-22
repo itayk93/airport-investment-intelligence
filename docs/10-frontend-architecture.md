@@ -19,13 +19,19 @@ src/
     theme.ts             design tokens from the Claude Design source
     parseReply.ts        markdown-ish → the design's three line types
   components/
-    Header.tsx
+    Header.tsx · WhatsAppLauncher.tsx
     chat/  ChatPane · AgentMessage · Composer
     panel/ PanelBody (shared) · AnalysisPanel (desktop) · AnalysisSheet (mobile)
 ```
 
 Layering is deliberate: components never call `fetch`, never parse env, and never coerce a
 raw database value. Each of those happens in exactly one place.
+
+`WhatsAppLauncher` is intentionally frontend-only onboarding. It renders a Twilio Sandbox
+QR code locally with `qrcode.react` and a `wa.me` deep link containing the join phrase.
+No Twilio SDK or credential reaches the browser. Desktop reviewers can scan; mobile users
+open WhatsApp directly. The dialog labels Sandbox as a demo and keeps web chat available
+when international Sandbox delivery is unreliable.
 
 ## Design
 
@@ -109,6 +115,9 @@ not a preference.
 - **Voice input via the browser's SpeechRecognition** — no extra key, no audio upload, no
   per-minute cost. Trade-off is browser-dependent support (no Firefox), which the UI
   reports in the hint line instead of silently failing.
+- **WhatsApp voice is a different path.** WhatsApp voice notes never enter the React app;
+  Twilio delivers them to the signed server webhook, where OpenAI transcription converts
+  them to text before the shared agent runs.
 
 ## Verified
 

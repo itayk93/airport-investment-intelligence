@@ -1,9 +1,13 @@
 # Stage 5 — Agent Architecture
 
-Deployed as a Supabase Edge Function: `agent-chat`
-(`https://hfwremsegdtqaghuqrdv.supabase.co/functions/v1/agent-chat`).
+Deployed through two channel Edge Functions:
 
-Files: `supabase/functions/agent-chat/{index.ts,tools.ts,prompt.ts}`
+- `agent-chat` — JSON web-chat adapter.
+- `twilio-whatsapp` — signed Twilio form/TwiML adapter for text and voice notes.
+
+Both call `_shared/agent.ts`. The shared engine owns the model loop, prompt, tool catalog,
+output ceiling, and fixed score disclosure. Channel code owns only transport validation,
+rate limiting, input normalization, and response formatting.
 
 ## Where AI is used, and where it deliberately isn't
 
@@ -29,6 +33,23 @@ honestly rather than silently truncating.
 Observed in testing: every one of the four assignment questions resolved in 1–2 tool
 rounds.
 
+## Answer contract
+
+Long answers were a real usability failure in both channels, not only a WhatsApp transport
+problem. The shared prompt now enforces a decision-first response:
+
+1. One-sentence conclusion.
+2. Two to four decisive numbers.
+3. One short explanation of why.
+4. One materially relevant caveat.
+
+Defaults: 120 words, 150 for comparisons, 80 for follow-ups, and 220 only when detail is
+explicitly requested. Generation is capped at 320 tokens. The fixed score disclosure is a
+single compact sentence rather than a second generic summary.
+
+This is distinct from WhatsApp's 1,400-character chunker: the shared contract improves
+focus everywhere; chunking is only a final transport safeguard.
+
 ## Security model — defense in depth
 
 1. **Separate read-only database role.** The agent connects as `agent_reader`, not with
@@ -49,6 +70,9 @@ rounds.
    Supabase secrets, readable only server-side inside the function
    (see `docs/08-secrets-management.md`).
 5. Input bounds: messages truncated to 2,000 chars, history capped at 20 turns.
+6. **Twilio boundary.** Signed form fields are verified before work begins. Voice media is
+   restricted to Twilio's HTTPS Account SID path, bounded at 10 MB, transcribed server-side,
+   and discarded. Sender rate limits use a salted hash rather than a stored phone number.
 
 ## Tools exposed
 
@@ -87,6 +111,14 @@ All four assignment questions answered end-to-end against live data:
 - **Follow-up** ("why is it ahead of the second one, and how confident should I be?") →
   resolved the pronoun from history and volunteered the "weights are heuristic, not an
   industry standard" caveat without being asked.
+- **WhatsApp voice** → inbound OGG media downloaded from Twilio, transcribed, mapped to the
+  same canonical metrics, and answered by the same shared engine.
+
+Live integration debugging produced three permanent safeguards:
+
+- Validate against the canonical public webhook URL, not Supabase's internal request URL.
+- Follow Twilio's authenticated media redirect after validating the initial URL.
+- Split TwiML replies below 1,400 characters to avoid Twilio error `21617`.
 
 Unseen-question checks after the generic-tool refactor:
 
@@ -100,6 +132,10 @@ Unseen-question checks after the generic-tool refactor:
 
 - Single model call chain per turn; no streaming yet (the UI will need it for perceived
   latency).
+- WhatsApp turns are stateless. Cross-channel or durable history would require explicit
+  identity linking, retention, consent, and deletion policy.
+- Twilio Sandbox onboarding can expire and international delivery is not guaranteed; an
+  approved sender is required before calling the channel production-ready.
 - `comparison_set_id` is hard-coded to `pilot-5`. Supporting arbitrary comparison sets
   means re-running scoring per set.
 - Only one month of congestion data is ingested, so trend-over-time questions can't be

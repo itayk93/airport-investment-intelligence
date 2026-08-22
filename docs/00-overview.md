@@ -32,6 +32,7 @@ a chat interface, clear reasoning, and explicit assumptions/uncertainty/scoping.
    → [`05-ingestion-pipeline.md`](05-ingestion-pipeline.md)
 5. Agent (LLM + tool calls over the deterministic scores)
 6. Chat UI (Vite + React + Node — see `04-decisions-and-talking-points.md`, section 8)
+7. WhatsApp channel (Twilio Sandbox QR/deep link, signed webhook, text + voice notes)
 
 Cutting across all of these: [`04-decisions-and-talking-points.md`](04-decisions-and-talking-points.md)
 is a running list of choices worth being able to explain out loud (Supabase region, stack,
@@ -39,7 +40,8 @@ scoring weights, scope gaps), and [`06-refresh-cadence-and-automation.md`](06-re
 covers how often each source actually publishes new data and how ingestion would be
 scheduled to stay current (proposed, not yet automated).
 
-Stages 5-6 will each get their own doc as they're built.
+Stages 5–7 are documented in `09-agent-architecture.md`, `10-frontend-architecture.md`,
+and the WhatsApp sections of `ARCHITECTURE.md` and `12-public-deployment-hardening.md`.
 
 ## Why this order
 
