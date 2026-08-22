@@ -4,6 +4,8 @@ An AI agent for identifying US airports where modernization investment is most l
 pay back, built on public BTS and FAA data. Ranking is deterministic code; the LLM explains
 and compares, it never computes the numbers.
 
+**[Open the live app](https://airport-investment-intelligence.vercel.app)**
+
 **→ [ARCHITECTURE.md](ARCHITECTURE.md)** — scoring methodology, key tradeoffs, and where AI
 is used. Start there.
 
