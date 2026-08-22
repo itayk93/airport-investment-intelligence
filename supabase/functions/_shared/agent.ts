@@ -31,7 +31,18 @@ export interface AgentResult {
 }
 
 function addScoreDisclosure(reply: string, toolTrace: AgentResult['tool_trace']) {
-  if (!toolTrace.some((call) => call.tool === 'get_airport_scores')) return reply;
+  const scoreMetrics = new Set([
+    'capacity_pressure',
+    'forecast_growth_gap_pct',
+    'unmet_demand_score',
+    'expansion_score',
+  ]);
+  const usedScores = toolTrace.some((call) => {
+    if (call.tool !== 'get_airport_data' || !call.args || typeof call.args !== 'object') return false;
+    const metrics = (call.args as { metrics?: unknown }).metrics;
+    return Array.isArray(metrics) && metrics.some((metric) => scoreMetrics.has(String(metric)));
+  });
+  if (!usedScores) return reply;
   return `${reply.trim()}\n\n${SCORE_DISCLOSURE}`;
 }
 

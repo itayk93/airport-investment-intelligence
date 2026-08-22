@@ -60,7 +60,12 @@ export function getScores(codes: string[] = []) {
     : sql`select * from (${latest}) latest order by expansion_score desc nulls last`;
 }
 
-export function getMetrics(codes: string[], scope: 'domestic_ontime' | 't100_all') {
+export function getMetrics(
+  codes: string[],
+  scope: 'domestic_ontime' | 't100_all',
+  fromPeriod = 0,
+  toPeriod = 999999,
+) {
   return sql`
     select iata_code, year, month, data_scope, departures, passengers, seats,
            load_factor_pct, avg_dep_delay_minutes, pct_delayed_over_15,
@@ -71,6 +76,7 @@ export function getMetrics(codes: string[], scope: 'domestic_ontime' | 't100_all
            long_haul_threshold_miles
     from airport_metrics_monthly
     where iata_code in ${sql(codes)} and data_scope = ${scope}
+      and year * 100 + month between ${fromPeriod} and ${toPeriod}
     order by iata_code, year, month
     limit 500
   `;

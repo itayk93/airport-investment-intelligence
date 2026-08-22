@@ -47,20 +47,25 @@ rounds.
 4. **Secrets never reach the browser.** `OPENAI_API_KEY` and `AGENT_READER_DSN` live in
    Supabase secrets, readable only server-side inside the function
    (see `docs/08-secrets-management.md`).
-5. Input bounds: messages truncated to 4000 chars, history capped at 40 turns.
+5. Input bounds: messages truncated to 2,000 chars, history capped at 20 turns.
 
 ## Tools exposed
 
 | Tool | Purpose |
 |---|---|
 | `list_airports` | Resolve place names ("New England", "Santa Ana") to IATA codes; report actual coverage |
-| `get_airport_scores` | The deterministic scores — ranking and comparison questions |
-| `get_airport_metrics` | Raw monthly operational evidence behind the scores (delays, taxi-out, long-haul) |
-| `get_airport_forecast` | FAA TAF enplanement/operations by year and scenario |
+| `get_airport_data` | General allowlisted retrieval across scores, monthly operations, traffic volume, and FAA forecasts |
 
-Every tool response carries a `note` field restating the scope caveat for that data
-(e.g. "US domestic flights by BTS reporting carriers only") so the caveat travels with
-the data into the model's context rather than depending on the system prompt alone.
+`get_airport_data` accepts airports, canonical metrics, an optional period, and an optional
+scope. Its data dictionary maps each metric to a fixed database field, source, unit, and
+valid scope. The model can discover that dictionary by calling the same tool with no
+metrics. Unknown or incompatible metrics return `available_metrics`; the agent must check
+that result before claiming data is unavailable. There is no question-specific function
+and no free-form SQL.
+
+Every result carries metric metadata and scope notes (for example, "US domestic flights by
+BTS reporting carriers only") so caveats travel with the data instead of depending on the
+system prompt alone.
 
 ## Verified behaviour (2026-08-22)
 

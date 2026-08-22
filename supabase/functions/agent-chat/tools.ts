@@ -1,13 +1,4 @@
-// The ONLY way the agent reaches the database.
-//
-// Deliberately NOT a "run this SQL" tool. Every tool takes typed parameters and delegates
-// to a parameterized query in _shared/db.ts, so there is no free-form SQL surface for the
-// model to write into — and therefore no injection path to validate against. Combined with
-// the SELECT-only `agent_reader` role, that is defense in depth: even a fully compromised
-// prompt cannot write, drop, or read outside these four tables.
-//
-// Each result carries a `note` restating that data's scope caveat, so the caveat travels
-// with the data into the model's context instead of relying on the system prompt alone.
+// Generic, allowlisted data access for the agent. The model selects fields, never SQL.
 import {
   asIataCodes,
   COMPARISON_SET,
@@ -16,6 +7,15 @@ import {
   getScores,
   listAirports,
 } from '../_shared/db.ts';
+import {
+  asMetricNames,
+  METRIC_CATALOG,
+  metricNames,
+  parsePeriod,
+  type DataScope,
+  type MetricName,
+  unknownMetricNames,
+} from './dataCatalog.ts';
 
 export const toolDefinitions = [
   {
@@ -23,112 +23,166 @@ export const toolDefinitions = [
     function: {
       name: 'list_airports',
       description:
-        'List the airports available in the dataset with city, state, and region tag. Use this to resolve place names ("New England", "Santa Ana", "LA") to IATA codes, and to tell the user honestly what coverage exists.',
+        'Discover which airports are covered and resolve city, state, or region names to IATA codes. Use before claiming that a place is not covered.',
       parameters: { type: 'object', properties: {}, required: [], additionalProperties: false },
     },
   },
   {
     type: 'function' as const,
     function: {
-      name: 'get_airport_scores',
+      name: 'get_airport_data',
       description:
-        'Get the deterministic investment scores (capacity pressure, forecast growth gap, unmet demand, expansion score, long-haul share) for specific airports, or for all airports ranked by expansion score. Always use this tool for a long-haul percentage/share question; read long_haul_share_pct. Also use for ranking, comparison, and "which airport is the best candidate" questions.',
+        'General airport data tool. Request any allowlisted metrics for airports and an optional period/scope. Call with an empty metrics array to discover the data dictionary. If a metric is unavailable, inspect available_metrics before answering.',
       parameters: {
         type: 'object',
         properties: {
           airports: {
             type: 'array',
             items: { type: 'string' },
-            description: 'IATA codes, e.g. ["SFO","LAX"]. Omit for all airports ranked.',
+            description: 'IATA codes, for example ["ANC","SFO"].',
           },
-        },
-        required: [],
-        additionalProperties: false,
-      },
-    },
-  },
-  {
-    type: 'function' as const,
-    function: {
-      name: 'get_airport_metrics',
-      description:
-        'Get raw monthly operational evidence behind the scores — departure delay, taxi-out, cancellation rate, NAS/weather/carrier delay per departure, long-haul departures, passengers, and seats. Use for congestion detail, delays, or evidence behind a score. For a direct long-haul percentage/share question, use get_airport_scores instead.',
-      parameters: {
-        type: 'object',
-        properties: {
-          airports: { type: 'array', items: { type: 'string' }, description: 'IATA codes.' },
-          data_scope: {
+          metrics: {
+            type: 'array',
+            items: {
+              type: 'string',
+              enum: metricNames(),
+            },
+            description: 'Canonical metric names from the data dictionary.',
+          },
+          from: {
+            type: 'string',
+            description: 'Optional start period as YYYY or YYYY-MM.',
+          },
+          to: {
+            type: 'string',
+            description: 'Optional end period as YYYY or YYYY-MM.',
+          },
+          scope: {
             type: 'string',
             enum: ['domestic_ontime', 't100_all'],
-            description:
-              'domestic_ontime = US domestic congestion/delay (BTS On-Time). t100_all = passenger/seat volume including international (BTS T-100). Default domestic_ontime.',
+            description: 'Optional source scope. Omit to let metric metadata select valid scopes.',
           },
         },
-        required: ['airports'],
-        additionalProperties: false,
-      },
-    },
-  },
-  {
-    type: 'function' as const,
-    function: {
-      name: 'get_airport_forecast',
-      description:
-        'Get FAA Terminal Area Forecast enplanements and operations by year. scenario 0 = historical actual, 1 = forecast. Use for future-growth questions.',
-      parameters: {
-        type: 'object',
-        properties: {
-          airports: { type: 'array', items: { type: 'string' } },
-          from_year: { type: 'integer', description: 'First year, inclusive.' },
-          to_year: { type: 'integer', description: 'Last year, inclusive.' },
-        },
-        required: ['airports', 'from_year', 'to_year'],
+        required: ['airports', 'metrics'],
         additionalProperties: false,
       },
     },
   },
 ];
 
-const SCORE_NOTE =
-  'Scores are relative to this comparison set only, not an absolute industry scale. Weights are a stated assumption, not an industry standard.';
+type DataRow = Record<string, unknown>;
+
+function catalog(names: MetricName[] = metricNames()) {
+  return Object.fromEntries(names.map((name) => [name, METRIC_CATALOG[name]]));
+}
+
+function pick(row: DataRow, metrics: MetricName[], extra: string[]): DataRow {
+  return Object.fromEntries(
+    [...extra, ...metrics.map((name) => METRIC_CATALOG[name].field)]
+      .filter((field, index, fields) => fields.indexOf(field) === index)
+      .map((field) => [field, row[field]]),
+  );
+}
+
+function scopesFor(metric: MetricName, requested?: DataScope): DataScope[] {
+  const definition = METRIC_CATALOG[metric];
+  if (definition.source !== 'monthly') return [];
+  const supported = [...definition.scopes];
+  return requested ? supported.filter((scope) => scope === requested) : supported;
+}
+
+async function getAirportData(args: Record<string, unknown>): Promise<unknown> {
+  const airports = asIataCodes(args.airports);
+  const metrics = asMetricNames(args.metrics);
+  const unknown = unknownMetricNames(args.metrics);
+  const requestedScope = args.scope === 'domestic_ontime' || args.scope === 't100_all'
+    ? args.scope
+    : undefined;
+
+  if (!metrics.length) {
+    return {
+      error: unknown.length ? 'No requested metric is available.' : 'Choose one or more metrics.',
+      unknown_metrics: unknown,
+      available_metrics: catalog(),
+    };
+  }
+  if (!airports.length) {
+    return {
+      error: 'No valid IATA airport codes were provided. Use list_airports for discovery.',
+      available_metrics: catalog(metrics),
+    };
+  }
+
+  const from = parsePeriod(args.from);
+  const to = parsePeriod(args.to, true);
+  if ((args.from !== undefined && !from) || (args.to !== undefined && !to) || (from && to && from > to)) {
+    return {
+      error: 'Invalid period. Use YYYY or YYYY-MM and keep from before to.',
+      available_metrics: catalog(metrics),
+    };
+  }
+
+  const rows: DataRow[] = [];
+  const unavailable = new Set<string>(unknown);
+  const scoreMetrics = metrics.filter((name) => METRIC_CATALOG[name].source === 'scores');
+  if (scoreMetrics.length) {
+    const scoreRows = await getScores(airports) as unknown as DataRow[];
+    rows.push(...scoreRows.map((row) => ({
+      source: 'computed_scores',
+      ...pick(row, scoreMetrics, ['iata_code', 'name', 'computed_at']),
+    })));
+  }
+
+  const monthlyMetrics = metrics.filter((name) => METRIC_CATALOG[name].source === 'monthly');
+  for (const scope of ['domestic_ontime', 't100_all'] as const) {
+    const scopedMetrics = monthlyMetrics.filter((name) => scopesFor(name, requestedScope).includes(scope));
+    if (!scopedMetrics.length) continue;
+    const monthlyRows = await getMetrics(airports, scope, from, to) as unknown as DataRow[];
+    rows.push(...monthlyRows.map((row) => ({
+      source: scope === 'domestic_ontime' ? 'BTS On-Time' : 'BTS T-100',
+      ...pick(row, scopedMetrics, ['iata_code', 'year', 'month', 'data_scope']),
+    })));
+  }
+  for (const metric of monthlyMetrics) {
+    if (!scopesFor(metric, requestedScope).length) unavailable.add(metric);
+  }
+
+  const forecastMetrics = metrics.filter((name) => METRIC_CATALOG[name].source === 'forecast');
+  if (forecastMetrics.length) {
+    const fromYear = from ? Math.floor(from / 100) : 2019;
+    const toYear = to ? Math.floor(to / 100) : 2035;
+    const forecastRows = await getForecast(airports, fromYear, toYear) as unknown as DataRow[];
+    rows.push(...forecastRows.map((row) => ({
+      source: 'FAA TAF 2025',
+      ...pick(row, forecastMetrics, ['iata_code', 'year', 'scenario']),
+    })));
+  }
+
+  return {
+    comparison_set: scoreMetrics.length ? COMPARISON_SET : undefined,
+    metric_metadata: catalog(metrics),
+    rows,
+    unavailable_metrics: [...unavailable],
+    available_metrics: unavailable.size ? catalog() : undefined,
+    notes: [
+      'scenario 0 is FAA historical actual; scenario 1 is FAA forecast.',
+      'domestic_ontime covers US domestic flights by BTS reporting carriers.',
+      't100_all includes domestic and international traffic volume.',
+      'Long-haul means at least 2,000 miles and is a project-defined threshold.',
+    ],
+  };
+}
 
 export async function runTool(name: string, args: Record<string, unknown>): Promise<unknown> {
   switch (name) {
     case 'list_airports':
       return { rows: await listAirports() };
-
-    case 'get_airport_scores':
-      return {
-        comparison_set: COMPARISON_SET,
-        note: SCORE_NOTE,
-        rows: await getScores(asIataCodes(args.airports)),
-      };
-
-    case 'get_airport_metrics': {
-      const codes = asIataCodes(args.airports);
-      if (!codes.length) return { error: 'No valid IATA codes provided.' };
-      const scope = args.data_scope === 't100_all' ? 't100_all' : 'domestic_ontime';
-      return {
-        data_scope: scope,
-        note:
-          scope === 'domestic_ontime'
-            ? 'US domestic flights by BTS reporting carriers only — international departures are NOT included.'
-            : 'BTS T-100, includes both domestic and international traffic.',
-        rows: await getMetrics(codes, scope),
-      };
-    }
-
-    case 'get_airport_forecast': {
-      const codes = asIataCodes(args.airports);
-      if (!codes.length) return { error: 'No valid IATA codes provided.' };
-      return {
-        note:
-          'FAA Terminal Area Forecast (2025 vintage). scenario 0 = historical actual (through FY2024), scenario 1 = forecast.',
-        rows: await getForecast(codes, Number(args.from_year) || 2019, Number(args.to_year) || 2035),
-      };
-    }
-
+    case 'get_airport_data':
+      return getAirportData(args);
     default:
-      return { error: `Unknown tool: ${name}` };
+      return {
+        error: `Unknown tool: ${name}`,
+        available_tools: ['list_airports', 'get_airport_data'],
+      };
   }
 }
