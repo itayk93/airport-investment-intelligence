@@ -1,4 +1,5 @@
 import { SYSTEM_PROMPT } from '../agent-chat/prompt.ts';
+import { classifyScope, OFF_TOPIC_REPLY, SOCIAL_REPLY } from '../agent-chat/scopeGuard.ts';
 import { toolDefinitions, runTool } from '../agent-chat/tools.ts';
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -102,6 +103,16 @@ export async function runAgent(input: AgentInputMessage[]): Promise<AgentResult>
       content: String(message.content ?? '').slice(0, MAX_MESSAGE_CHARS),
     }));
   if (!history.length) throw new Error('At least one message is required');
+
+  const latestUserIndex = history.findLastIndex((message) => message.role === 'user');
+  if (latestUserIndex < 0) throw new Error('At least one user message is required');
+  const scope = classifyScope(history[latestUserIndex].content, latestUserIndex > 0);
+  if (scope === 'off-topic' || scope === 'social') {
+    return {
+      reply: scope === 'social' ? SOCIAL_REPLY : OFF_TOPIC_REPLY,
+      tool_trace: [],
+    };
+  }
 
   const messages: ModelMessage[] = [{ role: 'system', content: SYSTEM_PROMPT }, ...history];
   const toolTrace: AgentResult['tool_trace'] = [];
