@@ -100,7 +100,7 @@ Full contract, discovery behavior, catalog, examples, and test evidence:
 
 All four example questions answered end-to-end against live data:
 
-- **ANC long-haul** → 28.77%, one tool call.
+- **ANC long-haul** → 25.9% averaged across the ingested months (16.9%–40.0% by month), one tool call.
 - **LAX vs SNA congestion** → correctly surfaced the non-obvious read: SNA has *higher*
   capacity pressure (0.52 vs 0.46) despite LAX's much larger volume, while LAX has the
   higher unmet-demand case.

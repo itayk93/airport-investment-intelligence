@@ -150,6 +150,8 @@ Live checks against the deployed Edge Function:
 | ANC terminal gate count | Correct refusal after tool-based discovery |
 | ANC long-haul share | `28.77%`, May 2026 domestic reporting-carrier scope |
 
+That ANC figure is one month, which is what the request asked for. It is **not** the answer to "what is the long-haul share at Anchorage" — ANC swings from 16.9% in February to 40.0% in June, so the headline answer is the 25.9% multi-month average with that range beside it. The prompt now says so explicitly, because the model was picking the newest month on its own.
+
 ## Adding a metric
 
 Adding supported evidence does not add a question-specific tool. Add one catalog entry,

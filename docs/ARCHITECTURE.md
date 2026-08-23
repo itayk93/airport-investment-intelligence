@@ -40,7 +40,7 @@ read from the deployed API on 2026-08-22.
 |---|---|
 | Strong candidates in New England | Ranks all 7 scored New England airports in one call. **BTV (Burlington) leads at 0.84**, then BGR and BOS. |
 | LA vs. Santa Ana congestion | Compares **raw metrics**, not scores — LAX capacity pressure 0.62 vs. SNA 0.60, decided on taxi-out and NAS delay minutes. |
-| Long-haul share out of Anchorage | **28.77%** of departures fly 2,000+ miles — with the caveat that the 2,000-mile threshold is our definition, not a BTS standard. |
+| Long-haul share out of Anchorage | **25.9%** of departures fly 2,000+ miles, averaged over the ingested months, ranging 16.9% (Feb) to 40.0% (Jun) — Anchorage is the most seasonal airport in the data, so the average is the answer and the range is part of it. The 2,000-mile threshold is our definition, not a BTS standard. |
 | Unmet demand at SFO, and why | **1.00** — capacity pressure 0.85 combined with a forecast growth gap of +2.07pp. The explanation is the product: growth arriving at an already-strained airport. |
 
 ---
