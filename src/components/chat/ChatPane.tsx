@@ -156,6 +156,10 @@ export function ChatPane({
   return (
     <section
       style={{
+        // flex:1 matters on mobile, where this section is a plain flex child of the shell
+        // rather than a sized grid cell: without it the section collapses to content height
+        // and the composer floats mid-screen instead of pinning to the bottom.
+        flex: 1,
         display: 'flex',
         flexDirection: 'column',
         minWidth: 0,
