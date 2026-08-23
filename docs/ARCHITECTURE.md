@@ -44,7 +44,7 @@ Questions the build never anticipated are the more interesting evidence, and are
 rates for a named month, quarterly passenger totals, a forecast for a single year, and a
 question about gate counts that the agent correctly refuses because no such data exists.
 
-Figures below were read from the deployed API on 2026-08-23.
+Figures below were read from the deployed API on 2026-08-22.
 
 | Question | How the system answers it |
 |---|---|
@@ -308,6 +308,6 @@ BTS data and re-scores when it arrives.
 
 ---
 
-Figures read from the deployed API on 2026-08-23. Coverage moves as the scheduled refresh
+Figures read from the deployed API on 2026-08-22. Coverage moves as the scheduled refresh
 ingests new BTS months; the app derives the current numbers from the database rather than
 quoting a constant. Formatted page: [docs/architecture.html](architecture.html).

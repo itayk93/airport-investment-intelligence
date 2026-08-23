@@ -11,7 +11,7 @@ measured actuals, not FAA's own historical estimate); forecast CAGR uses FAA TAF
 noted in the script, not hidden.
 
 Verified output over **twenty-four months of congestion data (July 2024 – June 2026)**, two
-full annual cycles — 162 airports scored across 9 regional comparison sets, run 2026-08-23.
+full annual cycles — 162 airports scored across 9 regional comparison sets, run 2026-08-22.
 The score uses a trailing 24-month window rather than everything ingested, so every season is
 counted exactly twice; see `docs/17-scoring-window-and-read-integrity.md`. Two sets shown;
 `comparison_set_id` is the region.

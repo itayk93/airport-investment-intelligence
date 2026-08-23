@@ -18,7 +18,7 @@ explained the way it would be explained to a non-technical stakeholder.
 - **Expansion Score** — the final number, a weighted blend of everything above — "how
   strong a candidate is this airport for expansion investment?"
 
-## What it says about each airport (run 2026-08-23, twenty-four months of data)
+## What it says about each airport (run 2026-08-22, twenty-four months of data)
 
 Congestion is averaged over **July 2024 – June 2026**, two full annual cycles — a trailing
 24-month window, so every season counts exactly twice. Scores are

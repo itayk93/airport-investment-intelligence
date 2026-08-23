@@ -129,7 +129,7 @@ which also covers why Supabase Cron cannot run this pipeline.
 ## Scope
 
 361 covered airports, 162 scored across 9 regional comparison sets, twenty-four months of
-congestion data (July 2024 – June 2026) as of 2026-08-23, no capacity dataset in existence
+congestion data (July 2024 – June 2026) as of 2026-08-22, no capacity dataset in existence
 anywhere public. Scoring uses a trailing 24-month window — two full annual cycles, so every
 season is counted exactly twice; as the refresh cron ingests a new BTS month the oldest one
 leaves the window. The app and the agent read the current period from the database rather
