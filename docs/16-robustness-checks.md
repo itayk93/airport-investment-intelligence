@@ -21,24 +21,25 @@ npm run cagr-spans    # node scripts/cagr-spans.mjs
 
 Every region's ranking is rebuilt under eight alternate weightings and compared to the
 shipped model by Spearman rank correlation, change of the top-ranked airport, and worst
-single-airport rank shift. Run over 163 scored airports in 9 regions:
+single-airport rank shift. Run over 162 scored airports in 9 regions, on the 24-month
+window:
 
 | Variant | Regions where #1 changed | Mean Spearman ρ | Worst rank shift |
 |---|---|---|---|
-| Equal congestion weights (⅓/⅓/⅓) | 0/9 | 0.992 | 5 |
-| Taxi-out dominant (0.7/0.15/0.15) | 0/9 | 0.986 | 5 |
-| NAS delay dominant | 4/9 | 0.969 | 7 |
-| Delay frequency dominant | 3/9 | 0.938 | 15 |
-| Equal expansion weights (⅓/⅓/⅓) | 1/9 | 0.967 | 5 |
-| Unmet demand only (1/0/0) | 1/9 | 0.436 | 27 |
-| Forecast growth only (0/1/0) | 8/9 | 0.770 | 21 |
-| Congestion only (0/0/1) | 6/9 | 0.591 | 24 |
+| Equal congestion weights (⅓/⅓/⅓) | 0/9 | 0.996 | 3 |
+| Taxi-out dominant (0.7/0.15/0.15) | 0/9 | 0.978 | 6 |
+| NAS delay dominant | 1/9 | 0.976 | 7 |
+| Delay frequency dominant | 2/9 | 0.944 | 13 |
+| Equal expansion weights (⅓/⅓/⅓) | 1/9 | 0.967 | 6 |
+| Unmet demand only (1/0/0) | 1/9 | 0.418 | 27 |
+| Forecast growth only (0/1/0) | 8/9 | 0.779 | 21 |
+| Congestion only (0/0/1) | 7/9 | 0.610 | 24 |
 
 **Reading it.** Under any *plausible* reweighting — the top five rows, where all three
 components still carry real weight — the ranking is stable: ρ ≥ 0.94 and the top airport
-changes in at most 4 of 9 regions, none of them New England or Pacific. The three
+changes in at most 2 of 9 regions, neither of them New England or Pacific. The three
 degenerate rows are the interesting ones: collapsing the composite to a single term does
-reorder everything (ρ 0.44–0.77). That is the correct result, and it is the argument for
+reorder everything (ρ 0.42–0.78). That is the correct result, and it is the argument for
 the composite rather than against it — the three terms are measuring different things, so
 any one of them alone gives a different and worse answer.
 
@@ -71,22 +72,21 @@ The concern: BTV and BGR top New England's congestion ranking, and both are nort
 airports whose winter taxi-out includes de-icing. If the ranking is really measuring
 weather, it is not measuring an investment case.
 
-The check rebuilds every region's ranking from the **eight non-winter months only**
+The check rebuilds every region's ranking from the **sixteen non-winter months only**
 (Dec–Mar excluded — a blunt calendar cut, chosen to bound the effect rather than to model
 weather precisely), and compares.
 
 **Result: the top-ranked airport changes in 0 of 9 regions.** New England stays
-BTV (0.8407 → 0.8226), BGR, BOS. Pacific stays SFO (0.8863 → 0.8892), PDX, LAX.
+BTV (0.8123 → 0.7928), BGR, BOS. Pacific stays SFO (0.8868 → 0.8878), PDX, LAX.
 
-Winter taxi-out premiums are real and largest where expected — TVC +3.83 min, SYR +3.31,
-SBN +3.13, BTV +2.81, BGR +2.06 — but they are not what puts those airports at the top.
+Winter taxi-out premiums are real and largest where expected — TVC +4.23 min, SYR +3.26,
+BTV +2.88, SBN +2.56, ROC +2.55 — but they are not what puts those airports at the top.
 BTV ranks first in New England on non-winter months alone. The de-icing caveat remains
 worth stating to a user reading a congestion figure; it is not a reason to discount the
 ranking.
 
-Airports whose rank *does* move by three or more places without winter (BIS, GRB, FWA, FAI,
-ANC, RSW, FLL, SLC) are all mid-table, and the script lists them so a specific claim about
-one of them can be qualified.
+Airports whose rank *does* move without winter are all mid-table, and the script lists them
+so a specific claim about one of them can be qualified.
 
 ## 3. Historical span and COVID — `scripts/cagr-spans.mjs`
 
@@ -98,14 +98,14 @@ airport that had not fully recovered by 2024 reads as a slow-growing airport, wh
 its gap for a reason that is a pandemic rather than demand.
 
 The check rebuilds every ranking with the historical CAGR measured three ways over the same
-163 airports (all of which have T-100 actuals at every endpoint, so the membership is
+162 airports (all of which have T-100 actuals at every endpoint, so the membership is
 identical in all three):
 
 | Historical span | Regions where #1 changed | Mean Spearman ρ vs shipped | Worst rank shift |
 |---|---|---|---|
 | 2014→2024 (shipped, spans COVID) | — | — | — |
-| 2016→2019 (pre-COVID only) | 6/9 | 0.797 | 20 |
-| 2019→2024 (recovery only) | 6/9 | 0.897 | 20 |
+| 2016→2019 (pre-COVID only) | 6/9 | 0.806 | 20 |
+| 2019→2024 (recovery only) | 6/9 | 0.901 | 20 |
 
 New England and Pacific, top three under each:
 

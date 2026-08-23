@@ -165,6 +165,6 @@ overridden by the vocabulary.
 - `comparison_set_id` is the airport's US Census region (stage 14). Scores are therefore
   not comparable across regions, and the prompt instructs the agent to compare underlying
   metrics instead. Arbitrary ad-hoc comparison sets would still mean re-running scoring.
-- Congestion data now spans thirteen months (stage 14 backfill), but the prompt still
+- Congestion data now spans twenty-four months (stage 17), scored over a trailing 24-month window, but the prompt still
   instructs the agent to check actual coverage before answering trend questions rather than
   assume a fixed window.

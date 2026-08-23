@@ -17,6 +17,10 @@ measuring historical growth across COVID? All three measured (`npm run sensitivi
 `npm run seasonality`, `npm run cagr-spans`) rather than left as caveats. The first two came
 back clean; the third found a real sensitivity and says so.
 
+**→ [docs/17-scoring-window-and-read-integrity.md](docs/17-scoring-window-and-read-integrity.md)** —
+why the score runs on a trailing 24-month window, and the two PostgREST read bugs that
+backfilling exposed.
+
 **→ [docs/11-review-remediation.md](docs/11-review-remediation.md)** — review findings,
 fixes, corrected scores, and verification record.
 
@@ -80,7 +84,7 @@ consent and a stated retention policy rather than a window the developer picked.
 
 ```
 .github/workflows/       scheduled daily + annual data refresh
-docs/                    stage-by-stage build log, 00–16
+docs/                    stage-by-stage build log, 00–17
   ARCHITECTURE.md        the design document (read this first)
   DATA_PLAN.md           endpoint-level map of the three data sources
 src/                     Vite + React + TypeScript UI

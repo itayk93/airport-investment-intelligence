@@ -48,6 +48,11 @@ and the WhatsApp sections of `ARCHITECTURE.md` and `12-public-deployment-hardeni
    de-icing, and does measuring historical growth across COVID distort the growth gap?
    Two came back clean, one did not. → [`16-robustness-checks.md`](16-robustness-checks.md)
 
+9. **A two-year scoring window** — the congestion span was 13 months, so June was counted
+   twice; it is now an explicit trailing 24-month window over two full annual cycles.
+   Backfilling exposed two read bugs that had been silently corrupting scores.
+   → [`17-scoring-window-and-read-integrity.md`](17-scoring-window-and-read-integrity.md)
+
 ## Why this order
 
 Schema-first (without proof the data exists) risks building tables around fields that

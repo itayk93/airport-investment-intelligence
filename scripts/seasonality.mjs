@@ -70,7 +70,7 @@ async function main() {
   const monthly = await getChunked(
     'airport_metrics_monthly',
     codes,
-    (c) => `iata_code=in.(${c.join(',')})&data_scope=eq.domestic_ontime&select=iata_code,year,month,avg_taxi_out_minutes,nas_delay_min_per_dep,pct_delayed_over_15`,
+    (c) => `iata_code=in.(${c.join(',')})&data_scope=eq.domestic_ontime&select=iata_code,year,month,avg_taxi_out_minutes,nas_delay_min_per_dep,pct_delayed_over_15&order=iata_code,year,month`,
   );
   const byAirport = groupBy(monthly, 'iata_code');
 
@@ -90,7 +90,14 @@ async function main() {
     summerRegions.get(row.comparison_set_id).push({ ...base, ...warm, winterTaxiDeltaMin: +(full.taxiOut - warm.taxiOut).toFixed(2) });
   }
 
-  console.log(`de-icing sensitivity — all 12 months vs. ${12 - WINTER_MONTHS.size} non-winter months (Dec-Mar excluded)\n`);
+  // Counts are derived, not written: the ingested span grew from 13 months to 24 and a
+  // hardcoded "12 months" label would have quietly described the wrong window.
+  const allPeriods = new Set(monthly.map((r) => `${r.year}-${r.month}`));
+  const winterPeriods = [...allPeriods].filter((p) => WINTER_MONTHS.has(Number(p.split('-')[1])));
+  console.log(
+    `de-icing sensitivity — all ${allPeriods.size} months vs. ` +
+      `${allPeriods.size - winterPeriods.length} non-winter months (Dec-Mar excluded)\n`,
+  );
 
   const movers = [];
   let topFlips = 0;
@@ -106,7 +113,7 @@ async function main() {
       // Report the airports whose place in the ranking depends on winter, plus anything
       // with a large winter taxi-out premium even if its rank held.
       if (Math.abs(shift) >= 3 || delta >= 2) {
-        movers.push({ region, airport: code, 'rank (12mo)': i + 1, 'rank (non-winter)': warmRank[code] + 1, 'winter taxi-out premium (min)': delta });
+        movers.push({ region, airport: code, 'rank (full window)': i + 1, 'rank (non-winter)': warmRank[code] + 1, 'winter taxi-out premium (min)': delta });
       }
     }
   }
@@ -118,7 +125,7 @@ async function main() {
     if (!allRegions.has(region)) continue;
     console.log(`\n${region}`);
     console.table([
-      { basis: 'all 12 months', top3: rankRegion(allRegions.get(region)).slice(0, 3).map((r) => `${r.iata_code} ${r.expansionScore}`).join('  ') },
+      { basis: `all ${allPeriods.size} months`, top3: rankRegion(allRegions.get(region)).slice(0, 3).map((r) => `${r.iata_code} ${r.expansionScore}`).join('  ') },
       { basis: 'non-winter only', top3: rankRegion(summerRegions.get(region)).slice(0, 3).map((r) => `${r.iata_code} ${r.expansionScore}`).join('  ') },
     ]);
   }

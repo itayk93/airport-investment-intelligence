@@ -4,7 +4,7 @@ Screens US airports for modernization opportunity using only public BTS and FAA 
 **Ranking is deterministic code; the language model explains and compares, it never
 computes.**
 
-358 airports covered · 163 scored · 9 regional sets · 13 months of congestion data
+361 airports covered · 162 scored · 9 regional sets · 24 months of congestion data
 
 ---
 
@@ -38,9 +38,9 @@ read from the deployed API on 2026-08-22.
 
 | Question | How the system answers it |
 |---|---|
-| Strong candidates in New England | Ranks all 7 scored New England airports in one call. **BTV (Burlington) leads at 0.84**, then BGR and BOS. |
-| LA vs. Santa Ana congestion | Compares **raw metrics**, not scores — LAX capacity pressure 0.62 vs. SNA 0.60, decided on taxi-out and NAS delay minutes. |
-| Long-haul share out of Anchorage | **25.9%** of departures fly 2,000+ miles, averaged over the ingested months, ranging 16.9% (Feb) to 40.0% (Jun) — Anchorage is the most seasonal airport in the data, so the average is the answer and the range is part of it. The 2,000-mile threshold is our definition, not a BTS standard. |
+| Strong candidates in New England | Ranks all 7 scored New England airports in one call. **BTV (Burlington) leads at 0.81**, then BGR and BOS. |
+| LA vs. Santa Ana congestion | Compares **raw metrics**, not scores — LAX capacity pressure 0.63 vs. SNA 0.62, decided on taxi-out and NAS delay minutes. |
+| Long-haul share out of Anchorage | **24.1%** of departures fly 2,000+ miles, averaged over the 24-month window, ranging 15.8% (Feb 2025) to 40.0% (Jun 2026) — Anchorage is the most seasonal airport in the data, so the average is the answer and the range is part of it. The 2,000-mile threshold is our definition, not a BTS standard. |
 | Unmet demand at SFO, and why | **1.00** — capacity pressure 0.85 combined with a forecast growth gap of +2.07pp. The explanation is the product: growth arriving at an already-strained airport. |
 
 ---
@@ -114,17 +114,18 @@ region and never across one** — SFO and BTV each top their own scale.
 | Airport | Region | Capacity pressure | Growth gap | Unmet demand | Expansion score |
 |---|---|---|---|---|---|
 | SFO | Pacific | 0.85 | +2.07 | 1.00 | **0.89** |
-| BTV | New England | 0.86 | +1.71 | 1.00 | **0.84** |
-| LAX | Pacific | 0.62 | +1.15 | 0.41 | **0.46** |
-| SNA | Pacific | 0.60 | +0.12 | 0.04 | **0.24** |
-| BOS | New England | 0.66 | −0.91 | 0.00 | **0.23** |
-| MHT | New England | 0.01 | +6.80 | 0.03 | **0.07** |
+| BTV | New England | 0.72 | +1.71 | 1.00 | **0.81** |
+| PDX | Pacific | 0.49 | +2.34 | 0.65 | **0.65** |
+| LAX | Pacific | 0.63 | +1.15 | 0.42 | **0.47** |
+| BOS | New England | 0.72 | −0.91 | 0.00 | **0.24** |
+| SNA | Pacific | 0.62 | +0.12 | 0.04 | **0.24** |
+| MHT | New England | 0.02 | +6.80 | 0.11 | **0.11** |
 
-- **BOS — congestion without growth.** Mid-range pressure (0.66), yet unmet demand is
+- **BOS — congestion without growth.** Pressure of 0.72, as high as BTV's, yet unmet demand is
   exactly zero: the FAA forecasts it growing more slowly than its own measured trend, so the
   `max(0, …)` clamps. Crowded, but not growing.
 - **MHT — growth without congestion.** By far the largest growth gap in New England
-  (+6.80pp) and still second-to-last of seven, because its capacity pressure is 0.01. Fast
+  (+6.80pp) and still second-to-last of seven, because its capacity pressure is 0.02. Fast
   growth into an empty airport is headroom, not unmet demand.
 
 Neither result would fall out of a model that simply averaged congestion and growth. That is
@@ -239,7 +240,7 @@ BTS data and re-scores when it arrives.
 - **Scores are relative to an airport's own region**, never national and never absolute.
   1.00 means "most pressured in that region". Cross-region comparison must use the
   underlying metrics.
-- **163 of 358 covered airports are scored.** 191 fall below the sample floor, 2 have no FAA
+- **162 of 361 covered airports are scored.** 195 fall below the sample floor, 2 have no FAA
   forecast, and 2 sit in a region with too few scoreable peers. Each is reported as covered
   but unranked *with its reason*, rather than scored from a sample too small to mean
   anything.
@@ -253,8 +254,12 @@ BTS data and re-scores when it arrives.
   produces the ranking.
 - **Congestion data is US-domestic only** (BTS reporting carriers). International departures
   at SFO and LAX are absent from the delay figures.
-- **13 months of congestion data** (June 2025 – June 2026). More than a full annual cycle,
-  so no season is missing — but it establishes a level, not a trend.
+- **24 months of congestion data** (July 2024 – June 2026), and the score is computed over a
+  trailing 24-month window rather than over whatever has been ingested. Every congestion input
+  is seasonal, so an unbalanced span silently overweights whichever seasons it contains twice —
+  the 13-month span this replaced counted one June twice. Two full cycles count every season
+  exactly twice, and as the refresh cron adds a month the oldest leaves, so the window stays
+  balanced instead of slowly acquiring a summer bias.
 - **The 2,000-mile long-haul threshold is our definition**, not a BTS or FAA standard.
   Growth-gap spans differ in length (10y actual vs 11y forecast) because T-100 only reaches
   back to 2014.

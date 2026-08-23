@@ -42,6 +42,14 @@ const TAF_HORIZON_YEAR = 2035;
 // because scoring reads the database, not the JSON, and must not depend on the extractor
 // having filtered anything out.
 const MIN_DEPARTURES_PER_MONTH = 300;
+// Congestion is averaged over a trailing window of whole years, not over "whatever has been
+// ingested". Every input here is seasonal — taxi-out, NAS delay, delay frequency all peak in
+// winter and summer — so an unbalanced span silently overweights whichever seasons it
+// happens to contain twice. A 13-month span counted one June twice; two full cycles count
+// every season exactly twice. The window also keeps the model stable as the refresh cron
+// adds months: the newest month enters and the oldest leaves, so the score is always exactly
+// two annual cycles rather than a pile that slowly grows a summer bias.
+const SCORE_WINDOW_MONTHS = 24;
 // A min-max set of one or two airports is not a ranking — every member lands on 0, 0.5 or
 // 1 by arithmetic, regardless of the underlying values. Such regions are reported as
 // unscored rather than given scores that look comparable to a real region's.
@@ -86,17 +94,36 @@ async function main() {
   const codes = airports.map((a) => a.iata_code);
   const regionOf = Object.fromEntries(airports.map((a) => [a.iata_code, a.region]));
 
-  // 1. Congestion inputs (Capacity Pressure) — averaged across whatever domestic_ontime
-  //    months have been ingested. `departures` comes along to enforce the sample floor.
+  // 1. Congestion inputs (Capacity Pressure) — averaged across the trailing
+  //    SCORE_WINDOW_MONTHS of domestic_ontime data. `departures` comes along to enforce the
+  //    sample floor, and year/month to place each row in the window.
   const ontimeRows = await getChunked(
     'airport_metrics_monthly',
     codes,
     (c) =>
-      `iata_code=in.(${c.join(',')})&data_scope=eq.domestic_ontime&select=iata_code,departures,avg_taxi_out_minutes,nas_delay_min_per_dep,pct_delayed_over_15,long_haul_share_pct`,
+      `iata_code=in.(${c.join(',')})&data_scope=eq.domestic_ontime&select=iata_code,year,month,departures,avg_taxi_out_minutes,nas_delay_min_per_dep,pct_delayed_over_15,long_haul_share_pct&order=iata_code,year,month`,
   );
 
+  // The window is defined by the latest period present in the data, not by today's date:
+  // BTS publishes with a lag, so anchoring on the clock would silently shorten the window
+  // whenever a month is late. Periods are compared as year * 100 + month.
+  const periods = [...new Set(ontimeRows.map((r) => r.year * 100 + r.month))].sort((a, b) => b - a);
+  const windowPeriods = new Set(periods.slice(0, SCORE_WINDOW_MONTHS));
+  const windowLabel = periods.length
+    ? `${Math.min(...windowPeriods)}-${Math.max(...windowPeriods)}`
+    : 'none';
+  if (periods.length < SCORE_WINDOW_MONTHS) {
+    console.warn(
+      `warning: only ${periods.length} of ${SCORE_WINDOW_MONTHS} window months are ingested — ` +
+        'scores are computed over an unbalanced span and will overweight the seasons it contains.',
+    );
+  }
+
   const congestion = {};
-  const ontimeByAirport = groupBy(ontimeRows, 'iata_code');
+  const ontimeByAirport = groupBy(
+    ontimeRows.filter((r) => windowPeriods.has(r.year * 100 + r.month)),
+    'iata_code',
+  );
   for (const a of codes) {
     const rows = ontimeByAirport.get(a) ?? [];
     const avg = (key) => {
@@ -128,7 +155,7 @@ async function main() {
     'airport_forecast_annual',
     codes,
     (c) =>
-      `iata_code=in.(${c.join(',')})&year=in.(${TAF_BASE_YEAR},${TAF_HORIZON_YEAR})&select=iata_code,year,scenario,enplanements`,
+      `iata_code=in.(${c.join(',')})&year=in.(${TAF_BASE_YEAR},${TAF_HORIZON_YEAR})&select=iata_code,year,scenario,enplanements&order=iata_code,year`,
   );
 
   const raw = {};
@@ -251,6 +278,7 @@ async function main() {
   }
 
   const regionCounts = [...byRegion].map(([r, m]) => `${r}: ${m.length}`).sort();
+  console.log(`congestion window: ${windowPeriods.size} months (${windowLabel})`);
   console.log(`scored ${scoreRows.length} airports across ${new Set(scoreRows.map((r) => r.comparison_set_id)).size} regions`);
   console.log(regionCounts.join('\n'));
   const reasonCounts = {};

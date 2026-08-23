@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
           { tag: '05', text: 'The 2,000-mile long-haul threshold is our own definition, not a BTS or FAA standard.' },
           // Derived, not written: the refresh cron adds months, and a hardcoded period
           // would turn into a false caveat on the first scheduled run.
-          { tag: '06', text: `${describeCongestionCoverage(coverage as unknown as CoverageRow[])}. A full annual cycle means no season is double-counted. Congestion is the average across those months; a single month is not shown as a trend.` },
+          { tag: '06', text: `${describeCongestionCoverage(coverage as unknown as CoverageRow[])}. Scores use a trailing 24-month window — two full annual cycles, so every season is counted exactly twice and none is weighted more than another. Congestion is the average across those months; a single month is not shown as a trend.` },
           { tag: '07', text: 'Taxi-out time at northern airports includes de-icing in winter. Burlington averages over 30 minutes in December and under 18 in summer. That raises their capacity-pressure score for a reason that is weather, not runway or gate saturation.' },
           { tag: '08', text: 'Airports below 300 departures per month are covered but not scored: at that sample size a few disrupted days can move delay averages more than genuine congestion does.' },
         ],

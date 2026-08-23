@@ -10,33 +10,40 @@ measured actuals, not FAA's own historical estimate); forecast CAGR uses FAA TAF
 2024→2035 — spans differ in length (10y vs 11y) because T-100 only goes back to 2014,
 noted in the script, not hidden.
 
-Verified output over **twelve months of congestion data (June 2025 – May 2026)**, a full
-annual cycle — 163 airports scored across 9 regional comparison sets, run 2026-08-22. Two
-sets shown; `comparison_set_id` is the region.
+Verified output over **twenty-four months of congestion data (July 2024 – June 2026)**, two
+full annual cycles — 162 airports scored across 9 regional comparison sets, run 2026-08-23.
+The score uses a trailing 24-month window rather than everything ingested, so every season is
+counted exactly twice; see `docs/17-scoring-window-and-read-integrity.md`. Two sets shown;
+`comparison_set_id` is the region.
 
 `comparison_set_id='New England'` (7 scored, 12 covered):
 
 | airport | capacity pressure | forecast growth gap (pp) | unmet demand score | expansion score |
 |---|---|---|---|---|
-| BTV | **0.87** | +1.71 | **1.00** | **0.84** |
-| BGR | 0.84 | +0.17 | 0.09 | 0.51 |
-| BOS | 0.66 | −0.91 | 0.00 | 0.23 |
+| BTV | 0.72 | +1.71 | **1.00** | **0.81** |
+| BGR | **0.77** | +0.17 | 0.11 | 0.51 |
+| BOS | 0.72 | −0.91 | 0.00 | 0.24 |
+| PVD | 0.10 | +1.17 | 0.10 | 0.17 |
 | PWM | 0.19 | −1.37 | 0.00 | 0.16 |
-| PVD | 0.08 | +1.17 | 0.07 | 0.15 |
-| MHT | 0.01 | **+6.81** | 0.07 | 0.09 |
-| BDL | 0.11 | +0.46 | 0.04 | 0.04 |
+| MHT | 0.02 | **+6.81** | 0.11 | 0.11 |
+| BDL | 0.09 | +0.46 | 0.03 | 0.04 |
+
+Note that BGR, not BTV, is the most congested New England airport over two years — BTV still
+leads the ranking because it is the one whose forecast growth outruns its own measured trend.
+That is the gating doing exactly what it is for, and it is more visible over two cycles than
+it was over one.
 
 `comparison_set_id='Pacific'` (31 scored), the original pilot airports within it:
 
 | airport | capacity pressure | forecast growth gap (pp) | unmet demand score | expansion score |
 |---|---|---|---|---|
-| SFO | 0.84 | **+2.07** | **1.00** | **0.89** |
-| PDX | 0.50 | +2.34 | 0.67 | 0.66 |
-| LAX | 0.64 | +1.15 | 0.42 | 0.47 |
-| SNA | 0.46 | +0.12 | 0.02 | 0.20 |
-| ANC | 0.20 | +0.52 | 0.05 | 0.16 |
+| SFO | **0.85** | **+2.07** | **1.00** | **0.89** |
+| PDX | 0.49 | +2.34 | 0.65 | 0.65 |
+| LAX | 0.63 | +1.15 | 0.42 | 0.47 |
+| ANC | 0.39 | +0.52 | 0.11 | 0.25 |
+| SNA | 0.62 | +0.12 | 0.04 | 0.24 |
 
-**SFO still ranks first in its set**, against 30 peers and a full year of data rather than
+**SFO still ranks first in its set**, against 30 peers and two full years of data rather than
 4 peers and one month — the strongest single piece of evidence that the model is measuring
 something real. **BOS still floors at exactly 0 Unmet Demand**, because the FAA forecasts
 it slower than its own measured T-100 trend, regardless of congestion. Both are regression
