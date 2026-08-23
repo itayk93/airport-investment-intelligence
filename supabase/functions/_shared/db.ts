@@ -25,6 +25,35 @@ export async function checkRateLimit(bucket: string, limit: number, window: stri
   return rows[0]?.allowed === true;
 }
 
+/**
+ * Short-lived WhatsApp conversation memory. Twilio delivers one message with no history,
+ * so follow-up questions need the previous turns from somewhere; the web chat sends its
+ * own. Keyed by the salted hash of the sender, never the number. See
+ * supabase/migrations/20260823000000_whatsapp_conversation_memory.sql.
+ */
+export interface ConversationTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export async function recentWhatsappTurns(
+  conversationHash: string,
+  limit = 8,
+): Promise<ConversationTurn[]> {
+  const rows = await sql<ConversationTurn[]>`
+    select role, content from recent_whatsapp_turns(${conversationHash}, ${limit})
+  `;
+  return rows.map((row: ConversationTurn) => ({ role: row.role, content: row.content }));
+}
+
+export async function recordWhatsappTurn(
+  conversationHash: string,
+  role: 'user' | 'assistant',
+  content: string,
+) {
+  await sql`select record_whatsapp_turn(${conversationHash}, ${role}, ${content})`;
+}
+
 /** Uppercase, validate as 3-letter IATA, cap the list. Bounds every airport-scoped query. */
 export function asIataCodes(value: unknown, limit = 20): string[] {
   if (!Array.isArray(value)) return [];
@@ -59,6 +88,15 @@ export function listAirports() {
     ) s on true
     order by a.iata_code
   `;
+}
+
+/**
+ * Just the words that name an airport — codes, cities, states, regions. The scope guard
+ * builds its vocabulary from this instead of a hardcoded list of the five pilot airports,
+ * so a question about any covered airport is recognised as in scope.
+ */
+export function getScopeVocabulary() {
+  return sql`select iata_code, city, state, region from airports`;
 }
 
 /** Count for the public UI, which does not need the full airport directory payload. */

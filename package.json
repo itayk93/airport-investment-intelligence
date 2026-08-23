@@ -14,7 +14,8 @@
     "ingest": "node scripts/ingest.mjs",
     "score": "node scripts/score.mjs",
     "sensitivity": "node scripts/sensitivity.mjs",
-    "seasonality": "node scripts/seasonality.mjs"
+    "seasonality": "node scripts/seasonality.mjs",
+    "cagr-spans": "node scripts/cagr-spans.mjs"
   },
   "dependencies": {
     "qrcode.react": "^4.2.0",

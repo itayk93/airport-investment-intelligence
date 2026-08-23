@@ -1,5 +1,5 @@
 import { runAgent } from '../_shared/agent.ts';
-import { checkRateLimit } from '../_shared/db.ts';
+import { checkRateLimit, recentWhatsappTurns, recordWhatsappTurn } from '../_shared/db.ts';
 
 const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -227,7 +227,26 @@ Deno.serve(async (req) => {
 
     if (!body && hasAudio) body = await transcribeAudio(params);
 
-    const result = await runAgent([{ role: 'user', content: body }]);
+    // Twilio delivers each message on its own, so without this the channel answered every
+    // question cold and "why?" reached the agent with nothing to refer to. History is read
+    // under the same sender hash used for rate limiting — the number itself is never
+    // stored — and expires after two hours (see the migration).
+    let history: { role: 'user' | 'assistant'; content: string }[] = [];
+    try {
+      history = await recentWhatsappTurns(senderHash);
+    } catch (error) {
+      // A memory lookup failure degrades follow-ups; it must not fail the question itself.
+      console.warn('whatsapp history unavailable:', error);
+    }
+
+    const result = await runAgent([...history, { role: 'user', content: body }]);
+
+    try {
+      await recordWhatsappTurn(senderHash, 'user', body);
+      await recordWhatsappTurn(senderHash, 'assistant', result.reply);
+    } catch (error) {
+      console.warn('whatsapp history not recorded:', error);
+    }
     return twiml(result.reply);
   } catch (error) {
     const correlationId = crypto.randomUUID();

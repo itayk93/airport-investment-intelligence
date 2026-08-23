@@ -1,7 +1,18 @@
 import { buildSystemPrompt } from '../agent-chat/prompt.ts';
-import { classifyScope, OFF_TOPIC_REPLY, SOCIAL_REPLY } from '../agent-chat/scopeGuard.ts';
+import {
+  buildScopeVocabulary,
+  classifyScope,
+  OFF_TOPIC_REPLY,
+  SOCIAL_REPLY,
+  type ScopeVocabularySource,
+} from '../agent-chat/scopeGuard.ts';
 import { toolDefinitions, runTool } from '../agent-chat/tools.ts';
-import { describeCongestionCoverage, getCoverage, type CoverageRow } from './db.ts';
+import {
+  describeCongestionCoverage,
+  getCoverage,
+  getScopeVocabulary,
+  type CoverageRow,
+} from './db.ts';
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 const MODEL = 'gpt-5-mini';
@@ -45,6 +56,21 @@ function congestionCoverage(): Promise<string> {
     }));
   return pending;
 }
+// The scope guard's airport vocabulary, memoized like the coverage sentence above and for
+// the same reason: the airport directory changes when ingestion runs, not per request. A
+// failed lookup is not cached, and falls back to null — which leaves the static aviation
+// terms doing the work, the behaviour before this was added.
+let vocabularyMemo: Promise<RegExp | null> | null = null;
+function scopeVocabulary(): Promise<RegExp | null> {
+  const pending = vocabularyMemo ?? (vocabularyMemo = getScopeVocabulary()
+    .then((rows: unknown) => buildScopeVocabulary(rows as ScopeVocabularySource[]))
+    .catch(() => {
+      vocabularyMemo = null;
+      return null;
+    }));
+  return pending;
+}
+
 // Deliberately short, and shown once per conversation rather than under every message.
 // The previous version ran 33 words on every score answer, which is how a disclosure turns
 // into wallpaper that nobody reads — and it duplicated the situational caveat the model had
@@ -174,7 +200,11 @@ export async function runAgent(input: AgentInputMessage[]): Promise<AgentResult>
 
   const latestUserIndex = history.findLastIndex((message) => message.role === 'user');
   if (latestUserIndex < 0) throw new Error('At least one user message is required');
-  const scope = classifyScope(history[latestUserIndex].content, latestUserIndex > 0);
+  const scope = classifyScope(
+    history[latestUserIndex].content,
+    latestUserIndex > 0,
+    await scopeVocabulary(),
+  );
   if (scope === 'off-topic' || scope === 'social') {
     return {
       reply: scope === 'social' ? SOCIAL_REPLY : OFF_TOPIC_REPLY,

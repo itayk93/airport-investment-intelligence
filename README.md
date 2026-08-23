@@ -12,8 +12,10 @@ is used. Start there. The same document as a formatted page:
 **[docs/architecture.html](docs/architecture.html)**.
 
 **→ [docs/16-robustness-checks.md](docs/16-robustness-checks.md)** — does the ranking
-actually depend on the hand-chosen weights, and is northern congestion just de-icing? Both
-measured (`npm run sensitivity`, `npm run seasonality`), not left as caveats.
+actually depend on the hand-chosen weights, on de-icing at northern airports, or on
+measuring historical growth across COVID? All three measured (`npm run sensitivity`,
+`npm run seasonality`, `npm run cagr-spans`) rather than left as caveats. The first two came
+back clean; the third found a real sensitivity and says so.
 
 **→ [docs/11-review-remediation.md](docs/11-review-remediation.md)** — review findings,
 fixes, corrected scores, and verification record.
@@ -61,6 +63,10 @@ Sandbox. Send the prepared join message, then ask the same airport questions by 
 voice note in WhatsApp. Voice audio is downloaded server-side from Twilio, capped at 10 MB,
 transcribed without being stored, and passed to the same agent as ordinary text.
 Both channels use the same agent engine, prompt, deterministic tools, limits, and caveats.
+
+Follow-up questions work in WhatsApp too. Twilio delivers each message with no history, so
+the channel keeps a short server-side memory: the last few turns, keyed by a salted hash of
+the sender's number (never the number itself), expiring after two hours.
 
 The Sandbox is a demo, not a production WhatsApp sender. Twilio may expire the
 session and does not guarantee international delivery. The webhook verifies

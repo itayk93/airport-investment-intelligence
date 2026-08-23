@@ -1,10 +1,11 @@
 # Stage 16 — Robustness Checks: Weight Sensitivity and De-icing
 
-Two things were previously stated as caveats and left there: the scoring weights have no
-empirical basis (docs/04, section 5, listed as an open item), and winter taxi-out at
-northern airports includes de-icing queues that a terminal cannot fix (docs/03). A caveat
-is not an answer to "so does your ranking actually depend on those?" — both are now
-measured.
+Three things were previously stated as caveats and left there: the scoring weights have no
+empirical basis (docs/04, section 5, listed as an open item), winter taxi-out at northern
+airports includes de-icing queues that a terminal cannot fix (docs/03), and the historical
+growth trend is measured across a span that contains COVID. A caveat is not an answer to
+"so does your ranking actually depend on those?" — all three are now measured. Two came
+back clean. The third did not, and is reported below as it came out.
 
 Both checks are **read-only**. They recompute rankings from the inputs already stored in
 `airport_scores.inputs_json` and `airport_metrics_monthly`; neither writes to any table, so
@@ -13,6 +14,7 @@ running them cannot disturb the scores the app serves.
 ```bash
 npm run sensitivity   # node scripts/sensitivity.mjs
 npm run seasonality   # node scripts/seasonality.mjs
+npm run cagr-spans    # node scripts/cagr-spans.mjs
 ```
 
 ## 1. Weight sensitivity — `scripts/sensitivity.mjs`
@@ -85,6 +87,51 @@ ranking.
 Airports whose rank *does* move by three or more places without winter (BIS, GRB, FWA, FAI,
 ANC, RSW, FLL, SLC) are all mid-table, and the script lists them so a specific claim about
 one of them can be qualified.
+
+## 3. Historical span and COVID — `scripts/cagr-spans.mjs`
+
+This one did not come back clean, and it is the most important result on the page.
+
+The forecast growth gap is `FAA forecast CAGR − the airport's own measured CAGR`, and that
+measured CAGR is taken from two endpoints, **2014 and 2024**. COVID sits between them. An
+airport that had not fully recovered by 2024 reads as a slow-growing airport, which widens
+its gap for a reason that is a pandemic rather than demand.
+
+The check rebuilds every ranking with the historical CAGR measured three ways over the same
+163 airports (all of which have T-100 actuals at every endpoint, so the membership is
+identical in all three):
+
+| Historical span | Regions where #1 changed | Mean Spearman ρ vs shipped | Worst rank shift |
+|---|---|---|---|
+| 2014→2024 (shipped, spans COVID) | — | — | — |
+| 2016→2019 (pre-COVID only) | 6/9 | 0.797 | 20 |
+| 2019→2024 (recovery only) | 6/9 | 0.897 | 20 |
+
+New England and Pacific, top three under each:
+
+| Historical span | New England | Pacific |
+|---|---|---|
+| 2014→2024 (shipped) | **BTV**, BGR, BOS | **SFO**, PDX, LAX |
+| 2016→2019 (pre-COVID) | **MHT**, BGR, BTV | **SNA**, SFO, PDX |
+| 2019→2024 (recovery) | **BTV**, BGR, BOS | **SFO**, PDX, LAX |
+
+**What this means.** The choice of historical span moves the ranking materially — more than
+any weighting choice does. This is a bigger lever on the output than the weights the doc
+spends most of its space defending, and it was not obvious before measuring.
+
+The shipped span and the recovery-only span agree exactly on both headline answers. The
+pre-COVID span disagrees on both. The argument for the shipped configuration is that the
+FAA TAF forecast is anchored on an FY2024 base year, so subtracting a 2016–2019 trend
+compares a forecast that starts from post-pandemic traffic against a trend measured in a
+different traffic regime. The two spans that share the forecast's own era produce the same
+ranking. That is a reason to prefer the shipped span, not proof that it is right.
+
+**Honest statement of the limit:** the growth gap is sensitive to a choice of endpoints that
+has no single correct answer, and a reviewer who preferred a pre-COVID baseline would get
+MHT, not BTV, at the top of New England. The gap is a screening signal, not a measurement.
+Under every span the *reason* the model gives is unchanged — BTV and SFO are the congested
+airports and MHT and SNA are the uncongested ones — so what moves is which side of the
+growth-versus-strain tradeoff the composite favours, not the underlying facts.
 
 ## What these checks do not establish
 
