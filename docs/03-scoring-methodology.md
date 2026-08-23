@@ -51,12 +51,13 @@ invariants and both survived every change to coverage, comparison set, and time 
 
 ### What a full year changed, and why it matters
 
-A single-month run (May 2026) had ranked MHT first in New England; twelve months reverses
-that to **BTV first, MHT last** — BTV's taxi-out spikes 28–33 min in winter and MHT stays
-calm nearly year-round, which one month couldn't distinguish from a bad day. MHT itself now
+A single-month run (May 2026) had ranked MHT first in New England; a full year reverses that
+to **BTV first, MHT near the bottom** — BTV's taxi-out spikes 28–33 min in winter and MHT
+stays calm nearly year-round, which one month couldn't distinguish from a bad day. MHT itself
 illustrates the model's core idea from the other side: highest forecast growth gap in the
-region (+6.81 pp) but lowest score, because Capacity Pressure is 0.01 — fast growth at an
-uncongested airport is headroom, not unmet demand. Full derivation in `docs/14`.
+region (+6.81 pp) and second-to-last score, because Capacity Pressure is 0.02 — fast growth at
+an uncongested airport is headroom, not unmet demand. Full derivation in `docs/14`; the move
+to a 24-month window is `docs/17`.
 
 **Caveat:** winter taxi-out includes de-icing queues, not just runway/gate saturation, which
 partly explains why BTV and BGR top New England's congestion ranking. That's real delay and

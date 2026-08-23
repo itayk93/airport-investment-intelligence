@@ -100,11 +100,11 @@ Full contract, discovery behavior, catalog, examples, and test evidence:
 
 All four example questions answered end-to-end against live data:
 
-- **ANC long-haul** → 25.9% averaged across the ingested months (16.9%–40.0% by month), one tool call.
-- **LAX vs SNA congestion** → correctly surfaced the non-obvious read: SNA has *higher*
-  capacity pressure (0.52 vs 0.46) despite LAX's much larger volume, while LAX has the
-  higher unmet-demand case.
-- **SFO unmet demand** → 1.00, explained via both drivers (capacity pressure 1.00 +
+- **ANC long-haul** → 24.1% averaged across the 24-month window (15.8%–40.0% by month), one tool call.
+- **LAX vs SNA congestion** → correctly surfaced the non-obvious read: the two are nearly
+  tied on congestion (LAX 0.63, SNA 0.62) despite LAX's much larger volume, and LAX carries
+  the expansion case only because of its forecast gap.
+- **SFO unmet demand** → 1.00, explained via both drivers (capacity pressure 0.85 +
   forecast gap +2.07pp), with the underlying CAGRs quoted.
 - **New England** → called `list_airports` first, retrieved the covered regional peers,
   then ranked only scoreable airports and quoted exclusion reasons for unscored airports.

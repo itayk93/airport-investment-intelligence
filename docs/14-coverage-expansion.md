@@ -72,8 +72,8 @@ isn't a question an investor asks. The schema already carried `comparison_set_id
 previously pinned to `pilot-5`.
 
 The tradeoff, stated rather than hidden: **scores from different regions are not
-comparable.** BOS at 0.9962 Capacity Pressure in New England and SFO at 0.8457 in the
-Pacific don't mean BOS is more congested — each is near the top of a different scale.
+comparable.** In this stage's run, BOS at 0.9962 Capacity Pressure in New England and SFO at
+0.8457 in the Pacific don't mean BOS is more congested — each is near the top of a different scale.
 Cross-region comparison must use the underlying metrics (taxi-out, NAS delay, percent
 delayed), and both the agent prompt and the panel say so.
 
@@ -133,8 +133,8 @@ Unscored, with reasons — the tally the script prints on every run:
     2  only 2 scoreable airports in US Territories — too few for a relative ranking
 ```
 
-(Stage 15 backfilled a full year of congestion data; the current figures are 356 covered,
-163 scored, 193 unscored. See the postscript.)
+(Stage 15 backfilled a full year of congestion data and stage 17 a second year; the current
+figures are 361 covered, 162 scored, 199 unscored. See the postscript.)
 
 US Territories is the rule from decision 4 firing on real data: PR and VI have two scoreable
 origins between them, and a two-member min-max scale returns 0 and 1 by arithmetic. They stay
@@ -219,16 +219,20 @@ rather than runway/gate saturation — a terminal doesn't fix it, and separating
 a weather join this dataset doesn't have. The agent prompt raises this whenever a northern
 airport ranks high on congestion.
 
-### Current figures
+### Figures after this stage, and today
+
+This stage ended at 356 covered / 163 scored on twelve months of congestion data. Stage 17
+doubled the span to a trailing 24-month window and fixed two reads that had been silently
+truncating, which is where the current figures come from:
 
 ```
-356 airports covered · 163 scored · 9 regional comparison sets
-193 unscored
-  189  below the 300 departures/month sample floor (annual average)
+361 airports covered · 162 scored · 9 regional comparison sets
+199 unscored
+  195  below the 300 departures/month sample floor (window average)
     2  no FAA TAF forecast for this facility
     2  only 2 scoreable airports in US Territories
 ```
 
-Both regression invariants survived the change, which is the check that mattered most:
-**SFO still ranks first in the Pacific** (0.8863, against 30 peers and a full year), and
-**BOS still floors at exactly 0 Unmet Demand.**
+Both regression invariants survived every one of those changes, which is the check that
+mattered most: **SFO still ranks first in the Pacific** (0.8868, against 30 peers and two
+full years), and **BOS still floors at exactly 0 Unmet Demand.**

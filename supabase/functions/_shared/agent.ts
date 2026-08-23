@@ -52,7 +52,7 @@ function congestionCoverage(): Promise<string> {
     .then((rows: unknown) => describeCongestionCoverage(rows as CoverageRow[]))
     .catch(() => {
       coverageMemo = null; // a failed lookup must not be cached for the isolate's life
-      return 'about a year of congestion data';
+      return 'two years of congestion data';
     }));
   return pending;
 }

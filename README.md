@@ -128,10 +128,12 @@ which also covers why Supabase Cron cannot run this pipeline.
 
 ## Scope
 
-358 covered airports, 163 scored across 9 regional comparison sets, thirteen months of
-congestion data (June 2025 – June 2026) as of 2026-08-22, no capacity dataset in existence
-anywhere public. The counts grow as the refresh cron ingests new BTS months; the app and
-the agent read the current period from the database rather than asserting a fixed one. Scores are relative to an airport's
+361 covered airports, 162 scored across 9 regional comparison sets, twenty-four months of
+congestion data (July 2024 – June 2026) as of 2026-08-23, no capacity dataset in existence
+anywhere public. Scoring uses a trailing 24-month window — two full annual cycles, so every
+season is counted exactly twice; as the refresh cron ingests a new BTS month the oldest one
+leaves the window. The app and the agent read the current period from the database rather
+than asserting a fixed one. Scores are relative to an airport's
 own region and are not comparable across regions, and the scoring weights are a stated
 heuristic rather than an industry standard. These limits are surfaced
 in the UI and volunteered by the agent — see
