@@ -6,8 +6,9 @@ computes.**
 
 361 airports covered · 162 scored · 9 regional sets · 24 months of congestion data
 
-> **If you read one thing:** §03 scoring methodology, §04 where AI is used, §05 key
-> tradeoffs — the three the brief asks for, about four minutes. Everything else here is
+> **If you read one thing:** [§03 scoring methodology](#03-scoring-methodology),
+> [§04 where AI is used](#04-where-and-how-ai-is-used),
+> [§05 key tradeoffs](#05-key-tradeoffs) — the three the brief asks for, about four minutes. Everything else here is
 > depth, not a prerequisite, and `docs/` is a stage-by-stage build log rather than required
 > reading.
 
