@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { labelStyle, t, tierFor, toneFor } from '../../lib/theme';
 import { num, type AirportDataResponse, type ScoreRow, type WeightRow } from '../../api/types';
 
@@ -327,6 +327,7 @@ export function PanelBody({
   compact,
   selected,
   onSelect,
+  focusRegion,
 }: {
   data: AirportDataResponse | null;
   loading: boolean;
@@ -334,12 +335,26 @@ export function PanelBody({
   compact: boolean;
   selected: string | null;
   onSelect: (code: string | null) => void;
+  /** The region the agent's last answer was about; null when unknown or ambiguous. */
+  focusRegion: string | null;
 }) {
   const [showCaveats, setShowCaveats] = useState(!compact);
   // Scoring is regional, so the ranking list must be too — a single national list would
   // invite exactly the cross-region comparison the model does not support. New England is
-  // the default because it is the region the first example question asks about.
+  // the starting region because it is the one the first example question asks about; after
+  // that the panel follows whichever region the agent just looked up, so the deterministic
+  // ranking is always the peer group the prose is discussing. The dropdown still works and
+  // holds until the next answer arrives.
   const [region, setRegion] = useState('New England');
+  useEffect(() => {
+    if (!focusRegion || focusRegion === region) return;
+    setRegion(focusRegion);
+    // The open detail card belongs to the previous region.
+    onSelect(null);
+    // `region` is deliberately not a dependency: this must run when the agent's focus
+    // changes, not when the reader picks a region from the dropdown.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusRegion]);
 
   const allScores = data?.scores ?? [];
   const regions = [...new Set(allScores.map((s) => s.comparison_set_id).filter(Boolean))].sort() as string[];

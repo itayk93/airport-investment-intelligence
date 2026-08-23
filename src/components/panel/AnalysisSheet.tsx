@@ -14,10 +14,12 @@ export function AnalysisSheet({
   data,
   loading,
   error,
+  focusRegion,
 }: {
   data: AirportDataResponse | null;
   loading: boolean;
   error: string | null;
+  focusRegion: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -124,7 +126,8 @@ export function AnalysisSheet({
             loading={loading}
             error={error}
             compact
-            selected={selected}
+            focusRegion={focusRegion}
+        selected={selected}
             onSelect={selectAirport}
           />
         </div>

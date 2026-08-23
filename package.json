@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "npm run test:node && npm run test:edge",
     "test:node": "node --test tests/*.test.mjs",
-    "test:edge": "deno test supabase/functions/agent-chat/*.test.ts supabase/functions/_shared/*.test.ts",
+    "test:edge": "deno test supabase/functions/agent-chat/*.test.ts supabase/functions/_shared/*.test.ts src/lib/*.test.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "ingest": "node scripts/ingest.mjs",

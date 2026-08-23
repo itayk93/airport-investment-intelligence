@@ -8,10 +8,12 @@ export function AnalysisPanel({
   data,
   loading,
   error,
+  focusRegion,
 }: {
   data: AirportDataResponse | null;
   loading: boolean;
   error: string | null;
+  focusRegion: string | null;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
   const scroller = useRef<HTMLElement>(null);
@@ -63,7 +65,8 @@ export function AnalysisPanel({
           loading={loading}
           error={error}
           compact={false}
-          selected={selected}
+          focusRegion={focusRegion}
+        selected={selected}
           onSelect={selectAirport}
         />
       </div>

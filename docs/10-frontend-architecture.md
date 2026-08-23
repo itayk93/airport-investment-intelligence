@@ -134,3 +134,26 @@ deployed edge functions.
 - No streaming — answers appear all at once after the round-trip.
 - Rank rows are click-to-drill only; the mock's side-by-side compare view is not built —
   the agent handles comparison in prose instead.
+
+## The panel follows the conversation
+
+The ranking list is regional, and until now the region came from a dropdown that defaulted
+to New England. Ask about LAX and SNA and the prose discussed the Pacific while the
+deterministic table beside it still ranked New England — which does not just look
+unsynchronised, it hides the strongest property of the two-pane design: the same numbers
+arriving by two independent paths, one through the model and one straight from the
+database.
+
+`src/lib/focusRegion.ts` derives the region from the agent's own tool trace — the airport
+codes it requested, or the region/state filter it passed to `list_airports` — mapped through
+the scores the panel already holds. `App` recomputes it whenever a new answer lands and
+passes it down; `PanelBody` switches to it and clears any open detail card. The dropdown
+still works and its choice stands until the next answer arrives.
+
+Two cases are deliberately not "pick something": a comparison spanning two regions selects
+the one the question is mostly about, and an even split leaves the panel where it is rather
+than guessing. Unknown codes change nothing. Covered by `src/lib/focusRegion.test.ts`.
+
+WhatsApp is the same argument from the other side. There is no panel and no dropdown there,
+so the region has to be inferred from the question or not exist at all — which is why the
+agent always names the comparison set in its prose.

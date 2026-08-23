@@ -8,6 +8,7 @@ import { AnalysisSheet } from './components/panel/AnalysisSheet';
 import { useAirportData } from './hooks/useAirportData';
 import { useChat } from './hooks/useChat';
 import { useIsMobile } from './hooks/useMediaQuery';
+import { focusRegionFrom } from './lib/focusRegion';
 import { t } from './lib/theme';
 
 const DEFAULT_PANEL_WIDTH = 496;
@@ -37,11 +38,19 @@ function formatPeriod(period: number): string {
 
 export function App() {
   const { data, loading, error } = useAirportData();
-  const { messages, pending, ask, reset } = useChat();
+  const { messages, pending, lastTrace, ask, reset } = useChat();
   const isMobile = useIsMobile();
   const [showHome, setShowHome] = useState(true);
   const [panelWidth, setPanelWidth] = useState(savedPanelWidth);
   const desktopLayout = useRef<HTMLDivElement>(null);
+
+  // The panel follows the conversation: whichever regional set the agent's last tool calls
+  // were about becomes the ranking on screen, so the prose and the deterministic table are
+  // never describing different peer groups.
+  const focusRegion = useMemo(
+    () => focusRegionFrom(lastTrace, data?.scores ?? []),
+    [lastTrace, data],
+  );
 
   const resizePanel = (requestedWidth: number) => {
     const layoutWidth = desktopLayout.current?.getBoundingClientRect().width ?? window.innerWidth;
@@ -131,7 +140,7 @@ export function App() {
           compact
           footer={
             <>
-              <AnalysisSheet data={data} loading={loading} error={error} />
+              <AnalysisSheet data={data} loading={loading} error={error} focusRegion={focusRegion} />
               <Composer
                 onSend={ask}
                 disabled={pending}
@@ -200,7 +209,7 @@ export function App() {
             }
           }}
         />
-        <AnalysisPanel data={data} loading={loading} error={error} />
+        <AnalysisPanel data={data} loading={loading} error={error} focusRegion={focusRegion} />
       </div>
     </div>
   );

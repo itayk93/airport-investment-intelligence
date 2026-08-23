@@ -16,5 +16,8 @@
     "noEmit": true,
     "types": ["vite/client"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  // The Deno test runner owns *.test.ts (npm run test:edge). Excluding them keeps `Deno`
+  // out of the browser build's type-check without adding Deno types to the app itself.
+  "exclude": ["src/**/*.test.ts"]
 }
