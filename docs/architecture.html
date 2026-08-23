@@ -132,7 +132,7 @@
 
 <nav aria-label="Contents">
   <a href="#system">System shape</a>
-  <a href="#questions">The four questions</a>
+  <a href="#questions">The example questions</a>
   <a href="#scoring">Scoring methodology</a>
   <a href="#ai">Where AI is used</a>
   <a href="#tradeoffs">Key tradeoffs</a>
@@ -160,8 +160,10 @@
 </section>
 
 <section id="questions">
-  <h2><span class="n">02</span>The four questions, answered</h2>
-  <p>All four run end to end in the live app, with conversational follow-up. Figures below were read from the deployed API on 2026-08-22.</p>
+  <h2><span class="n">02</span>The brief's example questions, answered</h2>
+  <p>The brief asks for an agent that can answer questions <strong>such as</strong> these four — they are examples of the shape of question, not a specification. Nothing in the system is specialised for them: there is no per-question branch, no hardcoded airport list, and no template. They are shown here because they are the questions the reader already has in mind, and each runs end to end in the live app with conversational follow-up.</p>
+  <p>Questions the build never anticipated are the more interesting evidence, and are recorded in <code>docs/13-generic-airport-data-tool.md</code> — cancellation rates for a named month, quarterly passenger totals, a forecast for a single year, and a question about gate counts that the agent correctly refuses because no such data exists.</p>
+  <p>Figures below were read from the deployed API on 2026-08-23.</p>
   <div class="scroll">
     <table>
       <thead><tr><th>Question</th><th>How the system answers it</th></tr></thead>
@@ -338,7 +340,7 @@ UnmetDemand    = norm(UnmetDemandRaw)</pre>
 </main>
 
 <footer>
-  Figures read from the deployed API on 2026-08-22. Coverage moves as the scheduled refresh ingests new BTS months; the app derives the current numbers from the database rather than quoting a constant. Full detail in <code>ARCHITECTURE.md</code> and the stage-by-stage build log in <code>docs/</code>.
+  Figures read from the deployed API on 2026-08-23. Coverage moves as the scheduled refresh ingests new BTS months; the app derives the current numbers from the database rather than quoting a constant. Full detail in <code>ARCHITECTURE.md</code> and the stage-by-stage build log in <code>docs/</code>.
 </footer>
 
 </div>

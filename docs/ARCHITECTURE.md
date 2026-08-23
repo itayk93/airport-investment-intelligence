@@ -31,10 +31,20 @@ query, so they cannot show different definitions for the same score.
 
 ---
 
-## 02. The four questions, answered
+## 02. The brief's example questions, answered
 
-All four run end to end in the live app, with conversational follow-up. Figures below were
-read from the deployed API on 2026-08-22.
+The brief asks for an agent that can answer questions **such as** these four — they are
+examples of the shape of question, not a specification. Nothing in the system is specialised
+for them: there is no per-question branch, no hardcoded airport list, and no template. They
+are shown here because they are the questions the reader already has in mind, and each runs
+end to end in the live app with conversational follow-up.
+
+Questions the build never anticipated are the more interesting evidence, and are recorded in
+[`docs/13-generic-airport-data-tool.md`](13-generic-airport-data-tool.md) — cancellation
+rates for a named month, quarterly passenger totals, a forecast for a single year, and a
+question about gate counts that the agent correctly refuses because no such data exists.
+
+Figures below were read from the deployed API on 2026-08-23.
 
 | Question | How the system answers it |
 |---|---|
@@ -298,6 +308,6 @@ BTS data and re-scores when it arrives.
 
 ---
 
-Figures read from the deployed API on 2026-08-22. Coverage moves as the scheduled refresh
+Figures read from the deployed API on 2026-08-23. Coverage moves as the scheduled refresh
 ingests new BTS months; the app derives the current numbers from the database rather than
 quoting a constant. Formatted page: [docs/architecture.html](architecture.html).
