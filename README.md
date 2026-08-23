@@ -11,6 +11,10 @@ revenue inputs are outside the dataset.
 is used. Start there. The same document as a formatted page:
 **[docs/architecture.html](docs/architecture.html)**.
 
+**→ [docs/16-robustness-checks.md](docs/16-robustness-checks.md)** — does the ranking
+actually depend on the hand-chosen weights, and is northern congestion just de-icing? Both
+measured (`npm run sensitivity`, `npm run seasonality`), not left as caveats.
+
 **→ [docs/11-review-remediation.md](docs/11-review-remediation.md)** — review findings,
 fixes, corrected scores, and verification record.
 

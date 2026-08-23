@@ -54,7 +54,10 @@ uncongested airport is headroom, not unmet demand. Full derivation in `docs/14`.
 **Caveat:** winter taxi-out includes de-icing queues, not just runway/gate saturation, which
 partly explains why BTV and BGR top New England's congestion ranking. That's real delay and
 cost, but a terminal doesn't fix weather. The agent is instructed to raise this whenever a
-northern airport ranks high on congestion.
+northern airport ranks high on congestion. **Measured since:** rebuilding every ranking from
+non-winter months only changes the top-ranked airport in 0 of 9 regions — BTV still leads
+New England without December through March. De-icing inflates the congestion figure; it is
+not what produces the ranking. See `docs/16-robustness-checks.md`.
 
 ### Eligibility
 
@@ -170,6 +173,12 @@ Unmet Demand is weighted highest since it already encodes both growth and curren
 the other two terms are included un-gated so a high-growth-but-not-yet-strained airport
 (early expansion opportunity) and a currently-strained-regardless-of-forecast airport
 (urgent bottleneck) both surface, not just airports that are already both.
+
+Note the consequence: because `UnmetDemandScore` is itself `growth gap x capacity pressure`,
+capacity pressure and forecast growth each enter this composite twice. The weights above are
+nominal, not effective. `docs/16-robustness-checks.md` bounds how much that overlap can move
+a ranking, and reports the full weight-sensitivity run — mean Spearman ρ ≥ 0.94 against the
+shipped model under any reweighting that keeps all three components.
 
 ## What stays explicitly out of scope
 

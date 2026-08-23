@@ -12,7 +12,9 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "ingest": "node scripts/ingest.mjs",
-    "score": "node scripts/score.mjs"
+    "score": "node scripts/score.mjs",
+    "sensitivity": "node scripts/sensitivity.mjs",
+    "seasonality": "node scripts/seasonality.mjs"
   },
   "dependencies": {
     "qrcode.react": "^4.2.0",
