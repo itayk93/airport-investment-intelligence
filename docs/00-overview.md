@@ -43,6 +43,11 @@ scheduled to stay current (proposed, not yet automated).
 Stages 5–7 are documented in `09-agent-architecture.md`, `10-frontend-architecture.md`,
 and the WhatsApp sections of `ARCHITECTURE.md` and `12-public-deployment-hardening.md`.
 
+8. **Robustness checks** — the assumptions the earlier stages declared and left standing,
+   measured: do the hand-chosen weights decide the ranking, is northern congestion just
+   de-icing, and does measuring historical growth across COVID distort the growth gap?
+   Two came back clean, one did not. → [`16-robustness-checks.md`](16-robustness-checks.md)
+
 ## Why this order
 
 Schema-first (without proof the data exists) risks building tables around fields that

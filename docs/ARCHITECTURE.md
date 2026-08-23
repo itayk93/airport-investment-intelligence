@@ -137,6 +137,13 @@ the entire argument for the gating.
 > criteria rather than one weighted score. The response was not to hide this behind one
 > opaque number: the component breakdown is always shown beside the score, and the UI
 > carries the standing caveats.
+>
+> **And the ranking was tested against them.** Rebuilding every region under eight alternate
+> weightings (`npm run sensitivity`) keeps mean Spearman ρ ≥ 0.94 against the shipped model
+> whenever all three components carry weight, and BTV (New England) and SFO (Pacific) hold
+> first place in every non-degenerate variant. Collapsing the composite to a single term does
+> reorder everything — which is the argument *for* the composite, since the three terms are
+> then demonstrably measuring different things. Full results and method: **docs/16**.
 
 ---
 
@@ -194,8 +201,8 @@ earlier version; Boston, the only airport it did see, places third.
 documented that as a limitation. Backfilling reversed the headline result — New England's
 top candidate changed from MHT to BTV, and MHT fell to the bottom. One month cannot separate
 a congested airport from an airport having a bad month. It also exposed a weakness the
-single month had hidden, now the model's most important caveat: **winter taxi-out includes
-de-icing**.
+single month had hidden: **winter taxi-out includes de-icing**. That one has since been
+measured rather than left standing — see the robustness checks below.
 
 **Regional comparison sets, not one national ranking.** Min-max normalisation is relative by
 construction, so a national set would let the busiest and quietest US airports define the
@@ -239,8 +246,11 @@ BTS data and re-scores when it arrives.
 - **Winter taxi-out includes de-icing, and the model cannot separate it.** BTV averages over
   30 minutes of taxi-out in December and under 18 in summer, which lifts northern airports
   for a reason that is weather rather than saturation — and a terminal does not fix weather.
-  This is the most important caveat on the current numbers, and the agent raises it whenever
-  a northern airport ranks high.
+  The agent raises it whenever a northern airport ranks high. **Measured, not just declared:**
+  rebuilding every ranking from non-winter months alone changes the top-ranked airport in
+  0 of 9 regions — BTV still leads New England without December through March
+  (`npm run seasonality`, docs/16). De-icing inflates the congestion figure; it is not what
+  produces the ranking.
 - **Congestion data is US-domestic only** (BTS reporting carriers). International departures
   at SFO and LAX are absent from the delay figures.
 - **13 months of congestion data** (June 2025 – June 2026). More than a full annual cycle,
@@ -248,6 +258,14 @@ BTS data and re-scores when it arrives.
 - **The 2,000-mile long-haul threshold is our definition**, not a BTS or FAA standard.
   Growth-gap spans differ in length (10y actual vs 11y forecast) because T-100 only reaches
   back to 2014.
+- **The growth gap depends on where the historical trend is measured from, and COVID sits
+  inside that span.** Measuring the historical CAGR over 2016–2019 instead of 2014–2024
+  changes the top-ranked airport in 6 of 9 regions and puts MHT above BTV in New England
+  (`npm run cagr-spans`, docs/16). This is a **larger lever on the ranking than any scoring
+  weight**. The shipped span is defended on the grounds that the FAA forecast is anchored on
+  an FY2024 base year, and the recovery-only span 2019–2024 — the other one that shares the
+  forecast's era — reproduces the shipped ranking exactly. That is a reason to prefer it, not
+  proof it is right.
 
 ---
 
@@ -262,7 +280,8 @@ BTS data and re-scores when it arrives.
 - ✓ **Explain its reasoning** — the analysis panel shows every score's components, the model
   weights and the standing assumptions, from the same query the agent uses.
 - ✓ **Conversational follow-up** — the agent receives full history and resolves references
-  to earlier turns.
+  to earlier turns. The web chat sends its own history; WhatsApp, where Twilio delivers each
+  message alone, keeps a short server-side memory keyed by a salted hash of the sender.
 - ✓ **Chat interface** — two-pane web app: conversation on one side, deterministic analysis
   on the other.
 - ✓ **Voice (bonus)** — browser speech recognition in the web app, and voice notes over a

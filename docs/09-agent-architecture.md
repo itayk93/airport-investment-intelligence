@@ -128,12 +128,38 @@ Unseen-question checks after the generic-tool refactor:
 - **ANC terminal gates** → tool-based discovery followed by an honest refusal; no value
   invented.
 
+## Scope classification before the model
+
+An out-of-scope request is rejected in code, before any paid call. The vocabulary that
+decides "is this an airport question" used to be a hand-written keyword list that still
+carried the five pilot airport codes from the original build — so "How congested is MHT?",
+about an airport that is covered, scored and ranked, matched nothing and was answered as if
+it were off topic.
+
+The airport half of that vocabulary is now built from the `airports` table
+(`getScopeVocabulary`) and memoized for the isolate's lifetime, like the coverage sentence.
+Codes are matched case-insensitively **except** those that are also ordinary English words —
+AND (Anderson SC), ONE, SEA, NEW — which count only in capitals; matching those in lower
+case would let virtually any sentence through the gate. Two-letter state abbreviations are
+excluded for the same reason. If the lookup fails, the guard falls back to the static
+aviation terms, which is the behaviour it had before.
+
+The deliverable block ("write a python script for MHT") is applied first and is not
+overridden by the vocabulary.
+
 ## Known limitations
 
 - Single model call chain per turn; no streaming yet (the UI will need it for perceived
   latency).
-- WhatsApp turns are stateless. Cross-channel or durable history would require explicit
-  identity linking, retention, consent, and deletion policy.
+- WhatsApp keeps a short conversation memory so follow-up questions work there as they do
+  in the web chat: the last 20 turns per sender, keyed by the salted SHA-256 of the sender's
+  number and expiring after two hours, read and written through `SECURITY DEFINER` functions
+  (`recent_whatsapp_turns`, `record_whatsapp_turn`) so `agent_reader` keeps SELECT-only
+  grants. This is a demo retention window, not a policy. Cross-channel or durable history
+  would still require explicit identity linking, consent, and a deletion path. A memory
+  lookup failure degrades follow-ups without failing the question.
+- Voice notes are transcribed and the **transcript** enters that same two-hour memory; the
+  audio itself is still never stored.
 - Twilio Sandbox onboarding can expire and international delivery is not guaranteed; an
   approved sender is required before calling the channel production-ready.
 - `comparison_set_id` is the airport's US Census region (stage 14). Scores are therefore

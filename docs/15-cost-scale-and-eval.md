@@ -98,7 +98,15 @@ What exists today is **runtime enforcement, not regression evaluation**:
 - Tools are typed and allowlisted; the DB role is SELECT-only.
 - The score disclosure is appended in code when the tool trace shows score data was used.
 - Unit tests cover the deterministic layers: scoring math, input validation, scope
-  guard, data catalog (`tests/`, `*.test.ts`).
+  guard (including the airport vocabulary built from the database), data catalog
+  (`tests/`, `*.test.ts`).
+
+What also exists, since stage 16, is **model-level regression evidence** — not of the
+agent's answers, but of the numbers underneath them. `npm run sensitivity`,
+`npm run seasonality` and `npm run cagr-spans` rebuild every regional ranking under
+alternate weightings, without winter months, and over three historical spans, and report how
+far the ranking moves (`docs/16-robustness-checks.md`). These are checks on the deterministic
+layer, which is the layer where a silent change would be hardest to notice.
 
 What does **not** exist: an automated evaluation suite over the agent's *answers*.
 Verification of answer quality was manual — the four brief questions plus follow-ups,

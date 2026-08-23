@@ -119,7 +119,15 @@ a real user turn receive `400`; client-supplied system and tool roles remain exc
 - Twilio's authenticated redirect to its media store is followed only after that initial
   allowlist check. The response is streamed into a bounded 10 MB buffer.
 - Audio is sent server-to-server to `gpt-5-mini-transcribe`, then discarded. It is never
-  returned to the browser or written to the database.
+  returned to the browser or written to the database. The resulting **transcript** is
+  treated like any other inbound message: it enters the two-hour conversation memory
+  described below, because follow-up questions need it.
+- Conversation memory (`public.whatsapp_turns`) is keyed by the salted SHA-256 of the
+  sender's WhatsApp number, never the number itself, so the table cannot be used to
+  attribute a question to a person. Rows are capped at 20 per conversation, read back only
+  within a two-hour window, and deleted after 24 hours by a `pg_cron` job. RLS is enabled
+  and all grants are revoked; the edge function reaches the table only through two validated
+  `SECURITY DEFINER` functions, so `agent_reader` gains no write privilege on any table.
 - Long agent replies are split on natural text boundaries into TwiML messages below 1,400
   characters, leaving margin under Twilio's general 1,600-character body limit.
 
@@ -164,6 +172,10 @@ Applied migrations:
 `supabase/migrations/20260822000000_public_endpoint_hardening.sql`
 
 `supabase/migrations/20260822000100_schedule_rate_limit_cleanup.sql`
+
+`supabase/migrations/20260822000200_least_privilege_constraints_and_indexes.sql`
+
+`supabase/migrations/20260823000000_whatsapp_conversation_memory.sql`
 
 Configured Supabase secrets:
 

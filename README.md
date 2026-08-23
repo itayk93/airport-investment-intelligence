@@ -71,14 +71,16 @@ the sender's number (never the number itself), expiring after two hours.
 The Sandbox is a demo, not a production WhatsApp sender. Twilio may expire the
 session and does not guarantee international delivery. The webhook verifies
 `X-Twilio-Signature`, rate-limits a one-way hash of the sender, and keeps the Auth Token in
-Supabase secrets. WhatsApp turns are stateless in this one-day prototype; conversational
-follow-ups remain fully supported in the web chat.
+Supabase secrets. Conversation memory is deliberately minimal: the last 20 turns per
+sender, expiring after two hours, written through `SECURITY DEFINER` functions so the
+agent's database role keeps its SELECT-only grants. A production channel would need explicit
+consent and a stated retention policy rather than a window the developer picked.
 
 ## Layout
 
 ```
 .github/workflows/       scheduled daily + annual data refresh
-docs/                    stage-by-stage build log, 00–15
+docs/                    stage-by-stage build log, 00–16
   ARCHITECTURE.md        the design document (read this first)
   DATA_PLAN.md           endpoint-level map of the three data sources
 src/                     Vite + React + TypeScript UI
