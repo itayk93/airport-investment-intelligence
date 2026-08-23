@@ -45,7 +45,7 @@ export function Composer({
       : voice.listening
         ? 'listening — speak now'
         : compact
-          ? 'tap the mic to speak'
+          ? ''
           : 'enter to send · shift+enter for newline';
 
   const canSend = !disabled && value.trim().length > 0;
@@ -194,6 +194,7 @@ export function Composer({
         </button>
       </div>
 
+      {(micHint || !compact) && (
       <div
         style={{
           display: 'flex',
@@ -207,6 +208,7 @@ export function Composer({
         <span>{micHint}</span>
         {!compact && <span style={{ color: t.ink42 }}>scores from code · prose from model</span>}
       </div>
+      )}
     </div>
   );
 }

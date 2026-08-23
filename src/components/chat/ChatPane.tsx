@@ -146,12 +146,25 @@ export function ChatPane({
 }) {
   const scroller = useRef<HTMLDivElement>(null);
 
+  const lastUserId = [...messages].reverse().find((m) => m.role === 'user')?.id;
+
   useEffect(() => {
     // Keep the welcome screen at its natural top. Auto-scroll only after conversation starts.
     if (messages.length === 0 && !pending) return;
     const el = scroller.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, pending]);
+    if (!el) return;
+    // Pin the latest question to the top of the viewport so the answer reads from its
+    // beginning; long answers would otherwise land the reader at their tail end.
+    const anchor = lastUserId
+      ? el.querySelector<HTMLElement>(`[data-mid="${lastUserId}"]`)
+      : null;
+    if (anchor) {
+      el.scrollTop +=
+        anchor.getBoundingClientRect().top - el.getBoundingClientRect().top;
+    } else {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [messages, pending, lastUserId]);
 
   return (
     <section
@@ -186,7 +199,7 @@ export function ChatPane({
         )}
 
         {messages.map((m) => (
-          <div key={m.id} className={compact ? 'rise' : undefined}>
+          <div key={m.id} data-mid={m.id} className={compact ? 'rise' : undefined}>
             {m.role === 'user' ? (
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <div
